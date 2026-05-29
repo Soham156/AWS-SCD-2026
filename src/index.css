@@ -16,9 +16,27 @@
   --color-metallic: #1a1a1a;
   --color-hud-white: #e0e0e0;
 }
+/* Scale down all rem-based sizes on laptop screens (1024px to 1535px) */
+@media (min-width: 1024px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Return to standard scale on large desktop monitors (1536px+) */
+@media (min-width: 1536px) {
+  html {
+    font-size: 16px;
+  }
+}
 
 body {
-  @apply bg-[#050505] text-[#e0e0e0] font-sans antialiased overflow-x-hidden;
+  background-color: #050505;
+  color: #e0e0e0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 body::before {

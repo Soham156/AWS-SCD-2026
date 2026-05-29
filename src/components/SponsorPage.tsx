@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, ArrowLeft, Send, Building2, User, Mail, MessageSquare, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -13,6 +13,11 @@ const sponsorTiers = [
 ];
 
 export const SponsorPage = () => {
+  // Scroll to top when this page is loaded
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [formData, setFormData] = useState({
     company: '',
     contact: '',
@@ -51,7 +56,7 @@ export const SponsorPage = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative py-20 sm:py-28 px-6 sm:px-12 lg:px-24 overflow-hidden">
+      <section className="relative py-16 sm:py-20 px-6 sm:px-12 lg:px-24 overflow-hidden">
         {/* Decorative gradient orbs */}
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-aws-orange/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-f1-red/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -65,10 +70,10 @@ export const SponsorPage = () => {
             <div className="font-mono text-[10px] text-aws-orange uppercase tracking-[0.3em] mb-6">
               05.PRTN / Sponsorship
             </div>
-            <h1 className="font-sans text-4xl sm:text-5xl lg:text-7xl font-black italic tracking-tighter uppercase text-white leading-none mb-6">
+            <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase text-white leading-none mb-6">
               Constructors<br />& Partners
             </h1>
-            <p className="text-base sm:text-lg text-white/50 font-medium max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-white/50 font-medium max-w-2xl mx-auto leading-relaxed">
               Partner with one of the region's largest student-led technology events focused on AI, Cloud, AWS, DevOps, Innovation, and Developer Communities.
             </p>
           </motion.div>
@@ -76,7 +81,7 @@ export const SponsorPage = () => {
       </section>
 
       {/* Sponsorship Tiers */}
-      <section className="py-16 px-6 sm:px-12 lg:px-24">
+      <section className="py-12 sm:py-16 px-6 sm:px-12 lg:px-24">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -100,7 +105,7 @@ export const SponsorPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className={`p-6 border flex flex-col relative overflow-hidden group transition-all duration-500 min-h-[260px] hover:translate-y-[-2px] ${
+                className={`p-6 border flex flex-col relative overflow-hidden group transition-all duration-500 min-h-[220px] hover:translate-y-[-2px] ${
                   tier.highlight
                     ? 'bg-gradient-to-br from-aws-orange/10 to-[#050505] border-aws-orange/50 shadow-lg shadow-aws-orange/5'
                     : 'bg-[#111] border-white/5 hover:border-white/20'
@@ -136,7 +141,7 @@ export const SponsorPage = () => {
       </section>
 
       {/* Sponsor Application Form */}
-      <section className="py-16 sm:py-24 px-6 sm:px-12 lg:px-24 border-t border-white/5">
+      <section className="py-12 sm:py-20 px-6 sm:px-12 lg:px-24 border-t border-white/5">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

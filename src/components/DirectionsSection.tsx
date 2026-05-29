@@ -62,7 +62,7 @@ export const DirectionsSection = () => {
             <div>
               <h3 className="font-sans font-black italic text-lg uppercase text-white mb-2 tracking-tighter">By Train</h3>
               <p className="font-sans text-sm text-white/60 leading-relaxed">
-                The nearest major railway station is <strong>Dhule Railway Station (DHI)</strong> (approx. 8km away) or <strong>Chalisgaon Junction (CSN)</strong> (approx. 60km away). Taxis and auto-rickshaws are readily available from the station to the campus.
+                The nearest major railway station is <strong>Dhule Railway Station (DHI)</strong> (approx. 3km away) or <strong>Chalisgaon Junction (CSN)</strong> (approx. 60km away). Taxis and auto-rickshaws are readily available from the station to the campus.
               </p>
             </div>
           </motion.div>
