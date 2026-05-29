@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Preloader } from './components/Preloader';
@@ -64,6 +64,13 @@ function HomePage() {
 }
 
 export default function App() {
+  // Disable right-click context menu site-wide
+  useEffect(() => {
+    const prevent = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener('contextmenu', prevent);
+    return () => document.removeEventListener('contextmenu', prevent);
+  }, []);
+
   return (
   <>
     <Routes>

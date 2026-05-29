@@ -21,7 +21,7 @@ export const DirectionsSection = () => {
           <div className="absolute inset-0 bg-aws-orange/5 blur-xl group-hover:bg-aws-orange/10 transition-colors pointer-events-none"></div>
           
           <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d82932.46130826404!2d74.78733245937245!3d20.900511471230125!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bdec60f78cc96db%3A0x6ae5738a6d39c455!2sSVKM&#39;s%20Institute%20of%20Technology!5e1!3m2!1sen!2sin!4v1779992038307!5m2!1sen!2sin"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d778.9748565349158!2d74.76861642464331!3d20.870206706633578!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bdec60f78cc96db%3A0x6ae5738a6d39c455!2sSVKM&#39;s%20Institute%20of%20Technology!5e1!3m2!1sen!2sin!4v1780047179109!5m2!1sen!2sin"
             className="w-full h-full min-h-[300px] sm:min-h-[400px] grayscale contrast-125 opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 relative z-10"
             style={{ border: 0 }} 
             allowFullScreen 

@@ -1,47 +1,73 @@
 /**
  * touchHover.ts
  *
- * Makes CSS :hover-equivalent work on touch screens by toggling
- * a `.touch-hover` class on the nearest interactive ancestor when
- * the user touches it.
+ * Bridges the gap between mouse hover and touch/keyboard on mobile/tablet.
  *
- * CSS in index.css then targets `.touch-hover` alongside `:hover`
- * so every hover effect works identically on touch devices.
+ * Strategy:
+ * - Adds `.touch-hover` to `.group` ancestor + the touched element itself on touchstart
+ * - Removes it after a short delay on touchend (so transitions can complete)
+ * - Also pauses / resumes GSAP marquee on tap via a custom event
+ * - Only runs on devices with no native hover (touch screens)
  */
 
-const INTERACTIVE = 'a, button, [role="button"], [role="tab"], [role="menuitem"], .gallery-tile, [data-hover]';
+let lastGroup: Element | null = null;
+let removeTimer: ReturnType<typeof setTimeout> | null = null;
 
-let lastTouched: Element | null = null;
-
-function getInteractiveAncestor(el: Element | null): Element | null {
-  while (el) {
-    if (el.matches(INTERACTIVE)) return el;
+/** Walk up and find nearest .group ancestor (or self) */
+function nearestGroup(el: Element | null): Element | null {
+  while (el && el !== document.documentElement) {
+    if (
+      el.classList.contains('group') ||
+      el.classList.contains('gallery-tile') ||
+      el.classList.contains('marquee-logo')
+    ) return el;
     el = el.parentElement;
   }
   return null;
 }
 
 function clearLast() {
-  lastTouched?.classList.remove('touch-hover');
-  lastTouched = null;
+  if (removeTimer) clearTimeout(removeTimer);
+  if (lastGroup) {
+    lastGroup.classList.remove('touch-hover');
+    lastGroup = null;
+  }
 }
 
 export function initTouchHover() {
-  // Only needed on touch devices
+  // Only activate on real touch devices (no native hover)
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
   document.addEventListener('touchstart', (e) => {
+    const target = e.target as Element;
+
+    // Clear previous group immediately so tap-switching feels responsive
     clearLast();
-    const target = getInteractiveAncestor(e.target as Element);
-    if (target) {
-      target.classList.add('touch-hover');
-      lastTouched = target;
+
+    const group = nearestGroup(target);
+    if (group) {
+      group.classList.add('touch-hover');
+      lastGroup = group;
+    }
+
+    // Marquee: fire a pause event when a logo is tapped
+    if (target.closest('.marquee-logo') || target.classList.contains('marquee-logo')) {
+      window.dispatchEvent(new CustomEvent('marquee-tap', { detail: { pause: true } }));
     }
   }, { passive: true });
 
-  // Remove after a short delay so transitions can complete
-  document.addEventListener('touchend', () => {
-    setTimeout(clearLast, 600);
+  document.addEventListener('touchend', (e) => {
+    const target = e.target as Element;
+
+    // Resume marquee after logo tap
+    if (target.closest('.marquee-logo') || target.classList.contains('marquee-logo')) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('marquee-tap', { detail: { pause: false } }));
+      }, 800);
+    }
+
+    // Keep .touch-hover alive for 500ms so CSS transitions finish
+    removeTimer = setTimeout(clearLast, 500);
   }, { passive: true });
 
   document.addEventListener('touchcancel', clearLast, { passive: true });
