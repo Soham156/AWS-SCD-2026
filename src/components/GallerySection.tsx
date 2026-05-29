@@ -1,53 +1,159 @@
 import { motion } from 'motion/react';
+import { useMemo, useState } from 'react';
+import { galleryFiles } from 'virtual:event-gallery';
 import { SectionHeader } from './LayoutElements';
 
-const galleryImages = [
-  "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1591115765373-5207764f72e7?auto=format&fit=crop&q=80&w=800",
-  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=800",
-];
+/* ─── helpers ─────────────────────────────────────────────────── */
+
+const VIDEO_EXT = /\.(mp4|mov|webm|ogg)$/i;
+
+/** Fisher-Yates shuffle – returns a new array */
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ─── component ───────────────────────────────────────────────── */
 
 export const GallerySection = () => {
+  /**
+   * activeIdx: tracks which tile is "tapped" on mobile.
+   * On desktop, CSS hover handles the overlay via @media(hover:hover).
+   * On touch screens, we toggle activeIdx on tap since :hover is unreliable.
+   */
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  const items = useMemo(() => {
+    const videos = galleryFiles.filter((f) => VIDEO_EXT.test(f));
+    const images = shuffle(galleryFiles.filter((f) => !VIDEO_EXT.test(f)));
+    return [...videos, ...images];
+  }, []);
+
   return (
     <section className="relative py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
-      <SectionHeader title="Past Highlights" subtitle="Glimpses from our previous community events, workshops, and cloud conferences." sysId="07.GLY" />
-      
-      {/* Masonry-style Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-12 relative z-10">
-        {galleryImages.map((src, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
-            className={`relative group overflow-hidden border border-white/5 ${
-              i === 0 || i === 3 ? "md:col-span-2 md:row-span-2" : ""
-            }`}
-          >
-            <div className="aspect-[4/3] w-full h-full">
-              <img 
-                src={src} 
-                alt={`Event highlight ${i + 1}`} 
-                className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                loading="lazy"
-              />
-            </div>
-            
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-            
-            {/* View Label */}
-            <div className="absolute bottom-4 left-4 font-mono text-[10px] uppercase tracking-widest text-white/0 group-hover:text-white/70 transition-colors duration-300 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-aws-orange"></span>
-              Event Archive
-            </div>
-          </motion.div>
-        ))}
+      <SectionHeader
+        title="Event Gallery"
+        subtitle="Real moments from our community events, workshops, and cloud conferences."
+        sysId="07.GLY"
+      />
+
+      {/*
+        Pinterest-style masonry via CSS columns.
+        `column-width` drives how many columns fit — browser auto-adjusts count.
+      */}
+      <div
+        className="mt-12 relative z-10"
+        style={{ columnCount: 'auto', columnWidth: '200px', columnGap: '10px' }}
+      >
+        {items.map((src, i) => {
+          const isVideo = VIDEO_EXT.test(src);
+          const isActive = activeIdx === i;
+
+          return (
+            <motion.div
+              key={src}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06, duration: 0.45 }}
+              className="relative mb-[10px] overflow-hidden rounded-xl border border-white/10 bg-zinc-900 break-inside-avoid gallery-tile"
+              /**
+               * Touch tap toggles the active state (mobile workaround for :hover).
+               * Click also toggles so desktop users can pin the overlay too.
+               */
+              onTouchEnd={(e) => {
+                e.preventDefault(); // prevent ghost click
+                setActiveIdx(isActive ? null : i);
+              }}
+              onClick={() => setActiveIdx(isActive ? null : i)}
+            >
+              {isVideo ? (
+                /* ── Video tile ── */
+                <div className="relative w-full">
+                  <video
+                    src={src}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-auto object-cover"
+                  />
+                  <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse" />
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-white/80">
+                      Live Recap
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                /* ── Image tile ── */
+                <div className="relative w-full overflow-hidden">
+                  <img
+                    src={src}
+                    alt={`Event photo ${i + 1}`}
+                    loading="lazy"
+                    className={`w-full h-auto block object-cover transition-all duration-500 ${
+                      isActive ? 'scale-105 brightness-110' : ''
+                    }`}
+                    /**
+                     * data-active drives the CSS @media(hover:hover) rule below
+                     * without needing JS on desktop.
+                     */
+                    data-active={isActive ? 'true' : undefined}
+                  />
+
+                  {/* Gradient overlay */}
+                  <div
+                    className={`gallery-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none transition-opacity duration-300 ${
+                      isActive ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+
+                  {/* Label */}
+                  <div
+                    className={`gallery-label absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-widest flex items-center gap-1.5 transition-all duration-300 ${
+                      isActive ? 'text-white/80' : 'text-transparent'
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
+                    Event Archive
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
+
+      {galleryFiles.length === 0 && (
+        <p className="text-center text-white/30 font-mono text-sm mt-16">
+          No media found in <code>/event-galary/</code>
+        </p>
+      )}
+
+      {/*
+        Desktop hover styles using @media(hover:hover) — only applies to
+        devices with a real pointing device (mouse/trackpad).
+        Touch screens (hover:none) rely purely on the isActive JS state above.
+      */}
+      <style>{`
+        @media (hover: hover) and (pointer: fine) {
+          .gallery-tile:hover img {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+          }
+          .gallery-tile:hover .gallery-overlay {
+            opacity: 1;
+          }
+          .gallery-tile:hover .gallery-label {
+            color: rgba(255,255,255,0.8);
+          }
+        }
+      `}</style>
     </section>
-  )
-}
+  );
+};

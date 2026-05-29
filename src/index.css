@@ -36,3 +36,43 @@ body::before {
 ::-webkit-scrollbar-track { background: var(--color-carbon); border-left: 1px solid rgba(255,255,255,0.05); }
 ::-webkit-scrollbar-thumb { background: var(--color-f1-red); }
 
+/* Hide native cursor on real pointer devices — CustomCursor replaces it */
+@media (hover: hover) and (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
+/*
+ * Touch hover — mirrors all :hover effects for touch / mobile screens.
+ * The .touch-hover class is injected by src/touchHover.ts on touchstart.
+ * We only apply these on non-hover devices to avoid doubling effects.
+ */
+@media (hover: none) {
+  /* Buttons & links — orange → white */
+  a.touch-hover,
+  button.touch-hover {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  /* Gallery tiles — scale + brightness on tap */
+  .gallery-tile.touch-hover img {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+  .gallery-tile.touch-hover .gallery-overlay {
+    opacity: 1 !important;
+  }
+  .gallery-tile.touch-hover .gallery-label {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  /* Generic interactive elements */
+  [role="button"].touch-hover,
+  [role="tab"].touch-hover {
+    opacity: 0.8;
+  }
+}
+
+

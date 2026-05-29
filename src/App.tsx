@@ -19,6 +19,7 @@ import { DirectionsSection } from './components/DirectionsSection';
 import { FooterSection } from './components/FooterSection';
 import { SponsorPage } from './components/SponsorPage';
 import { BackToTop } from './components/BackToTop';
+import { CustomCursor } from './components/CustomCursor';
 
 function HomePage() {
   const [loading, setLoading] = useState(true);
@@ -70,6 +71,7 @@ export default function App() {
       <Route path="/sponsors" element={<SponsorPage />} />
     </Routes>
     <BackToTop />
+    <CustomCursor />
   </>
   );
 }

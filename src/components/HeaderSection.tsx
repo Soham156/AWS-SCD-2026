@@ -7,11 +7,10 @@ export const HeaderSection = () => {
 
   return (
     <>
-      <header className="h-16 sm:h-20 lg:h-24 flex items-center justify-between px-4 sm:px-12 lg:px-24 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md z-50 fixed top-0 left-0 right-0">
+      <header className="h-12 sm:h-20 lg:h-24 flex items-center justify-between px-4 sm:px-12 lg:px-24 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md z-50 fixed top-0 left-0 right-0">
         <div className="flex items-center gap-2 sm:gap-4">
           <img src="/AWS_Builder.png" alt="AWS Builder Group" className="h-10 sm:h-12 lg:h-16 object-contain" />
         </div>
-
         {/* Desktop nav items */}
         <div className="hidden md:flex gap-6 lg:gap-8 items-center">
           <img src="/F1-Logo.png" alt="F1 Logo" className="h-8 lg:h-10 opacity-80" />
