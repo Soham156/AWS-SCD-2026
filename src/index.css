@@ -218,8 +218,8 @@ textarea:focus-visible,
 
   /* ─── FAQSection — accordion items ─── */
   /* The FAQ uses JS state (openIndex) for open/close, :active covers the rest */
-  button.bg-\[#0a0a0a\]:active,
-  button.bg-\[#0a0a0a\]:focus-visible {
+  button.bg-\[\#0a0a0a\]:active,
+  button.bg-\[\#0a0a0a\]:focus-visible {
     background-color: #111 !important;
     border-color: rgba(255, 255, 255, 0.2) !important;
   }
