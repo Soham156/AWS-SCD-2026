@@ -57,7 +57,8 @@ export const HeroSection = () => {
           playsInline
           className="w-full h-full object-cover opacity-40 mix-blend-screen mix-blend-lighten"
         >
-          <source src="/background.mp4" type="video/mp4" />
+          {/* <source src="/background.mp4" type="video/mp4" /> */}
+          <source src="https://djpwifwpmyqkzsvteyid.supabase.co/storage/v1/object/public/hero/background.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent"></div>
         <div className="absolute -right-20 -top-20 w-40 sm:w-80 h-40 sm:h-80 bg-aws-orange/10 blur-[100px]" />
