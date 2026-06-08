@@ -1,23 +1,19 @@
 import { useState } from 'react';
 
-const ADMIN_PASSWORD = 'idkbutily';
-
 export function useAdminAuth() {
   const [authed, setAuthed] = useState(
-    sessionStorage.getItem('scd_admin') === 'true'
+    !!sessionStorage.getItem('scd_admin_key')
   );
 
   const login = (pw: string) => {
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem('scd_admin', 'true');
-      setAuthed(true);
-      return true;
-    }
-    return false;
+    // We just save it. The actual validation happens when they make an API request
+    sessionStorage.setItem('scd_admin_key', pw);
+    setAuthed(true);
+    return true;
   };
 
   const logout = () => {
-    sessionStorage.removeItem('scd_admin');
+    sessionStorage.removeItem('scd_admin_key');
     setAuthed(false);
   };
 

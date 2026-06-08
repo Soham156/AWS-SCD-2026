@@ -117,14 +117,14 @@ router.get('/export-csv', async (_req, res, next) => {
   try {
     const { data, error } = await supabase
       .from('registrations')
-      .select('ticket_number, pass_slug, full_name, email, role, organization, payment_status, checked_in, checked_in_at, created_at')
+      .select('ticket_number, pass_slug, full_name, email, phone, role, organization, payment_status, checked_in, checked_in_at, created_at')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    const headers = 'ticket_number,pass_type,full_name,email,role,organization,payment_status,checked_in,checked_in_at,created_at';
+    const headers = 'ticket_number,pass_type,full_name,email,phone,role,organization,payment_status,checked_in,checked_in_at,created_at';
     const rows = (data || []).map((r) =>
-      [r.ticket_number, r.pass_slug, r.full_name, r.email, r.role, r.organization, r.payment_status, r.checked_in, r.checked_in_at || '', r.created_at]
+      [r.ticket_number, r.pass_slug, r.full_name, r.email, r.phone || '', r.role, r.organization, r.payment_status, r.checked_in, r.checked_in_at || '', r.created_at]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(',')
     );

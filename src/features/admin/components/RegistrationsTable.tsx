@@ -104,7 +104,7 @@ export function RegistrationsTable() {
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-[#111] border-b border-white/10">
-              {['Ticket', 'Pass', 'Name', 'Email', 'Role', 'Org', 'Payment', 'Checked In', 'Date', 'Actions'].map(h => (
+              {['Ticket', 'Pass', 'Name', 'Email', 'Phone', 'Role', 'Org', 'Payment', 'Checked In', 'Date', 'Actions'].map(h => (
                 <th key={h} className="text-left py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px] whitespace-nowrap">
                   {h}
                 </th>
@@ -138,6 +138,7 @@ export function RegistrationsTable() {
                   </td>
                   <td className="py-2 px-3 font-sans text-white">{r.full_name}</td>
                   <td className="py-2 px-3 font-mono text-white/50">{r.email}</td>
+                  <td className="py-2 px-3 font-mono text-white/50">{r.phone || '-'}</td>
                   <td className="py-2 px-3 font-mono text-white/30 uppercase text-[10px]">{r.role}</td>
                   <td className="py-2 px-3 font-mono text-white/30 text-[10px]">{r.organization}</td>
                   <td className="py-2 px-3">

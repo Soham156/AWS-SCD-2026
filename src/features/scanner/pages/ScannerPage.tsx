@@ -13,7 +13,7 @@ export function ScannerPage() {
   // Fetch stats
   const fetchStats = useCallback(() => {
     api.get('/api/admin/stats', {
-      headers: { 'X-Admin-Key': 'idkbutily' },
+      headers: { 'X-Admin-Key': sessionStorage.getItem('scd_admin_key') || '' },
     }).then((res) => {
       setStats({
         checked_in: res.data.total_checked_in,
