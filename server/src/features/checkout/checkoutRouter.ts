@@ -65,7 +65,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
           customer_id: registration.id.slice(0, 50), // Cashfree limit is 50 chars
           customer_name: registration.full_name,
           customer_email: registration.email,
-          customer_phone: '9999999999', // placeholder
+          customer_phone: registration.phone || '9999999999', // fallback to 9999999999 just in case
         },
         order_meta: {
           return_url: `${frontendUrl}/ticket/${registration.id}?order_id={order_id}`,

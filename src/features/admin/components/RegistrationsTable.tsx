@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronLeft, ChevronRight, RefreshCw, Loader2 } from 'lucide-react';
 import { adminApi } from '../services/adminApi';
+import { api } from '../../../lib/api';
 
 export function RegistrationsTable() {
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -14,6 +15,7 @@ export function RegistrationsTable() {
     checked_in: '',
   });
   const [refunding, setRefunding] = useState<string | null>(null);
+  const [passTypes, setPassTypes] = useState<{slug: string; name: string}[]>([]);
   const limit = 50;
 
   const fetchData = useCallback(() => {
@@ -27,7 +29,12 @@ export function RegistrationsTable() {
       .catch(() => setLoading(false));
   }, [filters, page]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { 
+    fetchData(); 
+    api.get('/api/passes').then(res => {
+      if (Array.isArray(res.data)) setPassTypes(res.data);
+    }).catch(console.error);
+  }, [fetchData]);
 
   const handleRefund = async (registrationId: string) => {
     if (!confirm('Are you sure you want to refund this registration?')) return;
@@ -63,9 +70,9 @@ export function RegistrationsTable() {
           className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
         >
           <option value="">All Passes</option>
-          <option value="general">General</option>
-          <option value="workshop">Workshop</option>
-          <option value="vip">VIP</option>
+          {passTypes.map(pt => (
+            <option key={pt.slug} value={pt.slug}>{pt.name}</option>
+          ))}
         </select>
         <select
           value={filters.payment_status}

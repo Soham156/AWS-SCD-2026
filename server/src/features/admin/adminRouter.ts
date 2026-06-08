@@ -26,13 +26,26 @@ router.get('/stats', async (_req, res, next) => {
       checkedInMap[r.pass_type_id] = (checkedInMap[r.pass_type_id] || 0) + 1;
     });
 
+    // Get true revenue from paid payments
+    const { data: paymentsData } = await supabase
+      .from('payments')
+      .select('amount, registrations!inner(pass_type_id)')
+      .eq('status', 'paid');
+
+    const revenueMap: Record<string, number> = {};
+    (paymentsData || []).forEach((p) => {
+      const pId = (p.registrations as any).pass_type_id;
+      revenueMap[pId] = (revenueMap[pId] || 0) + Number(p.amount || 0);
+    });
+
     let total_sold = 0;
     let total_revenue = 0;
     let total_checked_in = 0;
 
     const by_pass_type = (passTypes || []).map((pt) => {
       const checked_in = checkedInMap[pt.id] || 0;
-      const revenue = pt.sold * Number(pt.price);
+      const revenue = revenueMap[pt.id] || 0;
+      
       total_sold += pt.sold;
       total_revenue += revenue;
       total_checked_in += checked_in;

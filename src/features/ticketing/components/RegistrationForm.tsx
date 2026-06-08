@@ -7,6 +7,7 @@ import type { PassType } from '../hooks/usePassTypes';
 const formSchema = z.object({
   full_name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email'),
+  phone: z.string().regex(/^[0-9]{10}$/, 'Must be a valid 10-digit number'),
   role: z.enum(['student', 'professional'], { message: 'Please select a role' }),
   organization: z.string().min(2, 'Organization is required'),
 });
@@ -25,6 +26,7 @@ export function RegistrationForm({ selectedPass, loading, error, onSubmit, onBac
   const [form, setForm] = useState<FormData>({
     full_name: '',
     email: '',
+    phone: '',
     role: 'student',
     organization: '',
   });
@@ -116,6 +118,24 @@ export function RegistrationForm({ selectedPass, loading, error, onSubmit, onBac
           />
           {fieldErrors.email && (
             <p className="text-f1-red text-[10px] font-mono mt-1">{fieldErrors.email}</p>
+          )}
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="block font-mono text-[10px] uppercase tracking-widest text-white/40 mb-1.5">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            value={form.phone}
+            onChange={(e) => updateField('phone', e.target.value)}
+            className="w-full bg-[#0a0a0a] border border-white/10 px-4 py-2.5 text-sm text-white font-sans placeholder:text-white/20 focus:border-aws-orange focus:outline-none transition-colors"
+            placeholder="9876543210"
+            maxLength={10}
+          />
+          {fieldErrors.phone && (
+            <p className="text-f1-red text-[10px] font-mono mt-1">{fieldErrors.phone}</p>
           )}
         </div>
 

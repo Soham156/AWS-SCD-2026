@@ -7,6 +7,7 @@ const router = Router();
 const registerSchema = z.object({
   full_name: z.string().min(1, 'Full name is required'),
   email: z.string().email('Invalid email address'),
+  phone: z.string().regex(/^[0-9]{10}$/, 'Must be a valid 10-digit number'),
   role: z.enum(['student', 'professional'], { message: 'Role must be student or professional' }),
   organization: z.string().min(1, 'Organization is required'),
   pass_type_id: z.string().uuid('Invalid pass type'),
@@ -20,7 +21,7 @@ router.post('/register', async (req, res, next) => {
       res.status(400).json({ error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
       return;
     }
-    const { full_name, email, role, organization, pass_type_id } = parsed.data;
+    const { full_name, email, phone, role, organization, pass_type_id } = parsed.data;
 
     // Check existing registration by email
     const { data: existing } = await supabase
@@ -58,6 +59,7 @@ router.post('/register', async (req, res, next) => {
           .from('registrations')
           .update({
             full_name,
+            phone,
             role,
             organization,
             pass_type_id,
@@ -97,6 +99,7 @@ router.post('/register', async (req, res, next) => {
         pass_slug: passType.slug,
         full_name,
         email,
+        phone,
         role,
         organization,
         payment_status: 'PENDING',

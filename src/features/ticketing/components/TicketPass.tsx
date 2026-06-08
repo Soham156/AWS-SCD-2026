@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import { Download } from 'lucide-react';
 
@@ -22,6 +22,7 @@ export function TicketPass({ ticket_number, full_name, pass_name, role, organiza
       const canvas = await html2canvas(passRef.current, {
         backgroundColor: '#050505',
         scale: 2,
+        useCORS: true,
       });
       const link = document.createElement('a');
       link.download = `${ticket_number}.png`;
@@ -81,7 +82,7 @@ export function TicketPass({ ticket_number, full_name, pass_name, role, organiza
           {/* QR Code */}
           <div className="flex justify-center mb-5 p-4 bg-white">
             {qr_token ? (
-              <QRCodeSVG value={qr_token} size={200} level="H" />
+              <QRCodeCanvas value={qr_token} size={200} level="H" />
             ) : (
               <div className="w-[200px] h-[200px] flex items-center justify-center bg-gray-100 border border-gray-300">
                 <p className="font-mono text-xs text-gray-400 text-center uppercase tracking-widest px-4">
