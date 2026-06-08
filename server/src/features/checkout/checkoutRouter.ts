@@ -41,7 +41,10 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const shortId = registration.id.split('-')[0];
     const orderId = `SCD-${shortId}-${Date.now()}`;
 
-    const frontendUrl = process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app';
+    let frontendUrl = process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app';
+    if (!frontendUrl.startsWith('http')) {
+      frontendUrl = `https://${frontendUrl}`;
+    }
     const isSandbox = process.env.CASHFREE_APP_ID?.startsWith('TEST');
     const cashfreeBaseUrl = isSandbox ? 'https://sandbox.cashfree.com/pg' : 'https://api.cashfree.com/pg';
 

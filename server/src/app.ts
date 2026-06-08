@@ -13,7 +13,12 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3001');
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req: any, _res, buf) => {
+    // Store raw body for Cashfree webhook signature verification
+    req.rawBody = buf.toString();
+  }
+}));
 
 // Mount feature routers
 app.use('/api/passes', passesRouter);

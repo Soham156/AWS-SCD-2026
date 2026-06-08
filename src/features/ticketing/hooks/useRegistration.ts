@@ -139,10 +139,18 @@ export function useRegistration() {
 
       // Do not unset loading here as Cashfree modal is open
     } catch (err: any) {
+      const errData = err.response?.data;
+      console.error('[Checkout Error Details]:', errData);
+      
+      let errorMsg = errData?.error || 'Payment initiation failed';
+      if (errData?.message) {
+        errorMsg += `: ${errData.message}`;
+      }
+      
       setState((s) => ({
         ...s,
         loading: false,
-        error: err.response?.data?.error || 'Payment initiation failed',
+        error: errorMsg,
       }));
     }
   }, [state.ticketResult, state.selectedPass]);

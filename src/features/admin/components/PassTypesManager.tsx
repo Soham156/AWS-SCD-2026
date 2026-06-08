@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Pencil, Save, X, Plus, Loader2 } from 'lucide-react';
 import { adminApi } from '../services/adminApi';
+import { api } from '../../../lib/api';
 
 interface PassType {
   id: string;
@@ -30,16 +31,14 @@ export function PassTypesManager() {
   });
 
   const fetchPasses = () => {
-    adminApi.getStats().then((res) => {
-      // Fetch full pass data including inactive ones
-      // Use stats endpoint which has all pass types
-      const pts = res.data.by_pass_type || [];
-      // We need the full data, let's use the passes endpoint with admin key
-      return fetch('/api/passes').then(r => r.json());
-    }).then((data) => {
-      setPassTypes(data);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    api.get('/api/passes')
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setPassTypes(res.data);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   };
 
   useEffect(() => { fetchPasses(); }, []);

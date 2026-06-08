@@ -13,13 +13,16 @@ function generateTicketNumber(): string {
 // POST /api/webhooks/cashfree
 router.post('/cashfree', async (req, res, next) => {
   try {
-    // Verify webhook signature
+    // Verify webhook signature using raw body (per Cashfree official docs)
     const signature = req.headers['x-webhook-signature'] as string;
     const timestamp = req.headers['x-webhook-timestamp'] as string;
+    const rawBody = (req as any).rawBody as string;
 
-    if (signature && process.env.CASHFREE_WEBHOOK_SECRET) {
-      const rawBody = JSON.stringify(req.body);
-      const expectedSig = createHmac('sha256', process.env.CASHFREE_WEBHOOK_SECRET)
+    // Per Cashfree docs: use your Client Secret (CASHFREE_SECRET_KEY) for HMAC
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+
+    if (signature && secretKey && rawBody) {
+      const expectedSig = createHmac('sha256', secretKey)
         .update(timestamp + rawBody)
         .digest('base64');
 
@@ -28,6 +31,9 @@ router.post('/cashfree', async (req, res, next) => {
         res.status(401).json({ error: 'Invalid signature' });
         return;
       }
+      console.log('[Webhook] Signature verified successfully');
+    } else {
+      console.warn('[Webhook] Skipping signature verification (missing signature/secret/rawBody)');
     }
 
     const { data: eventData } = req.body;
