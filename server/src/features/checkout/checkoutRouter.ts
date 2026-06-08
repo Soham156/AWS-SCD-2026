@@ -41,27 +41,31 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const shortId = registration.id.split('-')[0];
     const orderId = `SCD-${shortId}-${Date.now()}`;
 
+    const frontendUrl = process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app';
+    const isSandbox = process.env.CASHFREE_APP_ID?.startsWith('TEST');
+    const cashfreeBaseUrl = isSandbox ? 'https://sandbox.cashfree.com/pg' : 'https://api.cashfree.com/pg';
+
     // Create Cashfree order via API
-    const cashfreeRes = await fetch('https://api.cashfree.com/pg/orders', {
+    const cashfreeRes = await fetch(`${cashfreeBaseUrl}/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-version': '2023-08-01',
-        'x-client-id': process.env.CASHFREE_APP_ID!,
-        'x-client-secret': process.env.CASHFREE_SECRET_KEY!,
+        'x-client-id': process.env.CASHFREE_APP_ID || '',
+        'x-client-secret': process.env.CASHFREE_SECRET_KEY || '',
       },
       body: JSON.stringify({
         order_id: orderId,
         order_amount: Number(passType.price),
         order_currency: 'INR',
         customer_details: {
-          customer_id: registration.id,
+          customer_id: registration.id.slice(0, 50), // Cashfree limit is 50 chars
           customer_name: registration.full_name,
           customer_email: registration.email,
-          customer_phone: '9999999999', // placeholder — phone not collected
+          customer_phone: '9999999999', // placeholder
         },
         order_meta: {
-          return_url: `${process.env.FRONTEND_URL}/ticket/${registration.id}?order_id={order_id}`,
+          return_url: `${frontendUrl}/ticket/${registration.id}?order_id={order_id}`,
         },
       }),
     });
@@ -70,7 +74,12 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
 
     if (!cashfreeRes.ok) {
       console.error('[Cashfree Error]', cashfreeData);
-      res.status(502).json({ error: 'Payment gateway error' });
+      // Return the exact Cashfree error so we can debug it in the browser
+      res.status(502).json({ 
+        error: 'Payment gateway error', 
+        details: cashfreeData,
+        message: cashfreeData?.message || 'Unknown Cashfree Error'
+      });
       return;
     }
 
