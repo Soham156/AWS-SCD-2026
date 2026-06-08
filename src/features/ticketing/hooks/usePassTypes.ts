@@ -24,7 +24,11 @@ export function usePassTypes() {
   useEffect(() => {
     api.get('/api/passes')
       .then((res) => {
-        setPasses(res.data);
+        if (Array.isArray(res.data)) {
+          setPasses(res.data);
+        } else {
+          setError('Invalid response from server');
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -37,7 +41,11 @@ export function usePassTypes() {
     setLoading(true);
     api.get('/api/passes')
       .then((res) => {
-        setPasses(res.data);
+        if (Array.isArray(res.data)) {
+          setPasses(res.data);
+        } else {
+          setError('Invalid response from server');
+        }
         setLoading(false);
       })
       .catch((err) => {
