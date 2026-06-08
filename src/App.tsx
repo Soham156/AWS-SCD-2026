@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
+import { TicketPage } from './features/ticketing/pages/TicketPage';
+import { TicketsPurchasePage } from './features/ticketing/pages/TicketsPurchasePage';
+import { ScannerPage } from './features/scanner/pages/ScannerPage';
+import { AdminPage } from './features/admin/pages/AdminPage';
 import { Preloader } from './components/Preloader';
 import { HeaderSection } from './components/HeaderSection';
 import { HeroSection } from './components/HeroSection';
@@ -77,6 +81,10 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/sponsors" element={<SponsorPage />} />
+      <Route path="/ticket" element={<TicketsPurchasePage />} />
+      <Route path="/ticket/:id" element={<TicketPage />} />
+      <Route path="/scanner" element={<ScannerPage />} />
+      <Route path="/admin" element={<AdminPage />} />
     </Routes>
     <BackToTop />
     <SoundButton />
