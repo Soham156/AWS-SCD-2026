@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { Download } from 'lucide-react';
 
 interface Props {
@@ -19,14 +19,13 @@ export function TicketPass({ ticket_number, full_name, pass_name, role, organiza
   const handleDownload = useCallback(async () => {
     if (!passRef.current) return;
     try {
-      const canvas = await html2canvas(passRef.current, {
+      const dataUrl = await toPng(passRef.current, {
         backgroundColor: '#050505',
-        scale: 2,
-        useCORS: true,
+        pixelRatio: 2,
       });
       const link = document.createElement('a');
       link.download = `${ticket_number}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
     } catch (err) {
       console.error('Download failed:', err);
