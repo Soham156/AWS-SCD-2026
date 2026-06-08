@@ -6,6 +6,7 @@ import type { PassType } from './usePassTypes';
 interface FormData {
   full_name: string;
   email: string;
+  phone: string;
   role: 'student' | 'professional';
   organization: string;
 }
@@ -28,6 +29,7 @@ interface RegistrationState {
 const initialFormData: FormData = {
   full_name: '',
   email: '',
+  phone: '',
   role: 'student',
   organization: '',
 };
