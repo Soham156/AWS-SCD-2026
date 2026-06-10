@@ -31,7 +31,7 @@ export function PassTypesManager() {
   });
 
   const fetchPasses = () => {
-    api.get('/api/passes')
+    api.get('/api/admin/passes')
       .then((res) => {
         if (Array.isArray(res.data)) {
           setPassTypes(res.data);

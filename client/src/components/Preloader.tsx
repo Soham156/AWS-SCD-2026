@@ -199,12 +199,14 @@ export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string
       </motion.p>
 
       {/* Skip Intro Button */}
-      <button 
-        onClick={skipIntro}
-        className="absolute bottom-6 right-6 md:bottom-8 md:right-8 text-[9px] md:text-[10px] uppercase font-mono text-white/30 hover:text-white transition-colors tracking-widest z-50 border-b border-white/0 hover:border-white/30 pb-0.5"
-      >
-        Skip Intro
-      </button>
+      {!started && (
+        <button 
+          onClick={skipIntro}
+          className="absolute bottom-8 right-8 md:bottom-12 md:right-12 text-xs md:text-sm uppercase font-mono text-white/50 hover:text-white transition-colors tracking-widest z-50 border-b border-white/20 hover:border-white/80 pb-1"
+        >
+          Skip Intro
+        </button>
+      )}
     </motion.div>
   );
 };

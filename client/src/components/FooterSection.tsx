@@ -10,8 +10,8 @@ export const FooterSection = () => {
          <div className="flex flex-col max-w-sm">
            <div className="text-white font-sans font-black italic text-2xl sm:text-4xl mb-2 uppercase tracking-tighter">AWS SCD<br/>DHULE 2026.</div>
            <div className="text-white/60 text-xs sm:text-sm font-sans mb-6 sm:mb-8">Powering the next generation of cloud innovators. See You At The Starting Grid.</div>
-           <a href="mailto:sohamchaudhari165@gmail.com" className="inline-flex max-w-max items-center font-mono text-[10px] sm:text-xs text-aws-orange hover:text-white transition-colors mb-2 uppercase tracking-widest gap-2 break-all">
-             <Mail size={14} className="shrink-0" /> sohamchaudhari165@gmail.com
+           <a href="mailto:info@aws-scd-dhule.tech" className="inline-flex max-w-max items-center font-mono text-[10px] sm:text-xs text-aws-orange hover:text-white transition-colors mb-2 uppercase tracking-widest gap-2 break-all">
+             <Mail size={14} className="shrink-0" /> info@aws-scd-dhule.tech
            </a>
          </div>
 

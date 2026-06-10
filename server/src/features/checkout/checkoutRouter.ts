@@ -48,7 +48,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const isSandbox = process.env.CASHFREE_APP_ID?.startsWith('TEST');
     const cashfreeBaseUrl = isSandbox ? 'https://sandbox.cashfree.com/pg' : 'https://api.cashfree.com/pg';
 
-    const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    const expiryTime = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
     const formattedExpiry = expiryTime.toISOString().split('.')[0] + 'Z';
 
     // Create Cashfree order via API

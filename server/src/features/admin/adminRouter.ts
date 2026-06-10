@@ -66,6 +66,27 @@ router.get('/stats', async (_req, res, next) => {
   }
 });
 
+// GET /api/admin/passes
+router.get('/passes', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('pass_types')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) throw error;
+
+    const passes = (data || []).map((p) => ({
+      ...p,
+      available: p.capacity - p.sold,
+    }));
+
+    res.json(passes);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/admin/registrations
 router.get('/registrations', async (req, res, next) => {
   try {

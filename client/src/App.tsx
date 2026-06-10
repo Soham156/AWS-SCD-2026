@@ -44,8 +44,8 @@ function HomePage() {
             <HeroSection />
             <LogoMarquee />
             <GridSection />
-            <SpeakersSection />
             <TimelineSection />
+            <SpeakersSection />
             <ActivitiesSection />
             <DriversSection />
             <TicketsSection />

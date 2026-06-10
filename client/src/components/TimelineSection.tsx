@@ -15,6 +15,7 @@ const schedule = [
   { time: "15:15 - 16:00", type: "Green Flag", title: "Industry Panel Discussion", detail: "Insights from tech leaders and cloud professionals.", isPit: false, flag: "green" },
   { time: "16:00 - 16:45", type: "Green Flag", title: "Student Project Exhibition & High-Tea", detail: "Showcase of innovative student-built cloud projects.", isPit: false, flag: "green" },
   { time: "16:45 - 17:30", type: "Chequered Flag", title: "Closing Ceremony & Group Photo", detail: "Trophies, prizes, and grand finale.", isPit: false, flag: "gray" },
+  { time: "17:30 - 18:30", type: "Race End", title: "Final Pack-up & Decommissioning", detail: "Collection of digital feedback forms from students, packing up sponsor banners and table setups, saving media files, and handing back cleared college facilities.", isPit: false, flag: "red" },
 ];
 
 const getFlagColors = (flag: string) => {

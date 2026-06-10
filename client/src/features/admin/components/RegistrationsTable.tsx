@@ -31,7 +31,7 @@ export function RegistrationsTable() {
 
   useEffect(() => { 
     fetchData(); 
-    api.get('/api/passes').then(res => {
+    api.get('/api/admin/passes').then(res => {
       if (Array.isArray(res.data)) setPassTypes(res.data);
     }).catch(console.error);
   }, [fetchData]);
