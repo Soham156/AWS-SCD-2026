@@ -31,7 +31,7 @@ export function PassTypesManager() {
   });
 
   const fetchPasses = () => {
-    api.get('/api/admin/passes')
+    adminApi.getPasses()
       .then((res) => {
         if (Array.isArray(res.data)) {
           setPassTypes(res.data);
@@ -125,23 +125,60 @@ export function PassTypesManager() {
 
       {/* Create form */}
       {showCreate && (
-        <div className="border border-white/10 bg-[#111] p-4 mb-4">
-          <h4 className="font-mono text-xs text-white/60 mb-3 uppercase tracking-widest">New Pass Type</h4>
-          <div className="grid grid-cols-2 gap-3">
-            <input value={createData.name} onChange={e => setCreateData(d => ({...d, name: e.target.value}))} placeholder="Name" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none" />
-            <input value={createData.slug} onChange={e => setCreateData(d => ({...d, slug: e.target.value}))} placeholder="Slug (e.g. general)" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none" />
-            <input value={createData.description} onChange={e => setCreateData(d => ({...d, description: e.target.value}))} placeholder="Description" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono col-span-2 focus:border-aws-orange focus:outline-none" />
-            <input type="number" value={createData.price} onChange={e => setCreateData(d => ({...d, price: +e.target.value}))} placeholder="Price (₹)" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none" />
-            <input type="number" value={createData.capacity} onChange={e => setCreateData(d => ({...d, capacity: +e.target.value}))} placeholder="Capacity" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none" />
-            <input value={createData.perks} onChange={e => setCreateData(d => ({...d, perks: e.target.value}))} placeholder="Perks (comma separated)" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono col-span-2 focus:border-aws-orange focus:outline-none" />
-            <input type="color" value={createData.badge_color} onChange={e => setCreateData(d => ({...d, badge_color: e.target.value}))} className="bg-[#0a0a0a] border border-white/10 h-9 w-full" />
-            <input type="number" value={createData.sort_order} onChange={e => setCreateData(d => ({...d, sort_order: +e.target.value}))} placeholder="Sort Order" className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none" />
+        <div className="border border-white/10 bg-[#111] p-6 mb-8 rounded-lg shadow-2xl">
+          <h4 className="font-sans font-black italic text-xl text-white mb-6 uppercase tracking-tighter border-b border-white/10 pb-4">
+            Create New Pass Type
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Pass Name</label>
+              <input value={createData.name} onChange={e => setCreateData(d => ({...d, name: e.target.value}))} placeholder="e.g. VIP Paddock Pass" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Slug (URL safe, no spaces)</label>
+              <input value={createData.slug} onChange={e => setCreateData(d => ({...d, slug: e.target.value}))} placeholder="e.g. vip-paddock" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Description</label>
+              <input value={createData.description} onChange={e => setCreateData(d => ({...d, description: e.target.value}))} placeholder="Short description of what the pass includes..." className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Price (₹)</label>
+              <input type="number" value={createData.price} onChange={e => setCreateData(d => ({...d, price: +e.target.value}))} placeholder="0" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Total Capacity</label>
+              <input type="number" value={createData.capacity} onChange={e => setCreateData(d => ({...d, capacity: +e.target.value}))} placeholder="0" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Perks (Comma Separated)</label>
+              <textarea value={createData.perks} onChange={e => setCreateData(d => ({...d, perks: e.target.value}))} placeholder="e.g. Front row seating, Exclusive Swag, Lunch included" rows={3} className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded resize-none" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest block">Badge Color</label>
+              <div className="flex items-center gap-3 bg-[#050505] border border-white/10 px-3 py-1.5 rounded focus-within:border-aws-orange transition-colors">
+                <input type="color" value={createData.badge_color} onChange={e => setCreateData(d => ({...d, badge_color: e.target.value}))} className="bg-transparent border-0 w-8 h-8 cursor-pointer rounded" />
+                <span className="text-white/70 font-mono text-xs">{createData.badge_color}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Display Sort Order</label>
+              <input type="number" value={createData.sort_order} onChange={e => setCreateData(d => ({...d, sort_order: +e.target.value}))} placeholder="0" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
           </div>
-          <div className="flex gap-2 mt-3">
-            <button onClick={handleCreate} disabled={saving} className="px-4 py-2 bg-emerald-500 text-white text-[10px] font-mono uppercase tracking-widest font-bold hover:bg-emerald-400 disabled:opacity-50">
-              {saving ? 'Saving...' : 'Create'}
+
+          <div className="flex gap-3 mt-8 pt-6 border-t border-white/10">
+            <button onClick={handleCreate} disabled={saving} className="px-6 py-2.5 bg-emerald-500 text-white text-[11px] font-mono uppercase tracking-widest font-bold hover:bg-emerald-400 disabled:opacity-50 rounded transition-colors shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+              {saving ? 'Creating...' : 'Create Pass'}
             </button>
-            <button onClick={() => setShowCreate(false)} className="px-4 py-2 border border-white/10 text-white/40 text-[10px] font-mono uppercase tracking-widest hover:bg-white/5">
+            <button onClick={() => setShowCreate(false)} className="px-6 py-2.5 border border-white/10 text-white/60 text-[11px] font-mono uppercase tracking-widest hover:bg-white/5 hover:text-white rounded transition-colors">
               Cancel
             </button>
           </div>

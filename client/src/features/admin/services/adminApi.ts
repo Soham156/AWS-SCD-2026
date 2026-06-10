@@ -5,6 +5,7 @@ const getHeaders = () => ({
 });
 
 export const adminApi = {
+  getPasses: () => api.get('/api/admin/passes', { headers: getHeaders() }),
   getStats: () => api.get('/api/admin/stats', { headers: getHeaders() }),
 
   getRegistrations: (filters: {

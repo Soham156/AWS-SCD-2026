@@ -39,11 +39,13 @@ function eventGalleryPlugin(): Plugin {
     },
     // Re-run when files inside the gallery dir change (dev only)
     configureServer(server) {
-      fs.watch(GALLERY_DIR, () => {
-        const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
-        if (mod) server.moduleGraph.invalidateModule(mod);
-        server.ws.send({ type: 'full-reload' });
-      });
+      if (fs.existsSync(GALLERY_DIR)) {
+        fs.watch(GALLERY_DIR, () => {
+          const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
+          if (mod) server.moduleGraph.invalidateModule(mod);
+          server.ws.send({ type: 'full-reload' });
+        });
+      }
     },
   };
 }
