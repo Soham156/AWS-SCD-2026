@@ -1,0 +1,317 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,700;1,900&family=JetBrains+Mono:wght@400;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-aws-orange: #FF9900;
+  --color-aws-orange-dark: #cc7a00;
+  --color-f1-red: #E10600;
+  --color-f1-red-dark: #a80500;
+
+  --color-carbon: #050505;
+  --color-carbon-light: #111111;
+  --color-metallic: #1a1a1a;
+  --color-hud-white: #e0e0e0;
+}
+/* Scale down all rem-based sizes on laptop screens (1024px to 1535px) */
+@media (min-width: 1024px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Return to standard scale on large desktop monitors (1536px+) */
+@media (min-width: 1536px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  background-color: #050505;
+  color: #e0e0e0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  opacity: 0.1;
+  pointer-events: none;
+  background-image: radial-gradient(#ffffff 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+  z-index: -1;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-carbon); border-left: 1px solid rgba(255,255,255,0.05); }
+::-webkit-scrollbar-thumb { background: var(--color-f1-red); }
+
+/* ─── Custom Cursor: hide native on real pointer devices ─── */
+@media (hover: hover) and (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOCUS-VISIBLE — orange ring for keyboard navigation, all devices
+   ═══════════════════════════════════════════════════════════════════ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #FF9900;
+  outline-offset: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOUCH / MOBILE HOVER PARITY  (@media hover: none)
+   
+   Trigger-based only — effects fire on:
+     • .group.touch-hover   ← injected by touchHover.ts on touchstart
+     • .group:active        ← native CSS, fires on tap-and-hold
+     • :focus-within        ← fires when a child receives focus (keyboard)
+   
+   Desktop behavior (hover: hover) is unchanged.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (hover: none) {
+
+  /* ── Shared transition for all group children ── */
+  .group * { transition-duration: 0.25s; }
+
+  /* ══ Helper mixin via attribute — activates when group is touched/focused ══
+     We target the three triggers together to avoid repetition */
+
+  /* ─── SpeakersSection cards ─── */
+
+  /* Border reveal */
+  .group.touch-hover .border-white\/5,
+  .group:active .border-white\/5,
+  .group:focus-within .border-white\/5 {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* Background gradient (opacity-50 → opacity-100) */
+  .group.touch-hover .bg-gradient-to-b,
+  .group:active .bg-gradient-to-b,
+  .group:focus-within .bg-gradient-to-b {
+    opacity: 1 !important;
+  }
+
+  /* Rotating dashed border starts spinning */
+  .group.touch-hover .border-t-aws-orange\/50,
+  .group:active .border-t-aws-orange\/50,
+  .group:focus-within .border-t-aws-orange\/50 {
+    animation: spin 4s linear infinite;
+  }
+
+  /* Mystery icon brightens */
+  .group.touch-hover .text-white\/10,
+  .group:active .text-white\/10,
+  .group:focus-within .text-white\/10 {
+    color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* "To Be Announced" text reveals */
+  .group.touch-hover h3.text-white\/50,
+  .group:active h3.text-white\/50,
+  .group:focus-within h3.text-white\/50 {
+    color: rgba(255, 255, 255, 1) !important;
+  }
+
+  /* Scanning laser line */
+  .group.touch-hover .h-\[2px\].opacity-0,
+  .group:active .h-\[2px\].opacity-0,
+  .group:focus-within .h-\[2px\].opacity-0 {
+    opacity: 1 !important;
+    animation: scan 2s ease-in-out infinite;
+  }
+
+  /* ─── DriversSection — team photo cards ─── */
+
+  /* Lift dark overlay */
+  .group.touch-hover .group-hover\:\!opacity-0,
+  .group:active .group-hover\:\!opacity-0,
+  .group:focus-within .group-hover\:\!opacity-0 {
+    opacity: 0 !important;
+  }
+
+  /* Remove grayscale on active card */
+  .group.touch-hover .group-hover\:\!grayscale-0,
+  .group:active .group-hover\:\!grayscale-0,
+  .group:focus-within .group-hover\:\!grayscale-0 {
+    filter: grayscale(0) !important;
+  }
+
+  /* Orange border glow on card */
+  .group.touch-hover .group-hover\:border-aws-orange\/40,
+  .group:active .group-hover\:border-aws-orange\/40,
+  .group:focus-within .group-hover\:border-aws-orange\/40 {
+    border-color: rgba(255, 153, 0, 0.4) !important;
+  }
+
+  /* Navigation arrow buttons (:active is enough here) */
+  button[aria-label*="team member"]:active,
+  button[aria-label*="team member"]:focus-visible {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Social links — always accessible via focus */
+  a[href*="linkedin"]:focus-visible,
+  a[href*="linkedin"]:active { color: #0a66c2; border-color: #0a66c2; }
+  a[href*="github"]:focus-visible,
+  a[href*="github"]:active { color: white; border-color: white; }
+
+  /* Dot indicators */
+  button[aria-label*="Go to team member"]:active,
+  button[aria-label*="Go to team member"]:focus-visible {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* ─── TicketsSection — ticket card feature list ─── */
+  .group.touch-hover li,
+  .group:active li,
+  .group:focus-within li {
+    opacity: 0.8 !important;
+  }
+
+  /* Non-highlighted card border reveal */
+  .group.touch-hover .border-white\/5:not(li),
+  .group:active .border-white\/5:not(li),
+  .group:focus-within .border-white\/5:not(li) {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* ─── SponsorPage — tier card lift + perks ─── */
+  .group.touch-hover .group-hover\:opacity-80,
+  .group:active .group-hover\:opacity-80,
+  .group:focus-within .group-hover\:opacity-80 {
+    opacity: 0.8 !important;
+  }
+
+  .group.touch-hover,
+  .group:active {
+    transform: translateY(-2px);
+  }
+
+  /* ─── CircuitSection — floor plan SVG ─── */
+  .group.touch-hover svg,
+  .group:active svg,
+  .group:focus-within svg {
+    opacity: 0.7 !important;
+  }
+
+  /* Zone cards border reveal */
+  .group.touch-hover.hover\:border-\[#FF9900\]\/50,
+  .group:active.hover\:border-\[#FF9900\]\/50 {
+    border-color: rgba(255, 153, 0, 0.5) !important;
+  }
+
+  /* ─── FAQSection — accordion items ─── */
+  /* The FAQ uses JS state (openIndex) for open/close, :active covers the rest */
+  button.bg-\[\#0a0a0a\]:active,
+  button.bg-\[\#0a0a0a\]:focus-visible {
+    background-color: #111 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* Question text on active/focus */
+  .group:active span.text-white\/70,
+  .group.touch-hover span.text-white\/70 {
+    color: white !important;
+  }
+
+  /* Toggle icon bg on active/focus */
+  .group:active .bg-white\/5,
+  .group.touch-hover .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* ─── GallerySection ─── */
+  /* Handled by JS isActive state in GallerySection.tsx — CSS for :active fallback */
+  .gallery-tile:active img {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+  .gallery-tile:active .gallery-overlay {
+    opacity: 1 !important;
+  }
+  .gallery-tile:active .gallery-label {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  /* ─── LogoMarquee — logos ─── */
+  .marquee-logo:active,
+  .marquee-logo:focus {
+    filter: grayscale(0) !important;
+    opacity: 1 !important;
+  }
+
+  /* ─── HeaderSection — Buy Ticket button ─── */
+  a[href="#tickets"]:active,
+  a[href="#tickets"]:focus-visible {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  /* Mobile nav links */
+  nav a:active,
+  .flex-col a:active {
+    color: #FF9900;
+  }
+
+  /* ─── AngledButton (primary) ─── */
+  button.bg-f1-red:active,
+  button.bg-f1-red:focus-visible {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  /* ─── AngledButton (secondary outline) ─── */
+  button.border.border-white\/20:active,
+  button.border.border-white\/20:focus-visible {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* ─── HeroSection Team Radio button ─── */
+  button.bg-white\/5:active,
+  button.bg-white\/5:focus-visible {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  /* ─── SponsorPage — Back link, submit button ─── */
+  button.bg-aws-orange:active,
+  button.bg-aws-orange:focus-visible {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  /* Back to home link */
+  a[href="/"]:active,
+  a[to="/"]:active {
+    color: white !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MARQUEE — keyboard focus-within pauses the ticker on all devices
+   ═══════════════════════════════════════════════════════════════════ */
+/* Note: GSAP pause/resume is handled in LogoMarquee.tsx via JS events */
+
+/* ─── Keyframe shared from SpeakersSection ─── */
+@keyframes scan {
+  0%   { top: 0; opacity: 0; }
+  10%  { opacity: 0.5; }
+  50%  { opacity: 1; top: 100%; }
+  90%  { opacity: 0.5; }
+  100% { top: 0; opacity: 0; }
+}

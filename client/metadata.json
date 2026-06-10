@@ -1,0 +1,8 @@
+{
+  "name": "AWS Build Grid 2026",
+  "description": "Premium Formula 1 themed cloud technology event website for AWS Student Builder Group at SVKM IOT Dhule.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
