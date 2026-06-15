@@ -350,6 +350,7 @@ export const DriversSection = () => {
                   href={currentMember.linkedin}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={`LinkedIn profile for ${currentMember.name}`}
                   className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-[#0a66c2] hover:border-[#0a66c2] transition-all duration-300"
                 >
                   <Linkedin size={18} />
@@ -360,6 +361,7 @@ export const DriversSection = () => {
                   href={currentMember.github}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={`GitHub profile for ${currentMember.name}`}
                   className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white transition-all duration-300"
                 >
                   <Github size={18} />

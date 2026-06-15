@@ -48,6 +48,7 @@ const AutoPlayVideo = ({ src }: { src: string }) => {
       muted
       playsInline
       preload="auto"
+      aria-hidden="true"
       className="w-full h-auto object-cover"
     >
       <source src={src} />

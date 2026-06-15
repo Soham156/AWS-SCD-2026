@@ -30,7 +30,7 @@ export function TelemetryCards() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!stats) {
+  if (!stats || !stats.by_pass_type) {
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[1,2,3,4].map(i => (
@@ -43,7 +43,7 @@ export function TelemetryCards() {
     );
   }
 
-  const totalCapacity = stats.by_pass_type.reduce((a, b) => a + b.capacity, 0);
+  const totalCapacity = stats.by_pass_type?.reduce((a, b) => a + b.capacity, 0) || 0;
 
   const mainCards = [
     { label: 'Total Sold', value: stats.total_sold, icon: BarChart3, color: 'text-aws-orange' },
