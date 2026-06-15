@@ -4,7 +4,7 @@ import { galleryFiles as localGalleryFiles } from 'virtual:event-gallery';
 import { SectionHeader } from './LayoutElements';
 
 const galleryFiles = localGalleryFiles;
-
+const mov0='https://photos.google.com/u/7/share/AF1QipPoXXkDai6EM782Hs2z_DwIp6FQr_2HIqBXvpE8oVdMpvqA8UohbV87eG8QVpWZlQ/photo/AF1QipOoKNiZsEUnXRFLHESLLrbiHA5twX4Eq3-cAvdA?key=eHVBVGlRd05WeHdWdWZsblhpX3FXaEttSGhWcXFB'
 /* ─── helpers ─────────────────────────────────────────────────── */
 
 const VIDEO_EXT = /\.(mp4|mov|webm|ogg)$/i;
@@ -65,9 +65,10 @@ export const GallerySection = () => {
   const [showAll, setShowAll] = useState(false);
 
   const items = useMemo(() => {
+    const externalVideos = ['https://raw.githubusercontent.com/lastbreathofdevil69/assests/main/0.mp4'];
     const videos = galleryFiles.filter((f) => VIDEO_EXT.test(f));
     const images = shuffle(galleryFiles.filter((f) => !VIDEO_EXT.test(f)));
-    return [...videos, ...images];
+    return [...externalVideos, ...videos, ...images];
   }, []);
 
   return (
