@@ -72,6 +72,8 @@ export const ConstructorsSection = () => {
               <img
                 src={sponsor.logo}
                 alt={sponsor.name}
+                loading="lazy"
+                decoding="async"
                 className={`w-auto object-contain opacity-60 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105 ${sponsor.logoClass}`}
               />
             </div>

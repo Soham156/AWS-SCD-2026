@@ -71,6 +71,9 @@ export const TimelineSection = () => {
               sysId="02.STRAT"
             />
           </div>
+          <span className="font-mono text-[8px] sm:text-[9px] text-white/30 uppercase tracking-widest animate-pulse md:hidden">
+            Scroll vertically to navigate ↓
+          </span>
         </div>
 
         {/* Track Line & Scrolling Content */}
@@ -143,7 +146,7 @@ export const TimelineSection = () => {
             </motion.span>
             <span className="font-mono text-[10px] text-white/20">/ {schedule.length}</span>
           </motion.div>
-          <span className="font-mono text-[8px] sm:text-[9px] text-white/30 uppercase tracking-widest animate-pulse">
+          <span className="font-mono text-[8px] sm:text-[9px] text-white/30 uppercase tracking-widest animate-pulse hidden md:block">
             Scroll vertically to navigate ↓
           </span>
         </div>

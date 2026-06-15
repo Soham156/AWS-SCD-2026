@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
-import { TicketPage } from './features/ticketing/pages/TicketPage';
-import { TicketsPurchasePage } from './features/ticketing/pages/TicketsPurchasePage';
-import { ScannerPage } from './features/scanner/pages/ScannerPage';
-import { AdminPage } from './features/admin/pages/AdminPage';
-import { SpeakerPage } from './features/speaker/pages/SpeakerPage';
+import { Suspense, lazy } from 'react';
+
+const TicketPage = lazy(() => import('./features/ticketing/pages/TicketPage').then(module => ({ default: module.TicketPage })));
+const TicketsPurchasePage = lazy(() => import('./features/ticketing/pages/TicketsPurchasePage').then(module => ({ default: module.TicketsPurchasePage })));
+const ScannerPage = lazy(() => import('./features/scanner/pages/ScannerPage').then(module => ({ default: module.ScannerPage })));
+const AdminPage = lazy(() => import('./features/admin/pages/AdminPage').then(module => ({ default: module.AdminPage })));
+const SpeakerPage = lazy(() => import('./features/speaker/pages/SpeakerPage').then(module => ({ default: module.SpeakerPage })));
 import { Preloader } from './components/Preloader';
 import { HeaderSection } from './components/HeaderSection';
 import { HeroSection } from './components/HeroSection';
@@ -21,8 +23,8 @@ import { GallerySection } from './components/GallerySection';
 import { FAQSection } from './components/FAQSection';
 import { DirectionsSection } from './components/DirectionsSection';
 import { FooterSection } from './components/FooterSection';
-import { SponsorPage } from './components/SponsorPage';
-import { NotFoundPage } from './components/NotFoundPage';
+const SponsorPage = lazy(() => import('./components/SponsorPage').then(module => ({ default: module.SponsorPage })));
+const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(module => ({ default: module.NotFoundPage })));
 import { BackToTop } from './components/BackToTop';
 import { CustomCursor } from './components/CustomCursor';
 // import { SoundButton } from './components/SoundButton';
@@ -100,16 +102,18 @@ export default function App() {
   return (
   <>
     <SmoothScroll />
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/sponsors" element={<SponsorPage />} />
-      <Route path="/ticket" element={<TicketsPurchasePage />} />
-      <Route path="/ticket/:id" element={<TicketPage />} />
-      <Route path="/speaker" element={<SpeakerPage />} />
-      <Route path="/scanner" element={<ScannerPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <Suspense fallback={<Preloader key="suspense-loader" onComplete={() => {}} />}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/sponsors" element={<SponsorPage />} />
+        <Route path="/ticket" element={<TicketsPurchasePage />} />
+        <Route path="/ticket/:id" element={<TicketPage />} />
+        <Route path="/speaker" element={<SpeakerPage />} />
+        <Route path="/scanner" element={<ScannerPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
     <BackToTop />
     {/* <SoundButton /> */}
     <CustomCursor />
