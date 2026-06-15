@@ -18,7 +18,7 @@ interface TicketResult {
 }
 
 interface RegistrationState {
-  step: 1 | 2 | 3 | 4;
+  step: 1 | 2 | 3 | 4 | 5;
   selectedPass: PassType | null;
   formData: FormData;
   loading: boolean;
@@ -91,11 +91,11 @@ export function useRegistration() {
 
       const { payment_session_id } = res.data;
 
-      // Launch Cashfree Inline Checkout
+      // Launch Cashfree Redirect Checkout
       const cashfree = await getCashfree();
       const checkoutOptions = {
         paymentSessionId: payment_session_id,
-        redirectTarget: '_modal' as const,
+        redirectTarget: '_self' as const,
       };
 
       cashfree.checkout(checkoutOptions).then((result: any) => {
@@ -107,39 +107,9 @@ export function useRegistration() {
             error: result.error.message || 'Payment failed',
           }));
         }
-        if (result.paymentDetails) {
-          // Payment completed, poll for ticket details
-          setState((s) => ({ ...s, loading: true, error: null }));
-          const pollTicket = async (attempts = 0) => {
-            if (attempts > 10) {
-              setState((s) => ({ ...s, loading: false, error: 'Payment successful, but ticket generation timed out. Please check your email.', step: 4 }));
-              return;
-            }
-            try {
-              const ticketRes = await api.get(`/api/tickets/${state.ticketResult!.ticket_id}`);
-              if (ticketRes.data.payment_status === 'PAID') {
-                setState((s) => ({
-                  ...s,
-                  loading: false,
-                  step: 4,
-                  ticketResult: { 
-                    ...s.ticketResult!, 
-                    ticket_number: ticketRes.data.ticket_number,
-                    qr_token: ticketRes.data.qr_token 
-                  }
-                }));
-              } else {
-                setTimeout(() => pollTicket(attempts + 1), 2000);
-              }
-            } catch {
-              setTimeout(() => pollTicket(attempts + 1), 2000);
-            }
-          };
-          pollTicket();
-        }
       });
 
-      // Do not unset loading here as Cashfree modal is open
+      // Do not unset loading here as browser will redirect to Cashfree
     } catch (err: any) {
       const errData = err.response?.data;
       console.error('[Checkout Error Details]:', errData);
@@ -160,8 +130,12 @@ export function useRegistration() {
   const goBack = useCallback(() => {
     setState((s) => {
       if (s.step === 1) return s;
-      return { ...s, step: (s.step - 1) as 1 | 2 | 3, error: null };
+      return { ...s, step: (s.step - 1) as 1 | 2 | 3 | 4, error: null };
     });
+  }, []);
+
+  const proceedToPaymentStep = useCallback(() => {
+    setState((s) => ({ ...s, step: 4, error: null }));
   }, []);
 
   const reset = useCallback(() => {
@@ -175,5 +149,5 @@ export function useRegistration() {
     });
   }, []);
 
-  return { ...state, selectPass, submitForm, initiatePayment, goBack, reset };
+  return { ...state, selectPass, submitForm, initiatePayment, proceedToPaymentStep, goBack, reset };
 }

@@ -25,12 +25,37 @@ export const SponsorPage = () => {
     tier: '',
     details: '',
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+    setStatus('loading');
+    setErrorMessage('');
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/applications/sponsor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        if (result.errors) {
+          throw new Error(result.errors.map((e: any) => e.message).join(', '));
+        }
+        throw new Error(result.message || 'Failed to submit application');
+      }
+      
+      setStatus('success');
+      setFormData({ company: '', contact: '', email: '', tier: '', details: '' });
+    } catch (error: any) {
+      console.error(error);
+      setStatus('error');
+      setErrorMessage(error.message || 'An unexpected error occurred');
+    }
   };
 
   return (
@@ -238,6 +263,8 @@ export const SponsorPage = () => {
                   <MessageSquare size={12} /> Additional Details
                 </label>
                 <textarea
+                  required
+                  minLength={10}
                   rows={4}
                   value={formData.details}
                   onChange={(e) => setFormData({ ...formData, details: e.target.value })}
@@ -246,18 +273,32 @@ export const SponsorPage = () => {
                 ></textarea>
               </div>
 
+              {status === 'error' && (
+                <div className="p-4 bg-[#E10600]/10 border border-[#E10600]/20 text-[#E10600] text-sm">
+                  {errorMessage}
+                </div>
+              )}
+
+              {status === 'success' && (
+                <div className="p-4 bg-[#00ff00]/10 border border-[#00ff00]/20 text-[#00ff00] text-sm flex items-center gap-2">
+                  ✓ Application Submitted successfully! We will contact you shortly.
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={submitted}
+                disabled={status === 'loading' || status === 'success'}
                 className={`mt-4 font-sans font-black italic uppercase text-lg py-4 px-6 transition-all duration-300 tracking-widest skew-x-[-5deg] flex items-center justify-center gap-3 ${
-                  submitted
+                  status === 'success'
                     ? 'bg-green-500 text-white cursor-default'
                     : 'bg-aws-orange hover:bg-white text-black hover:shadow-lg hover:shadow-aws-orange/10'
                 }`}
               >
                 <span className="skew-x-[5deg] flex items-center gap-2">
-                  {submitted ? (
+                  {status === 'success' ? (
                     <>✓ Application Submitted!</>
+                  ) : status === 'loading' ? (
+                    <>Submitting...</>
                   ) : (
                     <>
                       <Send size={18} />

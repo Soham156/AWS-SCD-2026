@@ -12,10 +12,23 @@ const registerSchema = z.object({
   organization: z.string().min(1, 'Organization is required'),
   pass_type_id: z.string().uuid('Invalid pass type'),
 });
+import { registrationLimiter } from '../../shared/middleware/rateLimiter.js';
 
 // POST /api/tickets/register
-router.post('/register', async (req, res, next) => {
+router.post('/register', registrationLimiter, async (req, res, next) => {
   try {
+    const { data: settings } = await supabase
+      .from('app_settings')
+      .select('registration_enabled')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!settings || !settings.registration_enabled) {
+      res.status(403).json({ error: 'REGISTRATION_CLOSED', message: 'Ticket registrations are currently closed.' });
+      return;
+    }
+
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
@@ -69,6 +82,13 @@ router.post('/register', async (req, res, next) => {
           .eq('id', existing.id);
 
         if (updateErr) throw updateErr;
+
+        // Invalidate old payment sessions to prevent price spoofing
+        await supabase
+          .from('payments')
+          .update({ status: 'expired' })
+          .eq('registration_id', existing.id)
+          .eq('status', 'initiated');
 
         res.status(200).json({ ticket_id: existing.id, ticket_number: existing.ticket_number || '' });
         return;
@@ -138,7 +158,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const { data, error } = await supabase
       .from('registrations')
-      .select('*, pass_types(name, price, badge_color, perks)')
+      .select('id, full_name, role, organization, pass_slug, payment_status, ticket_number, qr_token, checked_in, checked_in_at, created_at, pass_types(name, price, badge_color, perks)')
       .eq('id', req.params.id)
       .single();
 

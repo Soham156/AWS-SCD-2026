@@ -1,15 +1,19 @@
 import { useState } from 'react';
+import { adminApi } from '../services/adminApi';
 
 export function useAdminAuth() {
-  const [authed, setAuthed] = useState(
-    !!sessionStorage.getItem('scd_admin_key')
-  );
+  const token = sessionStorage.getItem('scd_admin_key');
+  const [authed, setAuthed] = useState(!!token);
 
-  const login = (pw: string) => {
-    // We just save it. The actual validation happens when they make an API request
-    sessionStorage.setItem('scd_admin_key', pw);
-    setAuthed(true);
-    return true;
+  const login = async (pw: string) => {
+    try {
+      await adminApi.verify(pw);
+      sessionStorage.setItem('scd_admin_key', pw);
+      setAuthed(true);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
@@ -17,5 +21,5 @@ export function useAdminAuth() {
     setAuthed(false);
   };
 
-  return { authed, login, logout };
+  return { authed, login, logout, token };
 }

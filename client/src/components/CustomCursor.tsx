@@ -97,6 +97,7 @@ export const CustomCursor = () => {
     <div
       ref={cursorRef}
       aria-hidden="true"
+      className="hidden md:block"
       style={{
         position: 'fixed',
         left: '-200px',

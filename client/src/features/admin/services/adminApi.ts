@@ -5,8 +5,14 @@ const getHeaders = () => ({
 });
 
 export const adminApi = {
+  verify: (key: string) => api.get('/api/admin/verify', { headers: { 'X-Admin-Key': key } }),
   getPasses: () => api.get('/api/admin/passes', { headers: getHeaders() }),
   getStats: () => api.get('/api/admin/stats', { headers: getHeaders() }),
+  getSpeakers: () => api.get('/api/admin/speakers', { headers: getHeaders() }),
+  getPartners: () => api.get('/api/admin/partners', { headers: getHeaders() }),
+  getSponsors: () => api.get('/api/admin/sponsors', { headers: getHeaders() }),
+  updateApplicationStatus: (type: 'speaker' | 'partner' | 'sponsor', id: string, status: string) =>
+    api.put(`/api/admin/applications/${type}/${id}/status`, { status }, { headers: getHeaders() }),
 
   getRegistrations: (filters: {
     pass_slug?: string;
@@ -30,4 +36,7 @@ export const adminApi = {
 
   refund: (registration_id: string) =>
     api.post('/api/admin/refund', { registration_id }, { headers: getHeaders() }),
+
+  sendShoutout: (data: { mimeMessage: string }) =>
+    api.post('/api/admin/shoutout', data, { headers: getHeaders() }),
 };

@@ -66,21 +66,21 @@ export const LogoMarquee = () => {
               src="/AWS_logo1.png"
               alt="AWS Logo"
               tabIndex={0}
-              className="marquee-logo h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 focus:grayscale-0 focus:opacity-100 transition-all duration-300"
+              className="marquee-logo h-12 object-contain grayscale-0 opacity-100 sm:grayscale sm:opacity-60 sm:hover:grayscale-0 sm:hover:opacity-100 sm:focus:grayscale-0 sm:focus:opacity-100 transition-all duration-300"
             />
 
             <img
               src="/ARIF-white.png"
               alt="ARIF Logo"
               tabIndex={0}
-              className="marquee-logo h-16 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 focus:grayscale-0 focus:opacity-100 transition-all duration-300"
+              className="marquee-logo h-16 object-contain grayscale-0 opacity-100 sm:grayscale sm:opacity-60 sm:hover:grayscale-0 sm:hover:opacity-100 sm:focus:grayscale-0 sm:focus:opacity-100 transition-all duration-300"
             />
 
             <img
               src="/AWS_Builder.png"
               alt="AWS Builder Logo"
               tabIndex={0}
-              className="marquee-logo h-12 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 focus:grayscale-0 focus:opacity-100 transition-all duration-300"
+              className="marquee-logo h-12 object-contain grayscale-0 opacity-100 sm:grayscale sm:opacity-60 sm:hover:grayscale-0 sm:hover:opacity-100 sm:focus:grayscale-0 sm:focus:opacity-100 transition-all duration-300"
             />
           </div>
         ))}

@@ -46,9 +46,13 @@ export const TimelineSection = () => {
   // We use "calc(0% + 0vw)" and "calc(-100% + 100vw)" so it can interpolate the numbers.
   const x = useTransform(smoothProgress, [0, 1], ["calc(0% + 0vw)", "calc(-100% + 100vw)"]);
 
+  // Calculate current visible card index for progress indicator
+  const progressLabel = useTransform(smoothProgress, [0, 1], [1, schedule.length]);
+  const displayLabel = useTransform(progressLabel, (v) => Math.round(v));
+
   return (
-    <section ref={targetRef} className="relative h-[800vh] bg-[#050505]">
-      {/* Sticky container locks to screen while we scroll the 400vh */}
+    <section id="schedule" ref={targetRef} className="relative h-[350vh] bg-[#050505]">
+      {/* Sticky container locks to screen while we scroll the 500vh */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
         
         {/* Giant background text */}
@@ -62,7 +66,7 @@ export const TimelineSection = () => {
         <div className="absolute top-0 left-0 w-full px-4 sm:px-12 lg:px-24 pt-12 sm:pt-16 z-20 pointer-events-none">
           <div className="pointer-events-auto">
             <SectionHeader
-              title="Race Weekend Timeline"
+              title="Event Agenda"
               subtitle="Twelve sectors. One full day on the cloud racing calendar — from opening lights to the final chequered flag."
               sysId="02.STRAT"
             />
@@ -130,6 +134,19 @@ export const TimelineSection = () => {
           </motion.div>
         </div>
 
+        {/* Progress indicator & Scroll Note */}
+        <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
+          <motion.div className="flex items-center gap-3 bg-[#111]/80 backdrop-blur-sm border border-white/5 px-4 py-2">
+            <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">Sector</span>
+            <motion.span className="font-mono text-sm text-aws-orange font-bold">
+              {displayLabel}
+            </motion.span>
+            <span className="font-mono text-[10px] text-white/20">/ {schedule.length}</span>
+          </motion.div>
+          <span className="font-mono text-[8px] sm:text-[9px] text-white/30 uppercase tracking-widest animate-pulse">
+            Scroll vertically to navigate ↓
+          </span>
+        </div>
       </div>
     </section>
   );

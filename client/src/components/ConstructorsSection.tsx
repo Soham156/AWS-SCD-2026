@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { SectionHeader } from "./LayoutElements";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -26,13 +26,13 @@ const currentSponsors = [
 
 export const ConstructorsSection = () => {
   return (
-    <section className="relative bg-[#050505] px-4 py-16 sm:px-12 sm:py-24 lg:px-24">
+    <section className="relative z-20 bg-[#050505] px-4 py-16 sm:px-12 sm:py-24 lg:px-24">
       {/* Header */}
       <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <SectionHeader
           title="Meet Our Sponsors"
           subtitle="Our valued partners who make AWS Student Community Day Dhule 2026 possible. Join them in supporting the next generation of cloud innovators."
-          sysId="05.SPNS"
+          sysId="11.SPNS"
         />
 
         <div className="pb-2 sm:pb-8">

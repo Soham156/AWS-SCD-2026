@@ -1,146 +1,192 @@
-import { motion } from 'motion/react';
-import { SectionHeader, TelemetryData } from './LayoutElements';
-import { MapPin, Navigation } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { SectionHeader } from './LayoutElements';
+import { Mic, Laptop, TerminalSquare, Users, UtensilsCrossed, CircleUser } from 'lucide-react';
 
-const zones = [
-  { name: "Main Grandstand", desc: "Main auditorium hosting keynote sessions, opening ceremony, and closing ceremony.", lat: "Sect 1" },
-  { name: "Innovation Garage", desc: "Dedicated computer labs for practical workshops and technical cloud sessions.", lat: "Sect 2" },
-  { name: "Strategy Rooms", desc: "Classrooms for technical tracks, breakout discussions, and parallel sessions.", lat: "Sect 3" },
-  { name: "Networking Paddock", desc: "Open quadrangle area featuring sponsor booths, networking, expo activities, and community interaction.", lat: "Pit Lane" },
+const spaces = [
+  {
+    id: 'auditorium',
+    title: 'Main Auditorium',
+    desc: 'Opening ceremony, guest keynotes, industry panel discussion, and closing ceremony.',
+    icon: Mic,
+    color: 'text-f1-red',
+    border: 'border-f1-red',
+    floor: 'fifth',
+  },
+  {
+    id: 'presentation',
+    title: 'Presentation Rooms',
+    desc: 'Parallel Track A (AI & ML) and Track B (Cloud & DevOps) classrooms equipped with interactive senseboards.',
+    icon: Laptop,
+    color: 'text-[#00ff00]',
+    border: 'border-[#00ff00]',
+    floor: 'fifth',
+  },
+  {
+    id: 'workshops',
+    title: 'Hands-on Workshops',
+    desc: 'Dedicated 5th-floor computer laboratories hosting active AWS cloud labs.',
+    icon: TerminalSquare,
+    color: 'text-aws-orange',
+    border: 'border-aws-orange',
+    floor: 'fifth',
+  },
+  {
+    id: 'quadrangle',
+    title: 'Central Quadrangle',
+    desc: 'Physical company sponsor booths, interactive promotional displays, and community networking.',
+    icon: Users,
+    color: 'text-blue-400',
+    border: 'border-blue-400',
+    floor: 'ground',
+  },
+  {
+    id: 'Cafeteria',
+    title: 'Cafeteria',
+    desc: 'Food and refreshment area for attendees.',
+    icon: UtensilsCrossed,
+    color: 'text-blue-400', 
+    border: 'border-blue-400',
+    floor: 'ground',
+  },
+  {
+    id: 'Registration Area',
+    title: 'Registration Area',
+    desc: 'Registration area for attendees.',
+    icon: CircleUser,    
+    color: 'text-blue-400', 
+    border: 'border-blue-400',
+    floor: 'ground',
+  },
 ];
 
 export const CircuitSection = () => {
+  const [activeFloor, setActiveFloor] = useState<'ground' | 'fifth'>('fifth');
+
   return (
-    <section className="relative px-4 sm:px-12 lg:px-24 py-16 sm:py-24 border-t border-white/5 overflow-hidden">
-      <SectionHeader title="The Circuit" subtitle="SVKM's Institute of Technology Campus transforms into the region's premier cloud innovation arena featuring keynote stages, sponsor booths, networking zones, technical classrooms, and dedicated workshop laboratories." sysId="VENUE.04" />
+    <section id="circuit" className="relative py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
+      {/* Background ambient light */}
+      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[150px] -translate-y-1/2 pointer-events-none" />
 
-      <div className="w-full relative flex flex-col lg:flex-row gap-6 sm:gap-8 mt-8 sm:mt-12">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="flex-1 bg-[#111] border border-white/5 relative flex flex-col overflow-hidden"
-        >
-          {/* Circuit Grid Background */}
-          
-          <div className="w-full h-full min-h-[250px] sm:min-h-[350px] lg:min-h-[400px] relative flex shadow-inner group">
-            {/* 5th Floor Plan SVG styled to fit F1 Theme */}
-            <svg viewBox="0 0 600 300" className="absolute inset-0 w-full h-full object-contain p-2 sm:p-4 opacity-40 group-hover:opacity-70 transition-opacity duration-500">
-              <defs>
-                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>
-                </pattern>
-                <filter id="neon">
-                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              <rect width="100%" height="100%" fill="url(#grid)" />
-              
-              <g stroke="white" strokeWidth="2" fill="none" className="transition-all duration-300">
-                  {/* Outer Walls */}
-                  <rect x="20" y="20" width="560" height="260" stroke="#444" strokeWidth="4" />
-                  
-                  {/* Top Rooms */}
-                  <rect x="30" y="30" width="80" height="60" />
-                  <text x="70" y="60" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">WASHROOM</text>
+      <SectionHeader 
+        title="The Venue & Spaces" 
+        subtitle="SVKM's Institute of Technology, Dhule, is a world-class educational hub known for its modern infrastructure and commitment to engineering excellence." 
+        sysId="06.VEN" 
+      />
 
-                  <rect x="130" y="30" width="120" height="60" stroke="#FF9900" />
-                  <text x="190" y="60" fill="#FF9900" fontSize="12" fontWeight="bold" textAnchor="middle" stroke="none">COMPUTER LABS</text>
-                  
-                  <rect x="270" y="30" width="200" height="60" stroke="#E10600" />
-                  <text x="370" y="60" fill="#E10600" fontSize="14" fontWeight="bold" textAnchor="middle" stroke="none">AUDITORIUM</text>
-
-                  <rect x="490" y="30" width="80" height="60" />
-                  <text x="530" y="60" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">WASHROOM</text>
-                  
-                  {/* Core / Lifts / Stairs */}
-                  <rect x="30" y="120" width="60" height="40" />
-                  <line x1="30" y1="140" x2="90" y2="140" stroke="white" strokeWidth="1" strokeDasharray="3 3"/>
-                  
-                  <rect x="150" y="110" width="300" height="60" />
-                  <rect x="150" y="110" width="40" height="60" fill="rgba(255,255,255,0.1)"/>
-                  <text x="170" y="145" fill="white" fontSize="10" transform="rotate(-90 170 145)" textAnchor="middle" stroke="none">LIFTS</text>
-                  
-                  <rect x="410" y="110" width="40" height="60" fill="rgba(255,255,255,0.1)"/>
-                  <text x="430" y="145" fill="white" fontSize="10" transform="rotate(-90 430 145)" textAnchor="middle" stroke="none">LIFTS</text>
-                  
-                  <rect x="490" y="120" width="60" height="40" />
-                  <line x1="490" y1="140" x2="550" y2="140" stroke="white" strokeWidth="1" strokeDasharray="3 3"/>
-
-                  {/* Bottom Rooms / Classrooms */}
-                  <rect x="30" y="200" width="70" height="70" />
-                  <text x="65" y="235" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">CLASSROOM</text>
-
-                  <rect x="110" y="200" width="70" height="70" />
-                  <text x="145" y="235" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">CLASSROOM</text>
-
-                  <rect x="190" y="200" width="70" height="70" />
-                  <text x="225" y="235" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">CLASSROOM</text>
-                  
-                  <rect x="340" y="200" width="70" height="70" />
-                  <text x="375" y="235" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">CLASSROOM</text>
-
-                  <rect x="420" y="200" width="70" height="70" />
-                  <text x="455" y="235" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">CLASSROOM</text>
-
-                  <rect x="500" y="200" width="70" height="70" />
-                  <text x="535" y="235" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" stroke="none">CLASSROOM</text>
-                  
-                  {/* Indicators / Active Zones (Simulated Data) */}
-                  <circle cx="370" cy="60" r="15" fill="rgba(225,6,0,0.2)" stroke="#E10600" filter="url(#neon)">
-                    <animate attributeName="r" values="15; 25; 15" dur="2s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="1; 0; 1" dur="2s" repeatCount="indefinite" />
-                  </circle>
-
-                  <circle cx="190" cy="60" r="15" fill="rgba(255,153,0,0.2)" stroke="#FF9900" filter="url(#neon)">
-                    <animate attributeName="r" values="15; 20; 15" dur="3s" repeatCount="indefinite" />
-                  </circle>
-              </g>
-            </svg>
-            
-            <div className="absolute top-3 sm:top-6 left-3 sm:left-6 border-l-2 border-[#E10600] pl-2 sm:pl-3 z-10">
-              <div className="text-xs sm:text-sm font-black font-sans uppercase text-white tracking-widest">SVKM IOT CAMPUS</div>
-              <div className="text-[9px] sm:text-[10px] opacity-70 uppercase font-sans mt-1 max-w-[160px] sm:max-w-[200px] leading-relaxed">Survey No. 499, Plot No. 2, Mumbai Agra Highway, Dhule 424311</div>
-            </div>
-            
-            <div className="absolute bottom-3 sm:bottom-6 left-3 sm:left-6 border-l-2 border-[#FF9900] pl-2 sm:pl-3 z-10 bg-[#111]/80 backdrop-blur p-1.5 sm:p-2">
-              <div className="text-xs sm:text-sm font-black font-sans uppercase text-white tracking-widest">5TH FLOOR LEVEL</div>
-            </div>
-
-            <div className="absolute bottom-3 sm:bottom-6 right-3 sm:right-6 text-right border-r-2 border-[#00ff00] pr-2 sm:pr-3 z-10 bg-[#111]/80 backdrop-blur p-1.5 sm:p-2">
-              <TelemetryData label="STATUS" value="CIRCUIT READY" color="text-[#00ff00]" />
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="w-full lg:w-[400px] flex flex-col gap-3 sm:gap-4">
-           <h3 className="font-sans font-black italic uppercase tracking-widest text-[#e0e0e0] border-b border-white/10 pb-2 mb-1 sm:mb-2 text-base sm:text-lg">Circuit Zones</h3>
-           {zones.map((zone, i) => (
-             <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 + (i * 0.1), duration: 0.5 }}
-                className="bg-[#111] border border-white/5 p-3 sm:p-4 flex flex-col group hover:border-[#FF9900]/50 transition-colors"
-             >
-                <div className="flex justify-between items-center mb-1.5 sm:mb-2">
-                   <div className="font-sans font-black uppercase text-xs sm:text-sm text-white">{zone.name}</div>
-                   <div className="text-[8px] sm:text-[9px] uppercase tracking-widest font-mono text-f1-red bg-f1-red/10 px-1 py-0.5">{zone.lat}</div>
+      <div className="flex flex-col lg:flex-row gap-8 sm:gap-12 mt-12 sm:mt-16 relative z-10 items-start">
+        
+        {/* Left: Info Cards */}
+        <div className="w-full lg:w-1/2 flex flex-col gap-4 sm:gap-6">
+          <AnimatePresence mode="popLayout">
+            {spaces.filter(space => space.floor === activeFloor).map((space, i) => (
+            <motion.div
+              key={space.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              onClick={() => setActiveFloor(space.floor as 'ground' | 'fifth')}
+              className={`bg-[#111] border p-5 sm:p-6 flex items-start gap-4 transition-colors cursor-pointer group ${
+                activeFloor === space.floor 
+                  ? `border-white/30 bg-[#151515]` 
+                  : `border-white/5 hover:border-white/20`
+              }`}
+            >
+              <div className={`p-3 bg-white/5 border border-white/10 shrink-0 group-hover:bg-white/10 transition-colors`}>
+                <space.icon size={20} className={space.color} />
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-center mb-1">
+                  <h3 className="font-sans font-black italic text-lg uppercase text-white tracking-tighter">
+                    {space.title}
+                  </h3>
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-white/30 border border-white/10 px-2 py-0.5">
+                    {space.floor === 'ground' ? 'Ground Floor' : '5th Floor'}
+                  </span>
                 </div>
-                <div className="text-[10px] sm:text-xs font-sans opacity-60 leading-relaxed">
-                   {zone.desc}
-                </div>
-             </motion.div>
-           ))}
+                <p className="font-sans text-sm text-white/60 leading-relaxed">
+                  {space.desc}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+          </AnimatePresence>
         </div>
+
+        {/* Right: Map Container */}
+        <div className="w-full lg:w-1/2 lg:sticky lg:top-24 flex flex-col">
+          
+          {/* Floor Toggle */}
+          <div className="flex border border-white/10 bg-[#0a0a0a] p-1 mb-4 w-max">
+            <button
+              onClick={() => setActiveFloor('ground')}
+              className={`px-6 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+                activeFloor === 'ground' ? 'bg-white text-black font-bold' : 'text-white/50 hover:text-white'
+              }`}
+            >
+              Ground Floor
+            </button>
+            <button
+              onClick={() => setActiveFloor('fifth')}
+              className={`px-6 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+                activeFloor === 'fifth' ? 'bg-white text-black font-bold' : 'text-white/50 hover:text-white'
+              }`}
+            >
+              5th Floor
+            </button>
+          </div>
+
+          {/* Map Display */}
+          <div className="bg-[#111] border border-white/10 aspect-video relative overflow-hidden flex items-center justify-center group">
+            {/* Grid background */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+            
+            <AnimatePresence mode="wait">
+              {activeFloor === 'ground' ? (
+                <motion.div
+                  key="ground"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-full flex flex-col items-center justify-center text-center p-8 relative z-10"
+                >
+                  {/* Placeholder for Ground Floor SVG */}
+                  <div className="w-full max-w-sm aspect-[21/9] border-2 border-dashed border-white/20 rounded-lg flex items-center justify-center mb-4">
+                    <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest text-center">Ground Floor<br/>SVG Here</span>
+                  </div>
+                  <p className="font-sans text-[10px] text-white/50 uppercase tracking-widest leading-relaxed">
+                    {spaces.filter(s => s.floor === 'ground').map(s => s.title).join(' • ')}
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="fifth"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-full flex flex-col items-center justify-center text-center p-8 relative z-10"
+                >
+                  {/* Placeholder for 5th Floor SVG */}
+                  <div className="w-full max-w-sm aspect-[21/9] border-2 border-dashed border-white/20 rounded-lg flex items-center justify-center mb-4">
+                    <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest text-center">5th Floor<br/>SVG Here</span>
+                  </div>
+                  <p className="font-sans text-[10px] text-white/50 uppercase tracking-widest leading-relaxed">
+                    {spaces.filter(s => s.floor === 'fifth').map(s => s.title).join(' • ')}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Scanning line for tech feel */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-white/20 shadow-[0_0_10px_rgba(255,255,255,0.5)] z-20 animate-[scan_4s_ease-in-out_infinite] opacity-50 pointer-events-none" />
+          </div>
+          
+        </div>
+
       </div>
     </section>
-  )
-}
+  );
+};

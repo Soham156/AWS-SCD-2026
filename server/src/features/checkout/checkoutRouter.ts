@@ -38,6 +38,25 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
       return;
     }
 
+    // Check if registrations are currently enabled
+    const { data: settings } = await supabase
+      .from('app_settings')
+      .select('registration_enabled')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!settings || !settings.registration_enabled) {
+      res.status(403).json({ error: 'Registrations are currently closed.' });
+      return;
+    }
+
+    // Check capacity to prevent overselling from old pending registrations
+    if (passType.capacity - passType.sold <= 0) {
+      res.status(400).json({ error: 'This pass type is now sold out.' });
+      return;
+    }
+
     const shortId = registration.id.split('-')[0];
     const orderId = `SCD-${shortId}-${Date.now()}`;
 
@@ -50,6 +69,14 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
 
 
 
+    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT || '1');
+    const gatewayFeePercent = parseFloat(process.env.GATEWAY_FEE_PERCENT || '1.6');
+    
+    const basePrice = Number(passType.price);
+    const platformFee = (basePrice * platformFeePercent) / 100;
+    const gatewayFee = (basePrice * gatewayFeePercent) / 100;
+    const totalAmount = Math.round((basePrice + platformFee + gatewayFee) * 100) / 100;
+
     // Create Cashfree order via API
     const cashfreeRes = await fetch(`${cashfreeBaseUrl}/orders`, {
       method: 'POST',
@@ -61,7 +88,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
       },
       body: JSON.stringify({
         order_id: orderId,
-        order_amount: Number(passType.price),
+        order_amount: totalAmount,
         order_currency: 'INR',
         customer_details: {
           customer_id: registration.id.slice(0, 50), // Cashfree limit is 50 chars
@@ -92,7 +119,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     await supabase.from('payments').insert({
       registration_id: registration.id,
       cashfree_order_id: orderId,
-      amount: Number(passType.price),
+      amount: totalAmount,
       status: 'initiated',
     });
 

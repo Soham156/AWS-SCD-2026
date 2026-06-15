@@ -1,35 +1,44 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { QrCode, Users, ArrowLeft } from 'lucide-react';
+import { QrCode, Users, ArrowLeft, LogOut } from 'lucide-react';
 import { api } from '../../../lib/api';
 import { QRScanner } from '../components/QRScanner';
 import { ScanFeedback } from '../components/ScanFeedback';
+import { useScannerAuth } from '../hooks/useScannerAuth';
+import { ScannerLogin } from '../components/ScannerLogin';
 
 export function ScannerPage() {
+  const { authed, login, logout, token: authKey } = useScannerAuth();
   const [scanResult, setScanResult] = useState<any>(null);
   const [scannerEnabled, setScannerEnabled] = useState(true);
   const [stats, setStats] = useState({ checked_in: 0, total: 0 });
 
   // Fetch stats
   const fetchStats = useCallback(() => {
-    api.get('/api/admin/stats', {
-      headers: { 'X-Admin-Key': sessionStorage.getItem('scd_admin_key') || '' },
+    if (!authed) return;
+    api.get('/api/scan/stats', {
+      headers: { 'X-Scanner-Key': authKey || '' },
     }).then((res) => {
       setStats({
         checked_in: res.data.total_checked_in,
         total: res.data.total_sold,
       });
     }).catch(() => {});
-  }, []);
+  }, [authed, authKey]);
 
   useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
+    if (authed) {
+      fetchStats();
+    }
+  }, [authed, fetchStats]);
 
   const handleScan = useCallback(async (token: string) => {
     setScannerEnabled(false);
     try {
-      const res = await api.post('/api/scan/verify', { qr_token: token });
+      const res = await api.post('/api/scan/verify', 
+        { qr_token: token },
+        { headers: { 'X-Scanner-Key': authKey || '' } }
+      );
       setScanResult(res.data);
       if (res.data.status === 'VALID') {
         fetchStats();
@@ -37,12 +46,16 @@ export function ScannerPage() {
     } catch {
       setScanResult({ status: 'INVALID' });
     }
-  }, [fetchStats]);
+  }, [fetchStats, authKey]);
 
   const handleDismiss = useCallback(() => {
     setScanResult(null);
     setScannerEnabled(true);
   }, []);
+
+  if (!authed) {
+    return <ScannerLogin onLogin={login} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -62,7 +75,12 @@ export function ScannerPage() {
               </p>
             </div>
           </div>
-          <QrCode size={24} className="text-aws-orange" />
+          <div className="flex items-center gap-4">
+            <QrCode size={24} className="text-aws-orange" />
+            <button onClick={logout} className="text-white/30 hover:text-f1-red transition-colors" title="Logout">
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </div>
 

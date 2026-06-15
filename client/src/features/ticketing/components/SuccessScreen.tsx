@@ -1,7 +1,7 @@
-import { motion } from 'motion/react';
-import { CheckCircle, Mail, ExternalLink } from 'lucide-react';
-import { TicketPass } from './TicketPass';
-import type { PassType } from '../hooks/usePassTypes';
+import { motion } from "motion/react";
+import { CheckCircle, Mail, ExternalLink } from "lucide-react";
+import { TicketPass } from "./TicketPass";
+import type { PassType } from "../hooks/usePassTypes";
 
 interface Props {
   ticketNumber: string;
@@ -12,7 +12,14 @@ interface Props {
   qrToken?: string;
 }
 
-export function SuccessScreen({ ticketNumber, ticketId, fullName, email, selectedPass, qrToken }: Props) {
+export function SuccessScreen({
+  ticketNumber,
+  ticketId,
+  fullName,
+  email,
+  selectedPass,
+  qrToken,
+}: Props) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -24,7 +31,7 @@ export function SuccessScreen({ ticketNumber, ticketId, fullName, email, selecte
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         className="mb-6"
       >
         <CheckCircle size={56} className="text-emerald-400 mx-auto" />
@@ -57,7 +64,10 @@ export function SuccessScreen({ ticketNumber, ticketId, fullName, email, selecte
       {/* Email notice */}
       <div className="flex items-center justify-center gap-2 text-white/50 text-xs font-mono mb-6">
         <Mail size={14} />
-        <span>Your Paddock Pass is on its way to <span className="text-white">{email}</span></span>
+        <span>
+          Your Paddock Pass is on its way to{" "}
+          <span className="text-white">{email}</span>
+        </span>
       </div>
 
       {/* View ticket link */}

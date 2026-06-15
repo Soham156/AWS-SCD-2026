@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Lock, AlertCircle } from 'lucide-react';
 
 interface Props {
-  onLogin: (password: string) => boolean;
+  onLogin: (password: string) => Promise<boolean>;
 }
 
 export function AdminLogin({ onLogin }: Props) {
@@ -11,9 +11,9 @@ export function AdminLogin({ onLogin }: Props) {
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = onLogin(password);
+    const success = await onLogin(password);
     if (!success) {
       setError(true);
       setShake(true);

@@ -1,17 +1,9 @@
 import { motion } from 'motion/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { galleryFiles as localGalleryFiles } from 'virtual:event-gallery';
 import { SectionHeader } from './LayoutElements';
 
-const supabaseGalleryUrl = "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/event-gallary/";
-
-const supabaseFiles = [
-  "0.MOV", "1.jpg", "2.jpeg", "3.jpeg", "4.jpeg",
-  "5.JPG", "6.JPG", "7.jpg", "8.jpg", "9.jpeg",
-  "10.jpeg", "11.jpeg", "12.jpeg", "13.jpeg"
-];
-
-const galleryFiles = supabaseFiles.map(file => `${supabaseGalleryUrl}${file}`);
+const galleryFiles = localGalleryFiles;
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 
@@ -29,6 +21,40 @@ function shuffle<T>(arr: T[]): T[] {
 
 /* ─── component ───────────────────────────────────────────────── */
 
+const AutoPlayVideo = ({ src }: { src: string }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          videoRef.current?.play().catch(e => console.warn("AutoPlayVideo play failed:", e));
+        } else {
+          videoRef.current?.pause();
+        }
+      },
+      { threshold: 0 }
+    );
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      loop
+      muted
+      playsInline
+      preload="auto"
+      className="w-full h-auto object-cover"
+    >
+      <source src={src} />
+    </video>
+  );
+};
+
 export const GallerySection = () => {
   /**
    * activeIdx: tracks which tile is "tapped" on mobile.
@@ -36,6 +62,7 @@ export const GallerySection = () => {
    * On touch screens, we toggle activeIdx on tap since :hover is unreliable.
    */
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const items = useMemo(() => {
     const videos = galleryFiles.filter((f) => VIDEO_EXT.test(f));
@@ -44,22 +71,24 @@ export const GallerySection = () => {
   }, []);
 
   return (
-    <section className="relative py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
-      <SectionHeader
-        title="Event Gallery"
-        subtitle="Real moments from our community events, workshops, and cloud conferences."
-        sysId="07.GLY"
-      />
+    <section id="gallery" className="relative mt-0 py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
+      <div className="sticky top-0 z-30 bg-gradient-to-b from-[#050505] via-[#050505]/90 to-transparent backdrop-blur-[8px] pt-10 sm:pt-12 lg:pt-16 pb- -mt-10 sm:-mt-12 lg:-mt-16 mb-0">
+        <SectionHeader
+          title="Event Gallery"
+          subtitle=""
+          sysId="08.GLY"
+        />
+        <p className="font-sans  text-xs sm:text-sm md:text-base opacity-60 font-medium leading-relaxed max-w-xl mb-8 -mt-2 relative z-10">
+        Real moments from our community events, workshops, and cloud conferences.
+      </p>
+      </div>
+      
 
-      {/*
-        Pinterest-style masonry via CSS columns.
-        `column-width` drives how many columns fit — browser auto-adjusts count.
-      */}
       <div
         className="mt-12 relative z-10"
-        style={{ columnCount: 'auto', columnWidth: '200px', columnGap: '10px' }}
+        style={{ columnCount: 'auto', columnWidth: '280px', columnGap: '10px' }}
       >
-        {items.map((src, i) => {
+        {items.slice(0, showAll ? items.length : 4).map((src, i) => {
           const isVideo = VIDEO_EXT.test(src);
           const isActive = activeIdx === i;
 
@@ -84,16 +113,7 @@ export const GallerySection = () => {
               {isVideo ? (
                 /* ── Video tile ── */
                 <div className="relative w-full">
-                  <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    className="w-full h-auto object-cover"
-                  >
-                    <source src={src} />
-                  </video>
+                  <AutoPlayVideo src={src} />
                   <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse" />
                     <span className="font-mono text-[9px] uppercase tracking-widest text-white/80">
@@ -108,6 +128,7 @@ export const GallerySection = () => {
                     src={src}
                     alt={`Event photo ${i + 1}`}
                     loading="lazy"
+                    decoding="async"
                     className={`w-full h-auto block object-cover transition-all duration-500 ${
                       isActive ? 'scale-105 brightness-110' : ''
                     }`}
@@ -141,9 +162,20 @@ export const GallerySection = () => {
         })}
       </div>
 
+      {!showAll && items.length > 4 && (
+        <div className="mt-12 flex justify-center relative z-10">
+          <button
+            onClick={() => setShowAll(true)}
+            className="px-6 py-3 border border-white/20 text-white/70 hover:text-white hover:border-white/50 hover:bg-white/5 font-mono text-xs uppercase tracking-widest transition-all duration-300 rounded-sm"
+          >
+            See More
+          </button>
+        </div>
+      )}
+
       {galleryFiles.length === 0 && (
         <p className="text-center text-white/30 font-mono text-sm mt-16">
-          No media found in <code>/event-galary/</code>
+          No media found in <code>/event-gallary/</code>
         </p>
       )}
 

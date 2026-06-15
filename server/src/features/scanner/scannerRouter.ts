@@ -1,8 +1,33 @@
 import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { verifyQRToken } from '../../shared/lib/qrToken.js';
+import { scannerKeyGuard } from '../../shared/middleware/scannerKeyGuard.js';
 
 const router = Router();
+router.use(scannerKeyGuard);
+
+// GET /api/scan/verify-auth
+router.get('/verify-auth', (_req, res) => {
+  res.json({ success: true });
+});
+
+// GET /api/scan/stats
+router.get('/stats', async (_req, res, next) => {
+  try {
+    const { data: passTypes } = await supabase.from('pass_types').select('sold');
+    const total_sold = passTypes?.reduce((acc, pt) => acc + pt.sold, 0) || 0;
+
+    const { count: total_checked_in } = await supabase
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+      .eq('checked_in', true)
+      .eq('payment_status', 'PAID');
+
+    res.json({ total_sold, total_checked_in: total_checked_in || 0 });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // POST /api/scan/verify
 router.post('/verify', async (req, res, next) => {

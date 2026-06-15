@@ -5,6 +5,51 @@ import { adminKeyGuard } from '../../shared/middleware/adminKeyGuard.js';
 const router = Router();
 router.use(adminKeyGuard);
 
+// GET /api/admin/verify
+router.get('/verify', (_req, res) => {
+  res.json({ success: true });
+});
+
+// GET /api/admin/settings
+router.get('/settings', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
+    res.json(data || { registration_enabled: false });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/admin/settings
+router.put('/settings', async (req, res, next) => {
+  try {
+    const { registration_enabled } = req.body;
+    
+    // Upsert the single row (we can just update the first row or delete all and insert one)
+    // Since we know there's one row, we can just update without a specific ID if we use a trick, 
+    // or we can delete all and insert one. Let's delete all and insert one to be safe.
+    await supabase.from('app_settings').delete().not('id', 'is', null);
+    
+    const { data, error } = await supabase
+      .from('app_settings')
+      .insert({ registration_enabled })
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/admin/stats
 router.get('/stats', async (_req, res, next) => {
   try {
@@ -304,6 +349,112 @@ router.post('/refund', async (req, res, next) => {
       .eq('id', registration_id);
 
     res.json({ message: 'Refund initiated' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/shoutout
+router.post('/shoutout', async (req, res, next) => {
+  try {
+    const { mimeMessage } = req.body;
+    
+    if (!mimeMessage) {
+      res.status(400).json({ error: 'mimeMessage is required' });
+      return;
+    }
+
+    // Since SES is pending, we'll just log the intent to the server console.
+    // In the future, we will fetch all emails and use AWS SES SendRawEmailCommand.
+    console.log('[Admin Shoutout] Mock sending broadcast. Received MIME payload:');
+    console.log('----------------------------------------------------');
+    console.log(mimeMessage);
+    console.log('----------------------------------------------------');
+    console.log('[Admin Shoutout] Note: Email dispatch is stubbed out for now.');
+
+    res.status(200).json({ success: true, message: 'Shoutout queued successfully (stubbed)' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/speakers
+router.get('/speakers', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('speaker_applications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/partners
+router.get('/partners', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('community_partners')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/sponsors
+router.get('/sponsors', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('sponsor_applications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/admin/applications/:type/:id/status
+router.put('/applications/:type/:id/status', async (req, res, next) => {
+  try {
+    const { type, id } = req.params;
+    const { status } = req.body;
+
+    let table = '';
+    if (type === 'speaker') table = 'speaker_applications';
+    else if (type === 'partner') table = 'community_partners';
+    else if (type === 'sponsor') table = 'sponsor_applications';
+    else {
+      res.status(400).json({ error: 'Invalid application type' });
+      return;
+    }
+
+    if (!['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
+      res.status(400).json({ error: 'Invalid status' });
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from(table)
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
   } catch (err) {
     next(err);
   }

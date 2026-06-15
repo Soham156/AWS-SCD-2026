@@ -17,7 +17,7 @@ const crew: TeamMember[] = [
     name: "Soham Chaudhari",
     role: "AWS Cloud Club Captain",
     description: "AWS Cloud Club Captain leading the community and driving cloud innovation at SVKM IOT Dhule.",
-    image: "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/team/team-01.jpg",
+    image: "/team/team-01.png",
     linkedin: "https://www.linkedin.com/in/soham-chaudhari-174b4b287/",
     github: "https://github.com/Soham156"
   },
@@ -25,7 +25,7 @@ const crew: TeamMember[] = [
     name: "Vaibhav Chaudhari",
     role: "Admin & Operations Lead",
     description: "Overseeing administration and operations, ensuring smooth execution of all community events and activities.",
-    image: "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/team/team-02.png",
+    image: "/team/team-02.png",
     linkedin: "https://www.linkedin.com/in/vaibhav-chaudhari-1355a3281/",
     github: "https://github.com/VaibhavChaudhari07"
   },
@@ -33,7 +33,7 @@ const crew: TeamMember[] = [
     name: "Saurabh Girase",
     role: "IT Support & Management",
     description: "Managing IT infrastructure and technical support for all AWS community events and digital initiatives.",
-    image: "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/team/team-03.png",
+    image: "/team/team-03.png",
     linkedin: "https://www.linkedin.com/in/saurabhrajput15/",
     github: "https://github.com/saurabh-rajput-15"
   },
@@ -41,7 +41,7 @@ const crew: TeamMember[] = [
     name: "Abdullah Bandukwala",
     role: "Technical Lead",
     description: "Leading the technical direction of the club, mentoring members on AWS services, DevOps, and cloud architecture.",
-    image: "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/team/team-04.jpg.jpeg",
+    image: "/team/team-04.png",
     linkedin: "https://www.linkedin.com/in/abdullah-bandukwala-74848b231/",
     github: "https://github.com/abdullahb07"
   },
@@ -49,7 +49,7 @@ const crew: TeamMember[] = [
     name: "Aashish Ingale",
     role: "Social Media Head",
     description: "Crafting the digital presence and social media strategy for the AWS Student Community.",
-    image: "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/team/team-05.jpg.jpeg",
+    image: "/team/team-05.png",
     linkedin: "https://www.linkedin.com/in/aashish-ingale-276bb2298/",
     github: "#"
   },
@@ -57,7 +57,7 @@ const crew: TeamMember[] = [
     name: "Bhavesh Dev",
     role: "Event Management Lead",
     description: "Planning and executing community events, workshops, and meetups for the AWS Student Community.",
-    image: "https://ufuiebrurfmamjtzvyqy.supabase.co/storage/v1/object/public/team/team-06.jpg.png",
+    image: "/team/team-06.png",
     linkedin: "https://www.linkedin.com/in/bhavesh-dev-118b472a9/",
     github: "#"
   },
@@ -270,27 +270,27 @@ export const DriversSection = () => {
       {/* Decorative background glow */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-aws-orange/5 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none"></div>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 w-full">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-16"
+          className="text-left mb-8 sm:mb-16"
         >
           <div className="font-mono text-[10px] text-aws-orange uppercase tracking-[0.3em] mb-4">
-            03.DRV / Meet The Crew
+            04.DRV / Meet The Crew
           </div>
           <h2 className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase text-white leading-none mb-3 sm:mb-4">
             Meet Our Team
           </h2>
-          <p className="text-white/50 text-sm sm:text-base lg:text-lg font-medium max-w-md mx-auto px-4 sm:px-0">
+          <p className="text-white/50 text-sm sm:text-base lg:text-lg font-medium max-w-md">
             Discover the talented individuals behind our success.
           </p>
         </motion.div>
 
         {/* Team Member Display */}
-        <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10 md:gap-16 min-h-[300px] sm:min-h-[380px] md:min-h-[420px]">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 sm:gap-10 md:gap-16 min-h-[300px] sm:min-h-[380px] md:min-h-[420px]">
           {/* Photo Side — GSAP stacked cards */}
           <div
             ref={stackRef}
@@ -309,6 +309,7 @@ export const DriversSection = () => {
                   src={member.image}
                   alt={member.name}
                   loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-[filter] duration-500 group-hover:!grayscale-0"
                   style={{ filter: 'grayscale(1)' }}
                   draggable={false}
@@ -331,7 +332,7 @@ export const DriversSection = () => {
           </div>
 
           {/* Info Side */}
-          <div ref={infoRef} className="flex-1 flex flex-col justify-center text-center md:text-left">
+          <div ref={infoRef} className="w-full md:max-w-[450px] flex flex-col justify-center text-center md:text-left shrink-0">
             <h3 className="font-sans text-xl sm:text-2xl md:text-3xl font-black italic uppercase tracking-tight text-white mb-1">
               {currentMember.name}
             </h3>

@@ -71,7 +71,7 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
                 ? 'text-gray-500 border-gray-700 bg-gray-900'
                 : 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10'
             }`}>
-              {soldOut ? 'SOLD OUT' : `${pass.available} LEFT`}
+              {soldOut ? 'SOLD OUT' : 'AVAILABLE'}
             </div>
 
             {/* Pass info */}

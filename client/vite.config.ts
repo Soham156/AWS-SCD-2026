@@ -12,7 +12,7 @@ import { defineConfig, Plugin } from 'vite';
 function eventGalleryPlugin(): Plugin {
   const VIRTUAL_ID = 'virtual:event-gallery';
   const RESOLVED_ID = '\0' + VIRTUAL_ID;
-  const GALLERY_DIR = path.resolve(__dirname, 'public', 'event-galary');
+  const GALLERY_DIR = path.resolve(__dirname, 'public', 'event-gallary');
   const SUPPORTED_EXT = /\.(jpe?g|png|gif|webp|avif|mp4|mov|webm|ogg)$/i;
 
   const getFiles = () => {
@@ -20,7 +20,7 @@ function eventGalleryPlugin(): Plugin {
       return fs
         .readdirSync(GALLERY_DIR)
         .filter((f) => SUPPORTED_EXT.test(f))
-        .map((f) => `/event-galary/${f}`);
+        .map((f) => `/event-gallary/${f}`);
     } catch {
       return [];
     }

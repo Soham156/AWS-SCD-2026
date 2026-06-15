@@ -1,7 +1,4 @@
-import { useRef, useCallback } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { toPng } from 'html-to-image';
-import { Download } from 'lucide-react';
 
 interface Props {
   ticket_number: string;
@@ -14,28 +11,9 @@ interface Props {
 }
 
 export function TicketPass({ ticket_number, full_name, pass_name, role, organization, qr_token, badge_color = '#6B7280' }: Props) {
-  const passRef = useRef<HTMLDivElement>(null);
-
-  const handleDownload = useCallback(async () => {
-    if (!passRef.current) return;
-    try {
-      const dataUrl = await toPng(passRef.current, {
-        backgroundColor: '#050505',
-        pixelRatio: 2,
-      });
-      const link = document.createElement('a');
-      link.download = `${ticket_number}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('Download failed:', err);
-    }
-  }, [ticket_number]);
-
   return (
     <div className="flex flex-col items-center">
       <div
-        ref={passRef}
         className="w-[340px] bg-[#0a0a0a] border border-white/10 overflow-hidden"
       >
         {/* Header bar */}
@@ -114,14 +92,6 @@ export function TicketPass({ ticket_number, full_name, pass_name, role, organiza
         </div>
       </div>
 
-      {/* Download button */}
-      <button
-        onClick={handleDownload}
-        className="mt-4 inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-white/60 text-xs font-mono uppercase tracking-widest hover:bg-white/5 transition-colors"
-      >
-        <Download size={12} />
-        Download Pass
-      </button>
     </div>
   );
 }

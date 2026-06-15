@@ -1,10 +1,26 @@
-import { motion } from 'motion/react';
-import { AngledButton } from './LayoutElements';
-import { Github, Linkedin, Twitter, Mail, ArrowUpRight } from 'lucide-react';
+import { Mail, Linkedin, Twitter } from 'lucide-react';
+
+const quickLinks = [
+  { label: 'About', href: '#about' },
+  { label: 'Schedule', href: '#schedule' },
+  { label: 'Speakers', href: '#speakers' },
+  { label: 'Tickets', href: '#tickets' },
+  { label: 'Gallery', href: '#gallery' },
+  { label: 'FAQ', href: '#faq' },
+];
 
 export const FooterSection = () => {
   return (
-    <footer className="relative bg-[#050505] overflow-hidden mt-8 sm:mt-12 flex flex-col p-4 sm:px-12 lg:px-24 gap-8 sm:gap-12 z-10 border-t border-white/5 py-10 sm:py-16">
+    <footer className="relative bg-[#050505] overflow-hidden flex flex-col p-4 sm:px-12 lg:px-24 gap-8 sm:gap-12 z-10 border-t border-white/5 py-10 sm:py-16">
+      {/* Quick nav links */}
+      <div className="flex flex-wrap gap-4 sm:gap-6 border-b border-white/5 pb-6 sm:pb-8">
+        {quickLinks.map((link) => (
+          <a key={link.label} href={link.href} className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-white/30 hover:text-aws-orange transition-colors">
+            {link.label}
+          </a>
+        ))}
+      </div>
+
       <div className="flex flex-col md:flex-row gap-8 sm:gap-12 justify-between">
          
          <div className="flex flex-col max-w-sm">

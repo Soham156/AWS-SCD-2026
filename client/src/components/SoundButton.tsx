@@ -54,7 +54,7 @@ export const SoundButton = () => {
       scrollTrigger: {
         trigger: document.documentElement,
         start: "top top", // scroll = 0
-        end: "bottom top", // scroll = 600
+        end: "600px top", // scroll = 600
         scrub: 0.6, // slight smoothing
       },
     });

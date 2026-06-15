@@ -4,36 +4,94 @@ import { SectionHeader } from './LayoutElements';
 import { Plus, Minus } from 'lucide-react';
 
 const faqs = [
-  {
-    question: "When and where is AWS Student Community Day Dhule 2026?",
-    answer: "The event is scheduled for August 14, 2026, at the SVKM's Institute of Technology Campus in Dhule, Maharashtra."
-  },
-  {
-    question: "Who can attend the event?",
-    answer: "The event is open to students, cloud enthusiasts, developers, and industry professionals. We have specific ticket tiers for students and professionals."
-  },
-  {
-    question: "Do I need prior AWS experience?",
-    answer: "Not at all! We have tracks for beginners as well as advanced workshops for experienced developers. There is something for everyone."
-  },
-  {
-    question: "What should I bring with me?",
-    answer: "Bring your laptop and charger for hands-on workshops, a valid ID card for entry, and a readiness to learn and network!"
-  },
-  {
-    question: "Is lunch provided?",
-    answer: "Yes, all pass tiers include lunch, high tea, and access to the networking paddock."
-  }
+{
+question: "Who should attend AWS Student Community Day Dhule?",
+answer: "Students, developers, builders, founders, cloud enthusiasts, and anyone curious about technology. If you've ever broken something while learning and somehow fixed it later, you'll fit right in. Aliens may attend, but only if they register first."
+},
+{
+question: "Do I need AWS or cloud experience?",
+answer: "Not at all. Whether you're deploying production workloads or still wondering what EC2 actually does, there's a session designed for you."
+},
+{
+question: "Can beginners attend?",
+answer: "Absolutely. Every cloud engineer started with a confused Google search, a free-tier account, and questionable confidence."
+},
+{
+question: "What will I actually get from attending?",
+answer: "Knowledge, networking, industry insights, career opportunities, certificates, swag, new connections, and at least three browser tabs you'll promise to revisit later. Food is obviously included."
+},
+{
+question: "Will there be internships or job opportunities?",
+answer: "We can't guarantee internships or job offers. We can guarantee you'll meet people whose LinkedIn profiles will immediately make you reconsider your current resume."
+},
+{
+question: "Will there be networking opportunities?",
+answer: "Yes. The professional kind. Not the kind involving routers, switches, cables, and subnet masks."
+},
+{
+question: "Will there be AI sessions?",
+answer: "Of course. It's 2026. Every technology event is legally required to mention AI at least once every few minutes."
+},
+{
+question: "How is AWS Student Community Day different from a college seminar?",
+answer: "Nobody is here because attendance is mandatory. Everyone is here because they genuinely want to learn, connect, and build."
+},
+{
+question: "What if I attend alone?",
+answer: "Half the attendees are thinking the exact same thing. By lunch you'll either have new friends, new collaborators, or at least a few new LinkedIn connections."
+},
+{
+question: "Can I ask beginner questions?",
+answer: "Please do. The only dangerous question is the one that silently becomes a production issue six months later."
+},
+{
+question: "What if I don't understand a session?",
+answer: "That's completely normal. Just ask questions, take notes, and remember that even experienced engineers spend half their careers searching for answers."
+},
+{
+question: "What should I bring?",
+answer: "Bring your ticket, a valid ID, a charged laptop, a charger, and enough battery life to survive the inevitable LinkedIn posting spree."
+},
+{
+question: "Will food be provided?",
+answer: "Yes. Cloud computing becomes significantly more difficult when your stomach enters power-saving mode."
+},
+{
+question: "Will there be free swag?",
+answer: "Yes. We know this was one of the first questions you wanted answered."
+},
+{
+question: "Can I add this event to LinkedIn?",
+answer: "Absolutely. We fully expect a significant percentage of attendees to post 'Excited to attend 🚀' before they even arrive."
+},
+{
+question: "Is this worth spending an entire day on?",
+answer: "You're asking this while spending hours scrolling social media. So yes, probably."
+},
+{
+question: "What if I know everything already?",
+answer: "Fantastic. We'd love to hear your keynote next year."
+},
+{
+question: "What is the refund policy?",
+answer: "Tickets are non-refundable once purchased. Ticket transfers may be allowed before the event. Also, if you weren't sure about attending, why did you race through registration faster than a production deployment?"
+}
 ];
+
 
 export const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <section className="relative py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
-      <SectionHeader title="Briefing Room" subtitle="Frequently asked questions about the event, ticketing, and logistics. Everything you need to know before lights out." sysId="08.FAQ" />
+      <div className="sticky top-0 z-30 bg-gradient-to-b from-[#050505] via-[#050505]/90 to-transparent backdrop-blur-[8px] pt-10 sm:pt-12 lg:pt-16  -mt-10 sm:-mt-12 lg:-mt-16 mb-0">
+        <SectionHeader title="Briefing Room" subtitle="" sysId="10.FAQ" />
+      <p className="font-sans text-xs sm:text-sm md:text-base opacity-60 font-medium leading-relaxed max-w-xl pb-2 mb-6 -mt-2 relative z-10">
+        Frequently asked questions about the event, ticketing, and logistics. Everything you need to know before lights out.
+      </p>
+      </div>
 
-      <div className="max-w-3xl mx-auto mt-12 sm:mt-16 flex flex-col gap-4 relative z-10">
+      <div className="max-w-3xl mx-auto mt-12 sm:mt-16 flex flex-col gap-3 relative z-10">
         {faqs.map((faq, i) => {
           const isOpen = openIndex === i;
           
@@ -43,7 +101,7 @@ export const FAQSection = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.4 }}
+              transition={{ delay: i * 0.05, duration: 0.4 }}
               className="group"
             >
               <button
@@ -54,7 +112,7 @@ export const FAQSection = () => {
                     : 'bg-[#0a0a0a] border-white/5 hover:border-white/20 hover:bg-[#111]'
                 }`}
               >
-                <span className={`font-sans font-black italic text-base sm:text-lg uppercase tracking-tight pr-4 transition-colors ${
+                <span className={`font-sans font-black italic text-sm sm:text-base uppercase tracking-tight pr-4 transition-colors ${
                   isOpen ? 'text-white' : 'text-white/70 group-hover:text-white'
                 }`}>
                   {faq.question}
@@ -66,16 +124,17 @@ export const FAQSection = () => {
                 </span>
               </button>
 
-              <AnimatePresence>
+              <AnimatePresence initial={false}>
                 {isOpen && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    onUpdate={() => window.dispatchEvent(new Event('resize'))}
                     className="overflow-hidden"
                   >
-                    <div className="p-5 sm:p-6 bg-[#111] border-x border-b border-white/5 text-sm sm:text-base text-white/60 leading-relaxed font-sans">
+                    <div className="p-5 sm:p-6 bg-[#111] border-x border-b border-white/10 text-sm sm:text-base text-white/60 leading-relaxed font-sans">
                       {faq.answer}
                     </div>
                   </motion.div>

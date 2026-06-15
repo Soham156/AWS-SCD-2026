@@ -21,19 +21,20 @@ router.post('/cashfree', async (req, res, next) => {
     // Per Cashfree docs: use your Client Secret (CASHFREE_SECRET_KEY) for HMAC
     const secretKey = process.env.CASHFREE_SECRET_KEY;
 
-    if (signature && secretKey && rawBody) {
-      const expectedSig = createHmac('sha256', secretKey)
-        .update(timestamp + rawBody)
-        .digest('base64');
+    if (!signature || !secretKey || !rawBody || !timestamp) {
+      console.warn('[Webhook] Missing signature, secret, timestamp, or rawBody');
+      res.status(401).json({ error: 'Unauthorized: Missing webhook signature or payload' });
+      return;
+    }
 
-      if (signature !== expectedSig) {
-        console.warn('[Webhook] Invalid signature');
-        res.status(401).json({ error: 'Invalid signature' });
-        return;
-      }
-      console.log('[Webhook] Signature verified successfully');
-    } else {
-      console.warn('[Webhook] Skipping signature verification (missing signature/secret/rawBody)');
+    const expectedSig = createHmac('sha256', secretKey)
+      .update(timestamp + rawBody)
+      .digest('base64');
+
+    if (signature !== expectedSig) {
+      console.warn('[Webhook] Invalid signature');
+      res.status(401).json({ error: 'Invalid signature' });
+      return;
     }
 
     const { data: eventData } = req.body;
@@ -64,6 +65,12 @@ router.post('/cashfree', async (req, res, next) => {
       if (payment.status === 'paid') {
         // Already processed
         res.status(200).json({ message: 'Already processed' });
+        return;
+      }
+
+      if (payment.status === 'expired') {
+        console.warn('[Webhook] Attempted to pay an expired order:', orderId);
+        res.status(200).json({ message: 'Order expired, ignoring' });
         return;
       }
 
@@ -115,7 +122,6 @@ router.post('/cashfree', async (req, res, next) => {
       }
 
       // TODO: Trigger AWS SES email (deferred — SES not configured yet)
-      console.log('[Webhook] Payment success for order:', orderId, 'Ticket:', ticket_number);
     } else if (event === 'PAYMENT_FAILED_WEBHOOK') {
       const orderId = eventData?.order?.order_id;
       if (orderId) {
