@@ -102,7 +102,7 @@ export default function App() {
   return (
   <>
     <SmoothScroll />
-    <Suspense fallback={<Preloader key="suspense-loader" onComplete={() => {}} />}>
+    <Suspense fallback={<div className="fixed inset-0 bg-[#050505] z-[100] flex items-center justify-center"><div className="w-12 h-12 border-4 border-white/10 border-t-[#E10600] rounded-full animate-spin"></div></div>}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/sponsors" element={<SponsorPage />} />

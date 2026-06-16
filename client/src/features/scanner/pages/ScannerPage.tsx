@@ -63,9 +63,6 @@ export function ScannerPage() {
       <div className="border-b border-white/5 px-4 py-4">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" className="text-white/30 hover:text-white transition-colors">
-              <ArrowLeft size={18} />
-            </Link>
             <div>
               <h1 className="font-sans font-black italic text-lg uppercase tracking-tight">
                 Gate Scanner
