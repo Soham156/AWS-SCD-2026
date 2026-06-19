@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
-import ReactLenis from 'lenis/react';
+
 import { Github, Linkedin, ChevronLeft, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { SectionHeader } from './LayoutElements';
@@ -67,169 +66,7 @@ const crew: TeamMember[] = [
   },
 ];
 
-const StaticDriverCard = ({ member, i }: { member: TeamMember; i: number }) => {
-  return (
-    <div className="w-full max-w-[340px] mx-auto aspect-[3/4] relative rounded-[2rem] border-2 border-white/10 bg-[#0a0a0a] shadow-xl overflow-hidden group">
-      {/* Full Image Background */}
-      <img
-        src={member.image}
-        alt={member.name}
-        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
-      />
 
-      {/* Event Badge Top Bar */}
-      <div className="absolute top-0 inset-x-0 h-12 bg-aws-orange text-black flex justify-between items-center px-4 sm:px-5 z-20">
-        <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest">CREW / 2026</span>
-        <span className="font-mono text-[10px] sm:text-xs font-black uppercase">ID-0{i + 1}</span>
-      </div>
-      
-      {/* Fake Lanyard Hole */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-2.5 sm:h-3 rounded-full bg-[#050505] shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] z-30" />
-
-      {/* Content Glassmorphism Bottom Overlay */}
-      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#050505] via-[#050505]/95 to-transparent pt-20 sm:pt-24 pb-6 px-5 sm:px-6 z-20">
-        <h3 className="font-sans text-xl sm:text-2xl font-black italic uppercase tracking-tight text-white mb-1 leading-none">
-          {member.name}
-        </h3>
-        <p className="text-[10px] sm:text-xs text-aws-orange font-bold uppercase tracking-widest mb-3 font-mono">
-          {member.role}
-        </p>
-        <p className="text-white/60 text-[10px] sm:text-xs leading-relaxed mb-4 line-clamp-2">
-          {member.description}
-        </p>
-
-        {/* Event themed footer */}
-        <div className="flex justify-between items-end border-t border-white/10 pt-4">
-          <div className="h-4 sm:h-5 flex gap-[2px] opacity-40">
-            {[1, 3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1].map((w, j) => (
-              <div key={j} className="h-full bg-white" style={{ width: `${w}px` }} />
-            ))}
-          </div>
-          
-          <div className="flex gap-2">
-            {member.linkedin !== "#" && (
-              <a href={member.linkedin} target="_blank" rel="noreferrer" className="p-1.5 rounded-full border border-white/10 bg-black/50 text-white/40 hover:text-white hover:border-white transition-all duration-300 backdrop-blur-md">
-                <Linkedin size={14} />
-              </a>
-            )}
-            {member.github !== "#" && (
-              <a href={member.github} target="_blank" rel="noreferrer" className="p-1.5 rounded-full border border-white/10 bg-black/50 text-white/40 hover:text-white hover:border-white transition-all duration-300 backdrop-blur-md">
-                <Github size={14} />
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-const AnimatedDriverCard = ({
-  member,
-  i,
-  progress,
-  totalCards,
-}: {
-  member: TeamMember;
-  i: number;
-  progress: any;
-  totalCards: number;
-}) => {
-  // Card 0 is already in place. Cards 1 to N fly in sequentially.
-  const flyInStart = Math.max(0, (i - 1) / (totalCards - 1));
-  const flyInEnd = i / (totalCards - 1);
-  const finalYOffset = i * 12; // Stack offset - decreased distance
-  
-  const y = useTransform(
-    progress, 
-    [flyInStart, flyInEnd], 
-    [i === 0 ? finalYOffset : 1200, finalYOffset] // Start 1200px down
-  );
-
-  const finalScale = 1 - (totalCards - i - 1) * 0.04;
-  const scale = useTransform(
-    progress,
-    [flyInEnd, 1],
-    [1, finalScale]
-  );
-
-  return (
-    <motion.div
-      style={{
-        y,
-        scale,
-        zIndex: i,
-        position: 'absolute',
-        top: 0,
-        willChange: 'transform'
-      }}
-      className="w-[280px] sm:w-[340px] aspect-[3/4] origin-top rounded-[2rem] border-2 border-white/10 bg-[#0a0a0a] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] overflow-hidden group"
-    >
-      {/* Full Image Background */}
-      <img
-        src={member.image}
-        alt={member.name}
-        className="w-full h-full object-cover transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
-        style={{ filter: 'grayscale(1)' }}
-      />
-
-      {/* Event Badge Top Bar */}
-      <div className="absolute top-0 inset-x-0 h-12 bg-aws-orange text-black flex justify-between items-center px-4 sm:px-5 z-20">
-        <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-widest">CREW / 2026</span>
-        <span className="font-mono text-[10px] sm:text-xs font-black uppercase">ID-0{i + 1}</span>
-      </div>
-      
-      {/* Fake Lanyard Hole */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 sm:w-12 h-2.5 sm:h-3 rounded-full bg-[#050505] shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] z-30" />
-
-      {/* Content Glassmorphism Bottom Overlay */}
-      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#050505] via-[#050505]/95 to-transparent pt-20 sm:pt-24 pb-6 px-5 sm:px-6 z-20">
-        <h3 className="font-sans text-xl sm:text-2xl font-black italic uppercase tracking-tight text-white mb-1 leading-none">
-          {member.name}
-        </h3>
-        <p className="text-[10px] sm:text-xs text-aws-orange font-bold uppercase tracking-widest mb-3 font-mono">
-          {member.role}
-        </p>
-        <p className="text-white/60 text-[10px] sm:text-xs leading-relaxed mb-4 line-clamp-2">
-          {member.description}
-        </p>
-
-        {/* Event themed footer: Barcode & Socials */}
-        <div className="flex justify-between items-end border-t border-white/10 pt-4">
-          <div className="h-4 sm:h-5 flex gap-[2px] opacity-40">
-            {[1, 3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1].map((w, j) => (
-              <div key={j} className="h-full bg-white" style={{ width: `${w}px` }} />
-            ))}
-          </div>
-          
-          <div className="flex gap-2">
-            {member.linkedin !== "#" && (
-              <a
-                href={member.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="p-1.5 rounded-full border border-white/10 bg-black/50 text-white/40 hover:text-[#0a66c2] hover:border-[#0a66c2] transition-all duration-300 backdrop-blur-md"
-              >
-                <Linkedin size={14} />
-              </a>
-            )}
-            {member.github !== "#" && (
-              <a
-                href={member.github}
-                target="_blank"
-                rel="noreferrer"
-                className="p-1.5 rounded-full border border-white/10 bg-black/50 text-white/40 hover:text-white hover:border-white transition-all duration-300 backdrop-blur-md"
-              >
-                <Github size={14} />
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
 const LiteModeSection = ({ crew }: { crew: TeamMember[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const stackRef = useRef<HTMLDivElement>(null);
@@ -449,6 +286,8 @@ const LiteModeSection = ({ crew }: { crew: TeamMember[] }) => {
                 ref={(el) => { imgRefs.current[i] = el; }}
                 src={member.image}
                 alt={member.name}
+                width={320}
+                height={400}
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full object-cover transition-[filter] duration-500 group-hover:!grayscale-0"
@@ -545,12 +384,14 @@ const LiteModeSection = ({ crew }: { crew: TeamMember[] }) => {
       <div className="flex justify-center gap-3 mt-8 sm:mt-12">
         <button
           onClick={withReset(handlePrev)}
+          aria-label="Previous team member"
           className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white/30 hover:text-white hover:border-white/50 transition-all duration-300 hover:shadow-lg hover:shadow-white/5"
         >
           <ChevronLeft size={20} />
         </button>
         <button
           onClick={withReset(handleNext)}
+          aria-label="Next team member"
           className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white/30 hover:text-white hover:border-white/50 transition-all duration-300 hover:shadow-lg hover:shadow-white/5"
         >
           <ChevronRight size={20} />
@@ -562,6 +403,7 @@ const LiteModeSection = ({ crew }: { crew: TeamMember[] }) => {
           <button
             key={i}
             onClick={() => handleDotClickWithReset(i)}
+            aria-label={`Go to team member ${i + 1}`}
             className={`h-2 rounded-full transition-all duration-300 ${
               i === currentIndex
                 ? 'bg-aws-orange w-6'
@@ -575,107 +417,19 @@ const LiteModeSection = ({ crew }: { crew: TeamMember[] }) => {
 };
 
 export const DriversSection = () => {
-  const [isLiteMode, setIsLiteMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('scd_lite_mode') !== 'false';
-    }
-    return true;
-  });
+  return (
+    <section className="relative w-full bg-[#050505] pt-24 pb-32 px-4 sm:px-12 lg:px-24 min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      {/* Decorative background glow */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-aws-orange/5 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none z-0"></div>
 
-  useEffect(() => {
-    const handleLiteModeChange = () => {
-      setIsLiteMode(localStorage.getItem('scd_lite_mode') !== 'false');
-    };
-    window.addEventListener('scd_lite_mode_change', handleLiteModeChange);
-    return () => window.removeEventListener('scd_lite_mode_change', handleLiteModeChange);
-  }, []);
-
-  const toggleMode = () => {
-    const newVal = !isLiteMode;
-    setIsLiteMode(newVal);
-    if (newVal) {
-      localStorage.setItem('scd_lite_mode', 'true');
-      document.body.classList.add('lite-mode');
-    } else {
-      localStorage.removeItem('scd_lite_mode');
-      document.body.classList.remove('lite-mode');
-    }
-  };
-
-  const container = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: container,
-    offset: ["start start", "end end"],
-  });
-
-  const renderHeader = (isLite: boolean) => {
-    if (isLite) {
-      return (
-        <div className="w-full mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto relative z-10">
-          <SectionHeader 
-            title="Meet Our Team" 
-            subtitle="Discover the talented individuals behind our success." 
-            sysId="04.DRV" 
-          />
-        </div>
-      );
-    }
-    return (
-      <div className="w-full md:w-1/2 relative z-10 mb-10 md:mb-0">
+      <div className="w-full mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto relative z-10">
         <SectionHeader 
           title="Meet Our Team" 
           subtitle="Discover the talented individuals behind our success." 
           sysId="04.DRV" 
         />
       </div>
-    );
-  };
-
-  if (isLiteMode) {
-    return (
-      <section className="relative w-full bg-[#050505] pt-24 pb-32 px-4 sm:px-12 lg:px-24 min-h-screen flex flex-col items-center justify-center overflow-hidden">
-        {/* Decorative background glow */}
-        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-aws-orange/5 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none z-0"></div>
-
-        {renderHeader(true)}
-        <LiteModeSection crew={crew} />
-      </section>
-    );
-  }
-
-  return (
-    <ReactLenis root>
-      {/* Container height dictates how long the stack animation lasts. 400vh is perfect for 5 cards sliding up. */}
-      <section
-        ref={container}
-        className="relative w-full h-[400vh] bg-[#050505]"
-      >
-        {/* Single sticky container: Pinned Layout */}
-        <div className="sticky top-0 w-full h-screen flex flex-col md:flex-row items-start justify-center md:justify-between px-4 sm:px-12 lg:px-24 pt-[15vh] sm:pt-[20vh] lg:pt-[25vh]">
-          
-          {/* Decorative background glow */}
-          <div className="absolute top-[20%] md:top-[30%] left-1/2 md:left-[25%] -translate-x-1/2 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-aws-orange/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
-
-          {/* Left Side: Header */}
-          {renderHeader(false)}
-
-          {/* Right Side: Card Stack Container */}
-          <div className="w-full md:w-1/2 relative h-[450px] sm:h-[600px] flex items-start justify-center md:justify-center z-10">
-            <div className="relative w-[280px] sm:w-[340px] h-full flex items-start justify-center">
-              {crew.map((member, i) => (
-                <AnimatedDriverCard
-                  key={`member_${i}`}
-                  i={i}
-                  member={member}
-                  progress={scrollYProgress}
-                  totalCards={crew.length}
-                />
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </section>
-    </ReactLenis>
+      <LiteModeSection crew={crew} />
+    </section>
   );
 };

@@ -4,7 +4,6 @@ import { galleryFiles as localGalleryFiles } from 'virtual:event-gallery';
 import { SectionHeader } from './LayoutElements';
 
 const galleryFiles = localGalleryFiles;
-const mov0='https://photos.google.com/u/7/share/AF1QipPoXXkDai6EM782Hs2z_DwIp6FQr_2HIqBXvpE8oVdMpvqA8UohbV87eG8QVpWZlQ/photo/AF1QipOoKNiZsEUnXRFLHESLLrbiHA5twX4Eq3-cAvdA?key=eHVBVGlRd05WeHdWdWZsblhpX3FXaEttSGhWcXFB'
 /* ─── helpers ─────────────────────────────────────────────────── */
 
 const VIDEO_EXT = /\.(mp4|mov|webm|ogg)$/i;
@@ -47,7 +46,7 @@ const AutoPlayVideo = ({ src }: { src: string }) => {
       loop
       muted
       playsInline
-      preload="auto"
+      preload="none"
       aria-hidden="true"
       className="w-full h-auto object-cover"
     >

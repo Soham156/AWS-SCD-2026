@@ -68,10 +68,10 @@ router.post('/cashfree', async (req, res, next) => {
         return;
       }
 
+      let wasExpired = false;
       if (payment.status === 'expired') {
-        console.warn('[Webhook] Attempted to pay an expired order:', orderId);
-        res.status(200).json({ message: 'Order expired, ignoring' });
-        return;
+        console.warn('[Webhook] Paid an expired order. Accepting it but re-incrementing sold:', orderId);
+        wasExpired = true;
       }
 
       // Generate unique ticket number
@@ -115,9 +115,9 @@ router.post('/cashfree', async (req, res, next) => {
         })
         .eq('id', payment.registration_id);
 
-      // Increment sold count
+      // Increment sold count ONLY if it was expired (since the cron job decremented it)
       const regData = payment.registrations as any;
-      if (regData?.pass_type_id) {
+      if (wasExpired && regData?.pass_type_id) {
         await supabase.rpc('increment_sold', { pass_id: regData.pass_type_id });
       }
 
@@ -135,11 +135,19 @@ router.post('/cashfree', async (req, res, next) => {
         // Let's mark it as FAILED to be explicit
         const { data: payment } = await supabase
           .from('payments')
-          .select('registration_id')
+          .select('registration_id, status, registrations(pass_type_id)')
           .eq('cashfree_order_id', orderId)
           .single();
 
         if (payment) {
+          // If the payment was initiated, it had a reserved ticket. We must release it.
+          if (payment.status === 'initiated') {
+            const passId = (payment.registrations as any)?.pass_type_id;
+            if (passId) {
+              await supabase.rpc('decrement_sold', { pass_id: passId });
+            }
+          }
+
           await supabase
             .from('registrations')
             .update({ payment_status: 'FAILED' })

@@ -66,6 +66,8 @@ export const LogoMarquee = () => {
               src="/AWS_logo1.png"
               alt="AWS Logo"
               tabIndex={0}
+              width={120}
+              height={48}
               loading="lazy"
               decoding="async"
               className="marquee-logo h-12 object-contain grayscale-0 opacity-100 sm:grayscale sm:opacity-60 sm:hover:grayscale-0 sm:hover:opacity-100 sm:focus:grayscale-0 sm:focus:opacity-100 transition-all duration-300"
@@ -75,6 +77,8 @@ export const LogoMarquee = () => {
               src="/ARIF-white.png"
               alt="ARIF Logo"
               tabIndex={0}
+              width={120}
+              height={64}
               loading="lazy"
               decoding="async"
               className="marquee-logo h-16 object-contain grayscale-0 opacity-100 sm:grayscale sm:opacity-60 sm:hover:grayscale-0 sm:hover:opacity-100 sm:focus:grayscale-0 sm:focus:opacity-100 transition-all duration-300"
@@ -84,6 +88,8 @@ export const LogoMarquee = () => {
               src="/AWS_Builder.png"
               alt="AWS Builder Logo"
               tabIndex={0}
+              width={120}
+              height={48}
               loading="lazy"
               decoding="async"
               className="marquee-logo h-12 object-contain grayscale-0 opacity-100 sm:grayscale sm:opacity-60 sm:hover:grayscale-0 sm:hover:opacity-100 sm:focus:grayscale-0 sm:focus:opacity-100 transition-all duration-300"

@@ -216,18 +216,6 @@ textarea:focus-visible,
     transform: translateY(-2px);
   }
 
-  /* ─── CircuitSection — floor plan SVG ─── */
-  .group.touch-hover svg,
-  .group:active svg,
-  .group:focus-within svg {
-    opacity: 0.7 !important;
-  }
-
-  /* Zone cards border reveal */
-  .group.touch-hover.hover\:border-\[#FF9900\]\/50,
-  .group:active.hover\:border-\[#FF9900\]\/50 {
-    border-color: rgba(255, 153, 0, 0.5) !important;
-  }
 
   /* ─── FAQSection — accordion items ─── */
   /* The FAQ uses JS state (openIndex) for open/close, :active covers the rest */

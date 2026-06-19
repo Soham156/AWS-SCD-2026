@@ -15,7 +15,7 @@ import { LogoMarquee } from './components/LogoMarquee';
 import { WhatYouGetSection } from './components/WhatYouGetSection';
 import { DriversSection } from './components/DriversSection';
 import { TimelineSection } from './components/TimelineSection';
-import { CircuitSection } from './components/CircuitSection';
+
 import { ConstructorsSection } from './components/ConstructorsSection';
 import { TicketsSection } from './components/TicketsSection';
 import { SpeakersSection } from './components/SpeakersSection';
@@ -25,9 +25,9 @@ import { DirectionsSection } from './components/DirectionsSection';
 import { FooterSection } from './components/FooterSection';
 const SponsorPage = lazy(() => import('./components/SponsorPage').then(module => ({ default: module.SponsorPage })));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(module => ({ default: module.NotFoundPage })));
+const StatusPage = lazy(() => import('./components/StatusPage').then(module => ({ default: module.StatusPage })));
 import { BackToTop } from './components/BackToTop';
 import { CustomCursor } from './components/CustomCursor';
-// import { SoundButton } from './components/SoundButton';
 import { SmoothScroll } from './components/SmoothScroll';
 import { SocialWall } from './components/SocialWall';
 import { SectionDivider } from './components/LayoutElements';
@@ -57,19 +57,18 @@ function HomePage() {
             {/* <SectionDivider label="// 02" /> */}
 
             {/* Act 2: The Program */}
-            <TimelineSection />
             <SpeakersSection />
+            <TimelineSection />
 
             {/* <SectionDivider label="// 03" /> */}
 
             {/* Act 3: The Team & Tickets */}
-            <DriversSection />
             <TicketsSection />
+            <DriversSection />
 
             {/* <SectionDivider label="// 04" /> */}
 
             {/* Act 4: Venue & Logistics */}
-            <CircuitSection />
             <DirectionsSection />
 
             {/* <SectionDivider label="// 05" /> */}
@@ -114,11 +113,11 @@ export default function App() {
         <Route path="/speaker" element={<SpeakerPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/status" element={<StatusPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
     <BackToTop />
-    {/* <SoundButton /> */}
     <CustomCursor />
   </>
   );

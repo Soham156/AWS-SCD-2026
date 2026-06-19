@@ -15,51 +15,21 @@ export const HeroSection = () => {
   
   const [media, setMedia] = useState<{video: string, audio?: string} | null>(null);
   const [isLiteMode, setIsLiteMode] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(true);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     const lite = localStorage.getItem('scd_lite_mode') === 'true';
     setIsLiteMode(lite);
-    
-    if (lite) return;
-
-    let objectUrl: string | null = null;
-    let isMounted = true;
-
-    const fetchVideoBlob = async () => {
-      // const videoUrl = 'https://cdn.dribbble.com/userupload/30283976/file/original-68a046291a3715326bbdf17b9cfc0c9b.mp4';
-    // const videoUrl = 'https://www.desktophut.com/files/1768987955.mp4'
-      const videoUrl = 'https://raw.githubusercontent.com/lastbreathofdevil69/assests/main/videoplayback.webm';
-
-      try {
-        const response = await fetch(videoUrl);
-        if (!response.ok) throw new Error("Failed to fetch video blob");
-        
-        const blob = await response.blob();
-        if (!isMounted) return;
-
-        objectUrl = URL.createObjectURL(blob);
-        setMedia({ video: objectUrl });
-      } catch (err) {
-        console.warn("Blob caching failed (likely CORS or network issue). Falling back to direct URL stream.", err);
-        if (isMounted) {
-          setMedia({ video: videoUrl });
-        }
-      }
-    };
-
-    fetchVideoBlob();
-
-    return () => {
-      isMounted = false;
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
   }, []);
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const [inView, setInView] = useState(true);
-  const [hasStarted, setHasStarted] = useState(false);
+  useEffect(() => {
+    if (!hasStarted || isLiteMode) return;
+    setMedia({ video: '/videoplayback.webm' });
+  }, [hasStarted, isLiteMode]);
+
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -73,11 +43,13 @@ export const HeroSection = () => {
   }, []);
 
   useEffect(() => {
-    if (videoRef.current) videoRef.current.volume = 0.6;
+    if (videoRef.current) videoRef.current.volume = 0.55;
     if (audioRef.current) audioRef.current.volume = 0.6;
 
     const handleGreenLight = () => {
       setHasStarted(true);
+      const lite = localStorage.getItem('scd_lite_mode') === 'true';
+      setIsLiteMode(lite);
     };
 
     const handleToggleMute = () => {
@@ -102,8 +74,30 @@ export const HeroSection = () => {
   }, [isMuted]);
 
   useEffect(() => {
+    const handleFocusChange = () => {
+      if (document.hidden || !document.hasFocus()) {
+        videoRef.current?.pause();
+        audioRef.current?.pause();
+      } else if (hasStarted && inView) {
+        videoRef.current?.play().catch(() => {});
+        audioRef.current?.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleFocusChange);
+    window.addEventListener("blur", handleFocusChange);
+    window.addEventListener("focus", handleFocusChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleFocusChange);
+      window.removeEventListener("blur", handleFocusChange);
+      window.removeEventListener("focus", handleFocusChange);
+    };
+  }, [hasStarted, inView]);
+
+  useEffect(() => {
     if (hasStarted) {
-      if (inView) {
+      if (inView && !document.hidden && document.hasFocus()) {
         videoRef.current?.play().catch((e) => console.warn("Video blocked:", e));
         audioRef.current?.play().catch((e) => console.warn("Audio blocked:", e));
       } else {
@@ -115,7 +109,7 @@ export const HeroSection = () => {
 
   // Watchdog checker to ensure video plays if it's supposed to be playing
   useEffect(() => {
-    if (!hasStarted || !inView) return;
+    if (!hasStarted || !inView || document.hidden || !document.hasFocus()) return;
 
     const checkInterval = setInterval(() => {
       if (videoRef.current && videoRef.current.paused) {
@@ -149,8 +143,8 @@ export const HeroSection = () => {
               ref={videoRef}
               preload="auto"
               loop
-              muted
               playsInline
+              fetchPriority="high"
               className="w-full h-full object-cover opacity-60 mix-blend-screen mix-blend-lighten"
               src={media.video}
             />

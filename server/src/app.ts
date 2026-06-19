@@ -112,6 +112,41 @@ setInterval(async () => {
   }
 }, 30 * 60 * 1000); // Run every 30 minutes
 
+// Background cleanup for abandoned checkout sessions (release reserved tickets)
+setInterval(async () => {
+  try {
+    const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    
+    // Find payments initiated > 15 mins ago
+    const { data: expiredPayments, error } = await supabase
+      .from('payments')
+      .select('id, registrations(pass_type_id)')
+      .eq('status', 'initiated')
+      .lt('created_at', fifteenMinsAgo);
+
+    if (error) {
+      console.error('[Session Cleanup] Error fetching expired payments:', error);
+      return;
+    }
+
+    if (expiredPayments && expiredPayments.length > 0) {
+      for (const p of expiredPayments) {
+        // Mark as expired
+        await supabase.from('payments').update({ status: 'expired' }).eq('id', p.id);
+        
+        // Release the ticket by decrementing the sold count
+        const passId = (p.registrations as any)?.pass_type_id;
+        if (passId) {
+          await supabase.rpc('decrement_sold', { pass_id: passId });
+        }
+      }
+      console.log(`[Session Cleanup] Released ${expiredPayments.length} reserved tickets.`);
+    }
+  } catch (err) {
+    console.error('[Session Cleanup] Unexpected error:', err);
+  }
+}, 5 * 60 * 1000); // Run every 5 minutes
+
 app.listen(PORT, () => {
   console.log(`[Server] Running on http://localhost:${PORT}`);
 });

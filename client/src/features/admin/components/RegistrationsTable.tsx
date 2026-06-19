@@ -162,15 +162,7 @@ export function RegistrationsTable() {
                     {new Date(r.created_at).toLocaleDateString()}
                   </td>
                   <td className="py-2 px-3">
-                    {r.payment_status === 'PAID' && (
-                      <button
-                        onClick={() => handleRefund(r.id)}
-                        disabled={refunding === r.id}
-                        className="px-2 py-1 text-[9px] font-mono uppercase tracking-wider border border-f1-red/30 text-f1-red hover:bg-f1-red/10 transition-colors disabled:opacity-50"
-                      >
-                        {refunding === r.id ? '...' : 'Refund'}
-                      </button>
-                    )}
+                    {/* Refund functionality removed */}
                   </td>
                 </tr>
               ))

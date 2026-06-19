@@ -161,7 +161,9 @@ router.get('/registrations', async (req, res, next) => {
       query = query.eq('checked_in', checked_in === 'true');
     }
     if (search) {
-      query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
+      // Escape commas to prevent PostgREST from splitting the .or() conditions incorrectly
+      const safeSearch = search.replace(/,/g, '');
+      query = query.or(`full_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
     }
 
     const { data, count, error } = await query;

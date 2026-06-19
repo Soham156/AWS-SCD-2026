@@ -83,12 +83,26 @@ router.post('/register', registrationLimiter, async (req, res, next) => {
 
         if (updateErr) throw updateErr;
 
-        // Invalidate old payment sessions to prevent price spoofing
-        await supabase
+        // Invalidate old payment sessions to prevent price spoofing and release their reserved tickets
+        const { data: initiatedPayments } = await supabase
           .from('payments')
-          .update({ status: 'expired' })
+          .select('id, registrations(pass_type_id)')
           .eq('registration_id', existing.id)
           .eq('status', 'initiated');
+
+        if (initiatedPayments && initiatedPayments.length > 0) {
+          await supabase
+            .from('payments')
+            .update({ status: 'expired' })
+            .in('id', initiatedPayments.map(p => p.id));
+            
+          for (const p of initiatedPayments) {
+            const passId = (p.registrations as any)?.pass_type_id;
+            if (passId) {
+              await supabase.rpc('decrement_sold', { pass_id: passId });
+            }
+          }
+        }
 
         res.status(200).json({ ticket_id: existing.id, ticket_number: existing.ticket_number || '' });
         return;

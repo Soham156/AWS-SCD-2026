@@ -51,9 +51,14 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
       return;
     }
 
-    // Check capacity to prevent overselling from old pending registrations
-    if (passType.capacity - passType.sold <= 0) {
-      res.status(400).json({ error: 'This pass type is now sold out.' });
+    // Attempt to atomically reserve a ticket
+    const { data: reserved, error: rpcErr } = await supabase.rpc('initiate_checkout', {
+      p_reg_id: ticket_id,
+      p_pass_id: pass_type_id
+    });
+
+    if (rpcErr || !reserved) {
+      res.status(400).json({ error: 'This pass type is now sold out or cannot be reserved.' });
       return;
     }
 
