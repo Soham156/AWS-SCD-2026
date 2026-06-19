@@ -66,10 +66,9 @@ export const GallerySection = () => {
   const [showAll, setShowAll] = useState(false);
 
   const items = useMemo(() => {
-    const externalVideos = ['https://raw.githubusercontent.com/lastbreathofdevil69/assests/main/0.mp4'];
     const videos = galleryFiles.filter((f) => VIDEO_EXT.test(f));
     const images = shuffle(galleryFiles.filter((f) => !VIDEO_EXT.test(f)));
-    return [...externalVideos, ...videos, ...images];
+    return [...videos, ...images];
   }, []);
 
   return (

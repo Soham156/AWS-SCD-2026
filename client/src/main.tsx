@@ -7,6 +7,10 @@ import { initTouchHover } from './touchHover';
 
 initTouchHover();
 
+if (localStorage.getItem('scd_lite_mode') !== 'false') {
+  document.body.classList.add('lite-mode');
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>

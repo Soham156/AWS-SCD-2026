@@ -50,6 +50,19 @@ body::before {
   z-index: -1;
 }
 
+body.lite-mode {
+  background-color: #050505;
+  background-image: url('/bg.avif');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+body.lite-mode::before {
+  display: none !important;
+}
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-carbon); border-left: 1px solid rgba(255,255,255,0.05); }
 ::-webkit-scrollbar-thumb { background: var(--color-f1-red); }

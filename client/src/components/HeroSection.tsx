@@ -14,14 +14,22 @@ export const HeroSection = () => {
   const [isMuted, setIsMuted] = useState(false);
   
   const [media, setMedia] = useState<{video: string, audio?: string} | null>(null);
+  const [isLiteMode, setIsLiteMode] = useState(false);
 
   useEffect(() => {
+    const lite = localStorage.getItem('scd_lite_mode') === 'true';
+    setIsLiteMode(lite);
+    
+    if (lite) return;
+
     let objectUrl: string | null = null;
     let isMounted = true;
 
     const fetchVideoBlob = async () => {
-      const videoUrl = 'https://cdn.dribbble.com/userupload/30283976/file/original-68a046291a3715326bbdf17b9cfc0c9b.mp4';
-      
+      // const videoUrl = 'https://cdn.dribbble.com/userupload/30283976/file/original-68a046291a3715326bbdf17b9cfc0c9b.mp4';
+    // const videoUrl = 'https://www.desktophut.com/files/1768987955.mp4'
+      const videoUrl = 'https://raw.githubusercontent.com/lastbreathofdevil69/assests/main/videoplayback.webm';
+
       try {
         const response = await fetch(videoUrl);
         if (!response.ok) throw new Error("Failed to fetch video blob");
@@ -129,7 +137,13 @@ export const HeroSection = () => {
         style={{ y, opacity }}
         className="absolute inset-0 z-0 pointer-events-none bg-[#050505]"
       >
-        {media && (
+        {isLiteMode ? (
+          <img
+            src="/bg.avif"
+            alt="Hero Background"
+            className="w-full h-full object-cover opacity-60 mix-blend-screen mix-blend-lighten"
+          />
+        ) : media && (
           <>
             <video
               ref={videoRef}

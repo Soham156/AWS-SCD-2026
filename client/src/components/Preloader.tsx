@@ -189,6 +189,12 @@ export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string
   const [best, setBest] = useState<number>(parseInt(localStorage.getItem('scd_best_reaction') || '0'));
   const [shouldRender, setShouldRender] = useState(true);
   const [toastMsg, setToastMsg] = useState<{text: string, color: string} | null>(null);
+  const [isLiteMode, setIsLiteMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('scd_lite_mode') !== 'false';
+    }
+    return true;
+  });
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
@@ -420,18 +426,61 @@ export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string
         )}
       </div>
 
-      <button 
-        onClick={(e) => {
-          e.stopPropagation();
-          skipIntro();
-        }}
-        className="absolute bottom-8 right-8 md:bottom-12 md:right-12 text-xs md:text-sm uppercase font-mono text-white/50 hover:text-white transition-colors tracking-widest z-50 max-md:pb-20 pb-1 cursor-pointer"
-      >
-      
-        <div className='border-b flex justify-end items-end '>
-          Skip & Enter Website
+      <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex flex-col items-end gap-5 z-50 max-md:pb-20 pb-1">
+        
+        {/* Toggle Switch & Description */}
+        <div 
+          className="flex flex-col items-end gap-2 group cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsLiteMode(!isLiteMode);
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className={`text-xs font-mono uppercase tracking-widest transition-colors ${!isLiteMode ? 'text-white' : 'text-white/40'}`}>
+              Normal
+            </span>
+            <div className="w-10 h-5 bg-white/10 rounded-full relative border border-white/20 transition-colors">
+              <div 
+                className={`absolute top-[2px] w-4 h-4 rounded-full transition-all duration-300 ${
+                  isLiteMode 
+                    ? 'left-[20px] bg-aws-orange shadow-[0_0_10px_rgba(255,153,0,0.6)]' 
+                    : 'left-[2px] bg-white'
+                }`}
+              />
+            </div>
+            <span className={`text-xs font-mono uppercase tracking-widest transition-colors ${isLiteMode ? 'text-aws-orange font-bold' : 'text-white/40'}`}>
+              Lite
+            </span>
+          </div>
+          <p className="text-[10px] sm:text-xs text-white/40 font-mono text-right max-w-[200px] leading-tight h-8">
+            {isLiteMode 
+              ? "Performance optimized. Removes heavy scroll animations." 
+              : "High-end experience. Full 3D & smooth scroll animations."}
+          </p>
         </div>
-      </button>
+
+        {/* Enter Website Button */}
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isLiteMode) {
+              localStorage.setItem('scd_lite_mode', 'true');
+              document.body.classList.add('lite-mode');
+            } else {
+              localStorage.setItem('scd_lite_mode', 'false');
+              document.body.classList.remove('lite-mode');
+            }
+            window.dispatchEvent(new Event('scd_lite_mode_change'));
+            skipIntro();
+          }}
+          className="text-xs md:text-sm uppercase font-mono text-white/70 hover:text-white transition-all tracking-widest cursor-pointer mt-2"
+        >
+          <div className='border-b border-white/30 hover:border-white flex justify-end items-end pb-1'>
+            {gameState === IDLE ? 'Skip & Enter Website' : 'Enter Website'}
+          </div>
+        </button>
+      </div>
 
       {/* Toast Notification */}
       <AnimatePresence>

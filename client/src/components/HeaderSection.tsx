@@ -74,7 +74,7 @@ export const HeaderSection = () => {
 
   return (
     <>
-      <header className={`h-14 sm:h-16 lg:h-20 flex items-center justify-between px-4 sm:px-12 lg:px-24 border-b z-50 fixed top-0 left-0 right-0 transition-all duration-300 ${
+      <header className={`h-14 sm:h-16 lg:h-20 flex items-center justify-between px-4 sm:px-12 lg:px-24 border-b z-[9999] fixed top-0 left-0 right-0 transition-all duration-300 ${
         scrolled ? 'bg-[#050505]/95 backdrop-blur-xl border-white/5' : 'bg-transparent border-transparent'
       }`}>
         <div className="flex items-center gap-2 sm:gap-4">

@@ -12,7 +12,7 @@ import { Preloader } from './components/Preloader';
 import { HeaderSection } from './components/HeaderSection';
 import { HeroSection } from './components/HeroSection';
 import { LogoMarquee } from './components/LogoMarquee';
-import { GridSection } from './components/GridSection';
+import { WhatYouGetSection } from './components/WhatYouGetSection';
 import { DriversSection } from './components/DriversSection';
 import { TimelineSection } from './components/TimelineSection';
 import { CircuitSection } from './components/CircuitSection';
@@ -43,13 +43,16 @@ function HomePage() {
         )}
       </AnimatePresence>
 
-      <div className={loading ? "fixed inset-0 opacity-0 pointer-events-none" : "relative opacity-0 animate-[fadeIn_1s_ease-out_forwards]"}>
+      <div className={`transition-opacity duration-1000 ${loading ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         <HeaderSection />
+      </div>
+
+      <div className={loading ? "fixed inset-0 opacity-0 pointer-events-none" : "relative opacity-0 animate-[fadeIn_1s_ease-out_forwards]"}>
         <main className="flex flex-col">
             {/* Act 1: Introduction */}
             <HeroSection />
             <LogoMarquee />
-            <GridSection />
+            <WhatYouGetSection />
 
             {/* <SectionDivider label="// 02" /> */}
 
@@ -83,8 +86,8 @@ function HomePage() {
       {/* Tailwind inline raw utility animation for main content fade in */}
       <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; filter: blur(10px); }
-          to { opacity: 1; filter: blur(0); }
+          from { opacity: 0; filter: blur(10px); transform: translateY(10px); }
+          to { opacity: 1; filter: none; transform: none; }
         }
       `}</style>
     </div>
