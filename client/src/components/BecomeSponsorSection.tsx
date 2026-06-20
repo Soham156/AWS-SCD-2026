@@ -1,57 +1,16 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { SectionHeader } from './LayoutElements';
-import { X, Mail, CheckCircle, ArrowUpRight, Award, Trophy, Users, GraduationCap } from 'lucide-react';
+import { Mail, ArrowUpRight, Trophy, Users, GraduationCap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const BecomeSponsorSection = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
-  
-  // Form State
-  const [companyName, setCompanyName] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [tierOfInterest, setTierOfInterest] = useState("Gold Sponsor");
-  const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText("info@aws-scd-dhule.tech");
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
-  };
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-    setIsSubmitted(false);
-    setCompanyName("");
-    setContactName("");
-    setEmail("");
-    setPhone("");
-    setTierOfInterest("Gold Sponsor");
-    setMessage("");
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!companyName || !contactName || !email || !phone) return;
-
-    setIsSubmitting(true);
-    
-    // Simulate submission flow
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      
-      // Construct mailto link parameters
-      const mailtoSubject = `Sponsorship Request - ${companyName} (${tierOfInterest})`;
-      const mailtoBody = `Hi AWS Student Builder Group Team,\n\nWe would love to sponsor AWS Student Community Day Dhule 2026 under the ${tierOfInterest} tier.\n\nSponsorship Request Details:\n- Company/Brand Name: ${companyName}\n- Contact Representative: ${contactName}\n- Email: ${email}\n- Phone/WhatsApp: ${phone}\n- Tier of Interest: ${tierOfInterest}\n- Custom Requirements / Notes:\n${message || "No additional requirements specified."}\n\nPlease let us know the next steps.\n\nBest regards,\n${contactName}\n${companyName}`;
-      
-      // Auto open mailto client
-      window.location.href = `mailto:info@aws-scd-dhule.tech?subject=${encodeURIComponent(mailtoSubject)}&body=${encodeURIComponent(mailtoBody)}`;
-    }, 1500);
   };
 
   return (
@@ -159,14 +118,14 @@ export const BecomeSponsorSection = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-4">
-                <button
-                  onClick={handleOpenModal}
+                <Link
+                  to="/sponsors"
                   className="w-full flex items-center justify-center gap-2 py-3.5 bg-aws-orange text-black font-sans font-black italic uppercase text-xs tracking-widest skew-x-[-10deg] transition-all hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,153,0,0.2)] cursor-pointer"
                 >
                   <span className="skew-x-[10deg] flex items-center gap-1.5">
                     Apply to Sponsor <ArrowUpRight size={14} />
                   </span>
-                </button>
+                </Link>
 
                 <div className="flex items-center justify-center gap-3">
                   <div className="h-px bg-white/5 flex-1" />
@@ -189,194 +148,6 @@ export const BecomeSponsorSection = () => {
         </div>
       </div>
 
-      {/* Portal/Overlay Modal for Application Form */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
-            />
-
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="relative w-full max-w-xl bg-[#0f0f0f] border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden rounded-xl"
-            >
-              {/* F1 Orange top bar */}
-              <div className="h-1 bg-gradient-to-r from-f1-red via-aws-orange to-f1-red w-full" />
-
-              {/* Close Button */}
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-5 right-5 p-2 rounded-full text-white/40 hover:text-white hover:bg-white/5 transition-colors z-10"
-                aria-label="Close form"
-              >
-                <X size={20} />
-              </button>
-
-              {/* Header */}
-              <div className="px-6 py-6 border-b border-white/5">
-                <div className="flex items-center gap-2 text-aws-orange font-mono text-[9px] uppercase tracking-widest mb-1.5">
-                  <Award size={14} /> Sponsorship Request
-                </div>
-                <h3 className="font-sans font-black italic text-2xl uppercase tracking-tight text-white">
-                  Join the Grid
-                </h3>
-                <p className="font-sans text-xs text-white/40 mt-1">
-                  Complete the transmission below. Submitting will open your mail client with a pre-filled proposal request.
-                </p>
-              </div>
-
-              {/* Form Content */}
-              <div className="p-6">
-                {!isSubmitted ? (
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Company Name */}
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Company / Brand *</label>
-                        <input
-                          type="text"
-                          required
-                          value={companyName}
-                          onChange={(e) => setCompanyName(e.target.value)}
-                          placeholder="e.g. Amazon Web Services"
-                          className="w-full bg-[#161616] border border-white/10 px-4 py-2.5 text-sm font-sans text-white focus:outline-none focus:border-aws-orange transition-colors"
-                        />
-                      </div>
-
-                      {/* Representative Name */}
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Representative Name *</label>
-                        <input
-                          type="text"
-                          required
-                          value={contactName}
-                          onChange={(e) => setContactName(e.target.value)}
-                          placeholder="e.g. John Doe"
-                          className="w-full bg-[#161616] border border-white/10 px-4 py-2.5 text-sm font-sans text-white focus:outline-none focus:border-aws-orange transition-colors"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Email */}
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Email Address *</label>
-                        <input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="representative@brand.com"
-                          className="w-full bg-[#161616] border border-white/10 px-4 py-2.5 text-sm font-sans text-white focus:outline-none focus:border-aws-orange transition-colors"
-                        />
-                      </div>
-
-                      {/* Phone */}
-                      <div className="flex flex-col gap-1.5">
-                        <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Phone / WhatsApp *</label>
-                        <input
-                          type="tel"
-                          required
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="e.g. +91 99999 99999"
-                          className="w-full bg-[#161616] border border-white/10 px-4 py-2.5 text-sm font-sans text-white focus:outline-none focus:border-aws-orange transition-colors"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Tier of Interest Dropdown */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Tier of Interest *</label>
-                      <select
-                        value={tierOfInterest}
-                        onChange={(e) => setTierOfInterest(e.target.value)}
-                        className="w-full bg-[#161616] border border-white/10 px-4 py-2.5 text-sm font-sans text-white focus:outline-none focus:border-aws-orange transition-colors cursor-pointer"
-                      >
-                        <option value="Title Sponsor (₹75,000)">Title Sponsor (₹75,000)</option>
-                        <option value="Gold Sponsor (₹40,000)">Gold Sponsor (₹40,000)</option>
-                        <option value="Silver Sponsor (₹20,000)">Silver Sponsor (₹20,000)</option>
-                        <option value="Bronze Sponsor (₹15,000)">Bronze Sponsor (₹15,000)</option>
-                        <option value="Startup Showcase (₹12,000)">Startup Showcase (₹12,000)</option>
-                        <option value="Community Partner (₹7,500)">Community Partner (₹7,500)</option>
-                        <option value="Custom Partnership">Custom Partnership / Other</option>
-                      </select>
-                    </div>
-
-                    {/* Requirements/Message */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="font-mono text-[9px] uppercase tracking-widest text-white/40">Custom Requirements / Notes</label>
-                      <textarea
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Detail any booth preferences, custom banners, custom sponsorship targets, or questions here..."
-                        rows={3}
-                        className="w-full bg-[#161616] border border-white/10 px-4 py-2.5 text-sm font-sans text-white focus:outline-none focus:border-aws-orange transition-colors resize-none"
-                      />
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full flex items-center justify-center gap-2 py-3 bg-aws-orange text-black font-sans font-black italic uppercase text-xs tracking-widest skew-x-[-12deg] transition-all hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,153,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] disabled:opacity-50 mt-2 cursor-pointer"
-                    >
-                      <span className="skew-x-[12deg] flex items-center gap-1">
-                        {isSubmitting ? "Transmitting..." : "Send Application & Open Mail"} <ArrowUpRight size={14} />
-                      </span>
-                    </button>
-                  </form>
-                ) : (
-                  /* Success State */
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <motion.div
-                      initial={{ scale: 0.5, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                      className="w-16 h-16 bg-emerald-500/10 border border-emerald-500 rounded-full flex items-center justify-center mb-6"
-                    >
-                      <CheckCircle size={32} className="text-emerald-400" />
-                    </motion.div>
-                    
-                    <h4 className="font-sans font-black italic text-lg uppercase tracking-tight text-white mb-2">
-                      Transmission Initiated
-                    </h4>
-                    <p className="font-sans text-xs text-white/60 max-w-sm mb-6 leading-relaxed">
-                      Your local mail application has been opened with your sponsorship details. If it didn't open automatically, please click below or email us directly at <strong>info@aws-scd-dhule.tech</strong>.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
-                      <a
-                        href={`mailto:info@aws-scd-dhule.tech?subject=${encodeURIComponent(`Sponsorship Application - ${companyName} (${tierOfInterest})`)}&body=${encodeURIComponent(`Hi AWS Student Builder Group Team,\n\nWe would love to sponsor AWS Student Community Day Dhule 2026 under the ${tierOfInterest} tier.\n\nSponsorship Request Details:\n- Company/Brand Name: ${companyName}\n- Contact Representative: ${contactName}\n- Email: ${email}\n- Phone/WhatsApp: ${phone}\n- Tier of Interest: ${tierOfInterest}\n- Custom Requirements / Notes:\n${message || "No additional requirements specified."}\n\nPlease let us know the next steps.\n\nBest regards,\n${contactName}\n${companyName}`)}`}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-aws-orange text-black font-sans font-black italic uppercase text-[10px] tracking-widest skew-x-[-10deg] transition-all hover:bg-white"
-                      >
-                        <span className="skew-x-[10deg]">Open Mail Client</span>
-                      </a>
-                      
-                      <button
-                        onClick={() => setIsModalOpen(false)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-3 bg-white/5 border border-white/10 text-white font-sans font-black italic uppercase text-[10px] tracking-widest skew-x-[-10deg] transition-all hover:bg-white/10"
-                      >
-                        <span className="skew-x-[10deg]">Return to Circuit</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
