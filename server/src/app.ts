@@ -26,7 +26,12 @@ if (missingEnvVars.length > 0) {
 
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: [
+    'https://aws-scd-dhule.tech',
+    'https://aws-scd-2026.vercel.app',
+    'http://localhost:5173',
+    process.env.FRONTEND_URL || ''
+  ].filter(Boolean),
   credentials: true
 }));
 app.use(express.json({
