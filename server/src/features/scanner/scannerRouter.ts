@@ -14,8 +14,10 @@ router.get('/verify-auth', (_req, res) => {
 // GET /api/scan/stats
 router.get('/stats', async (_req, res, next) => {
   try {
-    const { data: passTypes } = await supabase.from('pass_types').select('sold');
-    const total_sold = passTypes?.reduce((acc, pt) => acc + pt.sold, 0) || 0;
+    const { count: total_sold } = await supabase
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+      .eq('payment_status', 'PAID');
 
     const { count: total_checked_in } = await supabase
       .from('registrations')

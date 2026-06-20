@@ -25,12 +25,15 @@ if (missingEnvVars.length > 0) {
 }
 
 app.use(helmet());
+const frontendUrl = (process.env.FRONTEND_URL || '').replace(/\/+$/, '');
+
 app.use(cors({
   origin: [
     'https://aws-scd-dhule.tech',
+    'https://www.aws-scd-dhule.tech',
     'https://aws-scd-2026.vercel.app',
     'http://localhost:5173',
-    process.env.FRONTEND_URL || ''
+    frontendUrl
   ].filter(Boolean),
   credentials: true
 }));

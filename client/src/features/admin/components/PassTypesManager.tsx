@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Pencil, Save, X, Plus, Loader2 } from 'lucide-react';
 import { adminApi } from '../services/adminApi';
 import { api } from '../../../lib/api';
+import { supabase } from '../../../lib/supabase';
 
 interface PassType {
   id: string;
@@ -41,7 +42,24 @@ export function PassTypesManager() {
       .catch(() => setLoading(false));
   };
 
-  useEffect(() => { fetchPasses(); }, []);
+  useEffect(() => { 
+    fetchPasses(); 
+    
+    const channel = supabase
+      .channel('pass_types_manager_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pass_types' }, () => {
+        fetchPasses();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
+        // Registrations change sold count in backend
+        fetchPasses();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleAddNew = () => {
     setEditId(null);

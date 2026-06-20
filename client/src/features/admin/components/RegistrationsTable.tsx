@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronLeft, ChevronRight, RefreshCw, Loader2 } from 'lucide-react';
 import { adminApi } from '../services/adminApi';
 import { api } from '../../../lib/api';
+import { supabase } from '../../../lib/supabase';
 
 export function RegistrationsTable() {
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -34,6 +35,20 @@ export function RegistrationsTable() {
     adminApi.getPasses().then(res => {
       if (Array.isArray(res.data)) setPassTypes(res.data);
     }).catch(console.error);
+
+    const channel = supabase
+      .channel('registrations_table_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [fetchData]);
 
   const handleRefund = async (registrationId: string) => {

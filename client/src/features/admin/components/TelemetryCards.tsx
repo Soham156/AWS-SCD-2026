@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { BarChart3, DollarSign, Users, MapPin } from 'lucide-react';
 import { adminApi } from '../services/adminApi';
+import { supabase } from '../../../lib/supabase';
 
 interface Stats {
   total_sold: number;
@@ -26,8 +27,24 @@ export function TelemetryCards() {
 
   useEffect(() => {
     fetchStats();
-    const interval = setInterval(fetchStats, 30000);
-    return () => clearInterval(interval);
+    
+    // Fallback interval just in case
+    const interval = setInterval(fetchStats, 60000);
+
+    const channel = supabase
+      .channel('telemetry_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, () => {
+        fetchStats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
+        fetchStats();
+      })
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   if (!stats || !stats.by_pass_type) {

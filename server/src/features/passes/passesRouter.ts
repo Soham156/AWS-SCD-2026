@@ -14,10 +14,14 @@ router.get('/', async (_req, res, next) => {
 
     if (error) throw error;
 
-    const passes = (data || []).map((p) => ({
-      ...p,
-      available: p.capacity - p.sold,
-    }));
+    const passes = (data || []).map((p) => {
+      const sold = p.sold || 0;
+      return {
+        ...p,
+        sold,
+        available: p.capacity - sold,
+      };
+    });
 
     res.json(passes);
   } catch (err) {

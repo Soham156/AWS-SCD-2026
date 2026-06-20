@@ -65,7 +65,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const shortId = registration.id.split('-')[0];
     const orderId = `SCD-${shortId}-${Date.now()}`;
 
-    let frontendUrl = process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app';
+    let frontendUrl = (process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app').replace(/\/+$/, '');
     if (!frontendUrl.startsWith('http')) {
       frontendUrl = `https://${frontendUrl}`;
     }
@@ -74,8 +74,11 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
 
 
 
-    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENT || '1');
-    const gatewayFeePercent = parseFloat(process.env.GATEWAY_FEE_PERCENT || '1.6');
+    const parsedPlatform = parseFloat(process.env.PLATFORM_FEE_PERCENT || '');
+    const platformFeePercent = isNaN(parsedPlatform) ? 1 : parsedPlatform;
+
+    const parsedGateway = parseFloat(process.env.GATEWAY_FEE_PERCENT || '');
+    const gatewayFeePercent = isNaN(parsedGateway) ? 1.6 : parsedGateway;
     
     const basePrice = Number(passType.price);
     const platformFee = (basePrice * platformFeePercent) / 100;

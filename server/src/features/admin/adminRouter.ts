@@ -60,27 +60,33 @@ router.get('/stats', async (_req, res, next) => {
       .order('sort_order', { ascending: true });
 
     // Get checked-in counts per pass type
-    const { data: checkedInData } = await supabase
+    const { data: paidRegs } = await supabase
       .from('registrations')
-      .select('pass_type_id')
-      .eq('checked_in', true)
+      .select('pass_type_id, checked_in')
       .eq('payment_status', 'PAID');
 
     const checkedInMap: Record<string, number> = {};
-    (checkedInData || []).forEach((r) => {
-      checkedInMap[r.pass_type_id] = (checkedInMap[r.pass_type_id] || 0) + 1;
+    const actualSoldMap: Record<string, number> = {};
+    
+    (paidRegs || []).forEach((r) => {
+      actualSoldMap[r.pass_type_id] = (actualSoldMap[r.pass_type_id] || 0) + 1;
+      if (r.checked_in) {
+        checkedInMap[r.pass_type_id] = (checkedInMap[r.pass_type_id] || 0) + 1;
+      }
     });
 
     // Get true revenue from paid payments
     const { data: paymentsData } = await supabase
       .from('payments')
-      .select('amount, registrations!inner(pass_type_id)')
+      .select('amount, registrations(pass_type_id)')
       .eq('status', 'paid');
 
     const revenueMap: Record<string, number> = {};
     (paymentsData || []).forEach((p) => {
-      const pId = (p.registrations as any).pass_type_id;
-      revenueMap[pId] = (revenueMap[pId] || 0) + Number(p.amount || 0);
+      const pId = (p.registrations as any)?.pass_type_id;
+      if (pId) {
+        revenueMap[pId] = (revenueMap[pId] || 0) + Number(p.amount || 0);
+      }
     });
 
     let total_sold = 0;
@@ -90,16 +96,17 @@ router.get('/stats', async (_req, res, next) => {
     const by_pass_type = (passTypes || []).map((pt) => {
       const checked_in = checkedInMap[pt.id] || 0;
       const revenue = revenueMap[pt.id] || 0;
+      const sold = actualSoldMap[pt.id] || 0;
       
-      total_sold += pt.sold;
+      total_sold += sold;
       total_revenue += revenue;
       total_checked_in += checked_in;
 
       return {
         slug: pt.slug,
         name: pt.name,
-        sold: pt.sold,
-        capacity: pt.capacity,
+        sold,
+        capacity: pt.capacity || 0,
         revenue,
         checked_in,
       };
@@ -121,10 +128,24 @@ router.get('/passes', async (_req, res, next) => {
 
     if (error) throw error;
 
-    const passes = (data || []).map((p) => ({
-      ...p,
-      available: p.capacity - p.sold,
-    }));
+    const { data: paidRegs } = await supabase
+      .from('registrations')
+      .select('pass_type_id')
+      .eq('payment_status', 'PAID');
+
+    const actualSoldMap: Record<string, number> = {};
+    (paidRegs || []).forEach((r) => {
+      actualSoldMap[r.pass_type_id] = (actualSoldMap[r.pass_type_id] || 0) + 1;
+    });
+
+    const passes = (data || []).map((p) => {
+      const sold = actualSoldMap[p.id] || 0;
+      return {
+        ...p,
+        sold,
+        available: p.capacity - sold,
+      };
+    });
 
     res.json(passes);
   } catch (err) {
@@ -226,8 +247,8 @@ router.put('/passes/:id', async (req, res, next) => {
         .eq('id', id)
         .single();
 
-      if (current && updates.capacity < current.sold) {
-        res.status(400).json({ error: `Capacity cannot be less than current sold count (${current.sold})` });
+      if (current && updates.capacity < (current.sold || 0)) {
+        res.status(400).json({ error: `Capacity cannot be less than current sold count (${current.sold || 0})` });
         return;
       }
     }

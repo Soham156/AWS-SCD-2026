@@ -68,22 +68,8 @@ router.post('/register', registrationLimiter, async (req, res, next) => {
           return;
         }
 
-        const { error: updateErr } = await supabase
-          .from('registrations')
-          .update({
-            full_name,
-            phone,
-            role,
-            organization,
-            pass_type_id,
-            pass_slug: passType.slug,
-            payment_status: 'PENDING',
-          })
-          .eq('id', existing.id);
-
-        if (updateErr) throw updateErr;
-
         // Invalidate old payment sessions to prevent price spoofing and release their reserved tickets
+        // MUST fetch before updating the registration, so we get the old pass_type_id!
         const { data: initiatedPayments } = await supabase
           .from('payments')
           .select('id, registrations(pass_type_id)')
@@ -103,6 +89,21 @@ router.post('/register', registrationLimiter, async (req, res, next) => {
             }
           }
         }
+
+        const { error: updateErr } = await supabase
+          .from('registrations')
+          .update({
+            full_name,
+            phone,
+            role,
+            organization,
+            pass_type_id,
+            pass_slug: passType.slug,
+            payment_status: 'PENDING',
+          })
+          .eq('id', existing.id);
+
+        if (updateErr) throw updateErr;
 
         res.status(200).json({ ticket_id: existing.id, ticket_number: existing.ticket_number || '' });
         return;
