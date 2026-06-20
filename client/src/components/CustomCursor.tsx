@@ -113,7 +113,8 @@ export const CustomCursor = () => {
       }}
     >
       <img
-        src="/drill.png"
+        src="/drill.avif"
+        loading="lazy"
         alt=""
         style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
         draggable={false}

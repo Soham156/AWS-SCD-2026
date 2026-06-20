@@ -7,7 +7,7 @@ const currentSponsors = [
   {
     name: "Amazon Web Services",
     tier: "Cloud Partner",
-    logo: "/AWS_logo1.png",
+    logo: "/AWS_logo1.avif",
     logoClass: "h-18 sm:h-32",
   },
   {

@@ -78,7 +78,7 @@ export const HeaderSection = () => {
         scrolled ? 'bg-[#050505]/95 backdrop-blur-xl border-white/5' : 'bg-transparent border-transparent'
       }`}>
         <div className="flex items-center gap-2 sm:gap-4">
-          <img src="/scd-dhule-logo.png" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" />
+          <img src="/scd-dhule-logo.avif" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" fetchPriority="high" />
         </div>
 
         {/* Desktop nav */}
@@ -142,7 +142,7 @@ export const HeaderSection = () => {
             className="fixed top-14 sm:top-16 left-0 right-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5 p-4 flex flex-col gap-4 md:hidden"
           >
             <div className="flex items-center justify-between py-2 border-b border-white/5 pb-3">
-              <img src="/scd-dhule-logo.png" alt="SCD Dhule" className="h-8 opacity-80" />
+              <img src="/scd-dhule-logo.avif" alt="SCD Dhule" className="h-8 opacity-80" loading="lazy" />
             </div>
             <div className="flex flex-col gap-2 font-mono text-xs uppercase tracking-widest text-white/60 text-right">
               {navLinks.map((link) => (

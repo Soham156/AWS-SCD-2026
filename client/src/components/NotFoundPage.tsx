@@ -13,7 +13,7 @@ export function NotFoundPage() {
         {/* Main 404 Image */}
         <div className="relative w-full max-w-lg mb-0">
           <img 
-            src="/404-car.png" 
+            src="/404-car.webp" 
             alt="404 Not Found Car" 
             className="w-full h-auto drop-shadow-[0_0_30px_rgba(255,24,1,0.3)] animate-[float_6s_ease-in-out_infinite]"
           />

@@ -63,7 +63,7 @@ export const LogoMarquee = () => {
           >
             {/* marquee-logo class is targeted by touchHover.ts */}
             <img
-              src="/AWS_logo1.png"
+              src="/AWS_logo1.avif"
               alt="AWS Logo"
               tabIndex={0}
               width={120}
