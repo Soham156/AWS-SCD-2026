@@ -337,6 +337,7 @@ textarea:focus-visible,
   transform: translateY(calc(var(--value) * -1em));
   text-align: center;
   transition: all 1s cubic-bezier(1, 0, 0, 1);
+  display: block;
 }
 
 .countdown-single {
@@ -356,4 +357,5 @@ textarea:focus-visible,
   transform: translateY(calc(var(--value) * -1em));
   text-align: center;
   transition: all 1s cubic-bezier(1, 0, 0, 1);
+  display: block;
 }

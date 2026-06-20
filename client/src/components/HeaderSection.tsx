@@ -141,10 +141,8 @@ export const HeaderSection = () => {
             transition={{ duration: 0.2 }}
             className="fixed top-14 sm:top-16 left-0 right-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5 p-4 flex flex-col gap-4 md:hidden"
           >
-            <div className="flex items-center justify-between py-2 border-b border-white/5 pb-3">
-              <img src="/scd-dhule-logo.avif" alt="SCD Dhule" className="h-8 opacity-80" loading="lazy" />
-            </div>
-            <div className="flex flex-col gap-2 font-mono text-xs uppercase tracking-widest text-white/60 text-right">
+
+            <div className="flex flex-col gap-2 font-mono text-xs uppercase tracking-widest text-white/60 text-left px-2 pt-2">
               {navLinks.map((link) => (
                 link.href.startsWith('/') ? (
                   <Link key={link.label} to={link.href} onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-aws-orange transition-colors">
