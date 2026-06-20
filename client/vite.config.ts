@@ -74,22 +74,33 @@ export default defineConfig(() => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              // Exact matches for three.js and react-three ecosystem
+              if (
+                id.includes('/node_modules/three/') || 
+                id.includes('/node_modules/@react-three/')
+              ) {
+                return 'vendor-three';
+              }
+              // Exact matches for react ecosystem
+              if (
+                id.includes('/node_modules/react/') || 
+                id.includes('/node_modules/react-dom/') || 
+                id.includes('/node_modules/react-router-dom/')
+              ) {
                 return 'vendor-react';
               }
-              if (id.includes('motion')) {
-                return 'vendor-motion';
-              }
-              if (id.includes('gsap')) {
+              // GSAP
+              if (id.includes('/node_modules/gsap/')) {
                 return 'vendor-gsap';
               }
-              if (id.includes('three') || id.includes('@react-three')) {
-                return 'vendor-three';
+              // Motion
+              if (id.includes('/node_modules/motion/') || id.includes('/node_modules/framer-motion/')) {
+                return 'vendor-motion';
               }
             }
           }
-        },
-      },
+        }
+      }
     },
   };
 });
