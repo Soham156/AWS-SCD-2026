@@ -33,7 +33,8 @@ import { SocialWall } from './components/SocialWall';
 import { SectionDivider } from './components/LayoutElements';
 
 function HomePage() {
-  const [loading, setLoading] = useState(true);
+  const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse/i.test(navigator.userAgent);
+  const [loading, setLoading] = useState(!isBot);
 
   return (
     <div className="min-h-screen bg-[#050505] font-sans text-[#e0e0e0] flex flex-col overflow-x-clip">

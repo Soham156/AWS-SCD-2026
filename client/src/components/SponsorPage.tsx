@@ -76,7 +76,7 @@ export const SponsorPage = () => {
             <ArrowLeft size={16} />
             <span className="hidden sm:inline">Back to Home</span>
           </Link>
-          <img src="/AWS_Builder.png" alt="AWS Builder" className="h-10 object-contain" />
+          <img src="/AWS_Builder.png" alt="AWS Builder" width={160} height={40} className="h-10 object-contain" />
         </div>
       </div>
 

@@ -98,8 +98,29 @@ export const HeroSection = () => {
   useEffect(() => {
     if (hasStarted) {
       if (inView && !document.hidden && document.hasFocus()) {
-        videoRef.current?.play().catch((e) => console.warn("Video blocked:", e));
-        audioRef.current?.play().catch((e) => console.warn("Audio blocked:", e));
+        const playVideo = videoRef.current?.play();
+        const playAudio = audioRef.current?.play();
+
+        if (playVideo !== undefined) {
+          playVideo.catch((e) => {
+            console.warn("Video blocked, attempting muted autoplay:", e);
+            if (videoRef.current) {
+              videoRef.current.muted = true;
+              videoRef.current.play().catch(console.error);
+            }
+            if (audioRef.current) {
+              audioRef.current.muted = true;
+            }
+            setIsMuted(true);
+            window.dispatchEvent(new CustomEvent("muteStateChange", { detail: true }));
+          });
+        }
+        
+        if (playAudio !== undefined) {
+          playAudio.catch((e) => {
+            console.warn("Audio blocked:", e);
+          });
+        }
       } else {
         videoRef.current?.pause();
         audioRef.current?.pause();
@@ -114,7 +135,14 @@ export const HeroSection = () => {
     const checkInterval = setInterval(() => {
       if (videoRef.current && videoRef.current.paused) {
         console.warn("Watchdog: Hero video was paused unexpectedly! Attempting to resume...");
-        videoRef.current.play().catch(e => console.warn("Watchdog video resume failed:", e));
+        videoRef.current.play().catch(e => {
+          console.warn("Watchdog video resume failed, trying muted:", e);
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(() => {});
+            setIsMuted(true);
+          }
+        });
       }
       if (audioRef.current && audioRef.current.paused && !isMuted) {
         console.warn("Watchdog: Hero audio was paused unexpectedly! Attempting to resume...");

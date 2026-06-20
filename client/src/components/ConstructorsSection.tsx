@@ -9,18 +9,24 @@ const currentSponsors = [
     tier: "Cloud Partner",
     logo: "/AWS_logo1.avif",
     logoClass: "h-18 sm:h-32",
+    width: 200,
+    height: 100,
   },
   {
     name: "ARIF",
     tier: "Community Partner",
     logo: "/ARIF-white.png",
     logoClass: "h-24 sm:h-24",
+    width: 200,
+    height: 100,
   },
   {
     name: "AWS Builder",
     tier: "Technology Partner",
     logo: "/AWS_Builder.png",
     logoClass: "h-14 sm:h-28",
+    width: 200,
+    height: 100,
   },
 ];
 
@@ -74,6 +80,8 @@ export const ConstructorsSection = () => {
                 alt={sponsor.name}
                 loading="lazy"
                 decoding="async"
+                width={sponsor.width}
+                height={sponsor.height}
                 className={`w-auto object-contain opacity-60 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105 ${sponsor.logoClass}`}
               />
             </div>
