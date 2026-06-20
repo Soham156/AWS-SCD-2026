@@ -54,7 +54,7 @@ const crew: TeamMember[] = [
     description: "Crafting the digital presence and social media strategy for the AWS Student Community.",
     image: "/team/team-05.png",
     linkedin: "https://www.linkedin.com/in/aashish-ingale-276bb2298/",
-    github: "#"
+    github: "https://github.com/aashishingale27"
   },
   {
     name: "Bhavesh Dev",
@@ -62,7 +62,7 @@ const crew: TeamMember[] = [
     description: "Planning and executing community events, workshops, and meetups for the AWS Student Community.",
     image: "/team/team-06.png",
     linkedin: "https://www.linkedin.com/in/bhavesh-dev-118b472a9/",
-    github: "#"
+    github: "https://github.com/bhavesh-k-dev"
   },
 ];
 
@@ -267,7 +267,7 @@ const LiteModeSection = ({ crew }: { crew: TeamMember[] }) => {
   const currentMember = crew[currentIndex];
 
   return (
-    <section ref={sectionRef} className="relative w-full z-10 mt-8 sm:mt-12">
+    <section ref={sectionRef} className="relative w-full z-10 mt-2 sm:mt-2">
       <div className="flex flex-col md:flex-row items-center gap-8 sm:gap-14 md:gap-28 min-h-[300px] sm:min-h-[380px] md:min-h-[420px] w-full max-w-6xl mx-auto">
         {/* Photo Side — GSAP stacked cards */}
         <div
@@ -422,7 +422,7 @@ export const DriversSection = () => {
       {/* Decorative background glow */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-aws-orange/5 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none z-0"></div>
 
-      <div className="w-full mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto relative z-10">
+      <div className="w-full mb-0 flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto relative z-10">
         <SectionHeader 
           title="Meet Our Team" 
           subtitle="Discover the talented individuals behind our success." 
