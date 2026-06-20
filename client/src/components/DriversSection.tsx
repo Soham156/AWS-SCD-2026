@@ -426,7 +426,7 @@ export const DriversSection = () => {
         <SectionHeader 
           title="Meet Our Team" 
           subtitle="Discover the talented individuals behind our success." 
-          sysId="04.DRV" 
+          sysId="06.DRV" 
         />
       </div>
       <LiteModeSection crew={crew} />

@@ -41,9 +41,11 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
       {passes.map((pass, i) => {
         const soldOut = pass.available <= 0;
+        const hex = pass.badge_color || '#ffffff';
+        const label = i === 0 ? 'LIMITED RELEASE' : i === 1 ? 'MOST POPULAR' : 'PREMIUM';
 
         return (
           <motion.button
@@ -53,56 +55,80 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
             transition={{ delay: i * 0.1, duration: 0.4 }}
             onClick={() => !soldOut && onSelect(pass)}
             disabled={soldOut}
-            className={`relative text-left p-6 border transition-all duration-300 group cursor-pointer ${
+            onMouseEnter={(e) => { if (!soldOut) e.currentTarget.style.borderColor = hex; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${hex}66`; }}
+            style={{ 
+              borderColor: soldOut ? '#ffffff0D' : `${hex}66`, 
+              boxShadow: soldOut ? 'none' : `0 0 40px ${hex}26` 
+            }}
+            className={`relative text-left w-full mx-auto max-w-[320px] rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group transition-all duration-300 ${
               soldOut
-                ? 'bg-[#0a0a0a] border-white/5 opacity-50 cursor-not-allowed'
-                : 'bg-[#111] border-white/10 hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'
+                ? 'opacity-50 cursor-not-allowed grayscale'
+                : `cursor-pointer hover:-translate-y-1`
             }`}
           >
-            {/* Top accent line */}
-            <div
-              className="absolute top-0 left-0 right-0 h-[2px] opacity-60 group-hover:opacity-100 transition-opacity"
-              style={{ backgroundColor: pass.badge_color }}
-            />
-
-            {/* Status badge */}
-            <div className={`inline-block font-mono text-[9px] tracking-widest uppercase px-2 py-1 mb-4 border ${
-              soldOut
-                ? 'text-gray-500 border-gray-700 bg-gray-900'
-                : 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10'
-            }`}>
-              {soldOut ? 'SOLD OUT' : 'AVAILABLE'}
+            {/* Event Badge Top Bar */}
+            <div className="h-8 flex justify-between items-center px-4 z-20 rounded-t-[1.3rem]" style={{ backgroundColor: `${hex}1A`, color: hex }}>
+              <span className="font-mono text-[8px] font-bold uppercase tracking-widest">ACCESS PASS</span>
+              <span className="font-mono text-[8px] font-black uppercase">GRID-0{i + 1}</span>
             </div>
 
-            {/* Pass info */}
-            <h3 className="font-sans font-black italic text-xl uppercase tracking-tighter text-white mb-1">
-              {pass.name}
-            </h3>
-            <p className="font-mono text-[10px] text-white/40 mb-3">{pass.description}</p>
-
-            {/* Price */}
-            <div className="flex items-baseline gap-1 mb-5">
-              <span className="font-sans font-bold text-lg text-white/50">₹</span>
-              <span className="font-sans font-black italic text-3xl tracking-tighter text-white">
-                {pass.price}
-              </span>
-            </div>
-
-            {/* Perks */}
-            <ul className="space-y-2">
-              {pass.perks.map((perk, j) => (
-                <li key={j} className="text-[10px] font-sans text-white/50 group-hover:text-white/70 flex items-start gap-2 transition-colors">
-                  <Check size={12} className="text-emerald-400 shrink-0 mt-0.5" />
-                  <span>{perk}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* Select indicator */}
-            {!soldOut && (
-              <div className="mt-5 font-mono text-[10px] tracking-widest uppercase text-white/30 group-hover:text-aws-orange transition-colors">
-                Select →
+            <div className="p-5 flex-1 flex flex-col relative z-20">
+              {/* Status & Name */}
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
+                    {pass.slug}
+                  </p>
+                  <h3 className="font-sans font-black italic text-xl uppercase tracking-tighter text-white leading-none">
+                    {pass.name}
+                  </h3>
+                </div>
+                
+                <div 
+                  className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm"
+                  style={{ color: hex, borderColor: `${hex}4D`, backgroundColor: `${hex}1A` }}
+                >
+                  {label}
+                </div>
               </div>
+
+              <p className="font-mono text-[9px] text-white/40 mb-4 line-clamp-2">{pass.description}</p>
+
+              {/* Price */}
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="font-sans font-bold text-base text-white/50">₹</span>
+                <span className="font-sans font-black italic text-3xl tracking-tighter text-white">
+                  {pass.price}
+                </span>
+              </div>
+
+              {/* Perks */}
+              <ul className="flex flex-col gap-2 flex-1 mt-2">
+                {pass.perks.map((perk, j) => (
+                  <li key={j} className="text-[10px] font-sans text-white/60 flex items-start gap-2">
+                    <Check size={12} className="shrink-0 mt-0.5" style={{ color: hex }} />
+                    <span className="leading-snug">{perk}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Select indicator */}
+              <div className="mt-5 pt-4 border-t border-white/10 font-mono text-[10px] tracking-widest uppercase text-white/30 transition-colors flex justify-between items-center">
+                {soldOut ? 'GRID FULL' : (
+                  <>
+                    <span className="transition-colors" style={{ color: hex }}>Select Pass →</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Hover Glow Effect */}
+            {!soldOut && (
+              <div 
+                className="absolute top-0 left-0 right-0 h-32 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-t-[1.5rem]"
+                style={{ background: `linear-gradient(to bottom, ${hex}33, transparent)` }}
+              />
             )}
           </motion.button>
         );

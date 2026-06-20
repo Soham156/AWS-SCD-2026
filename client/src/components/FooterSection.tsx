@@ -6,6 +6,7 @@ const quickLinks = [
   { label: 'Speakers', href: '#speakers' },
   { label: 'Tickets', href: '#tickets' },
   { label: 'Gallery', href: '#gallery' },
+  { label: 'Sponsors', href: '#sponsors' },
   { label: 'FAQ', href: '#faq' },
 ];
 

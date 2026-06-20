@@ -16,7 +16,7 @@ import { WhatYouGetSection } from './components/WhatYouGetSection';
 import { DriversSection } from './components/DriversSection';
 import { TimelineSection } from './components/TimelineSection';
 
-import { ConstructorsSection } from './components/ConstructorsSection';
+import { BecomeSponsorSection } from './components/BecomeSponsorSection';
 import { TicketsSection } from './components/TicketsSection';
 import { SpeakersSection } from './components/SpeakersSection';
 import { GallerySection } from './components/GallerySection';
@@ -29,7 +29,6 @@ const StatusPage = lazy(() => import('./components/StatusPage').then(module => (
 import { BackToTop } from './components/BackToTop';
 import { CustomCursor } from './components/CustomCursor';
 import { SmoothScroll } from './components/SmoothScroll';
-import { SocialWall } from './components/SocialWall';
 import { SectionDivider } from './components/LayoutElements';
 
 function HomePage() {
@@ -64,6 +63,7 @@ function HomePage() {
             {/* <SectionDivider label="// 03" /> */}
 
             {/* Act 3: The Team & Tickets */}
+            <BecomeSponsorSection />
             <TicketsSection />
             <DriversSection />
 
@@ -76,9 +76,7 @@ function HomePage() {
 
             {/* Act 5: Social Proof & Info */}
             <GallerySection />
-            <SocialWall />
             <FAQSection />
-            <ConstructorsSection />
             <FooterSection />
         </main>
       </div>

@@ -85,7 +85,7 @@ export const FAQSection = () => {
   return (
     <section className="relative py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
       <div className="sticky top-0 z-30 bg-gradient-to-b from-[#050505] via-[#050505]/90 to-transparent backdrop-blur-[8px] pt-10 sm:pt-12 lg:pt-16  -mt-10 sm:-mt-12 lg:-mt-16 mb-0">
-        <SectionHeader title="Briefing Room" subtitle="" sysId="10.FAQ" />
+        <SectionHeader title="Briefing Room" subtitle="" sysId="09.FAQ" />
       <p className="font-sans text-xs sm:text-sm md:text-base opacity-60 font-medium leading-relaxed max-w-xl pb-2 mb-6 -mt-2 relative z-10">
         Frequently asked questions about the event, ticketing, and logistics. Everything you need to know before lights out.
       </p>

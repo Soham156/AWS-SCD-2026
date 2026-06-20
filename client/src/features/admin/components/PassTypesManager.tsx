@@ -198,10 +198,20 @@ export function PassTypesManager() {
             </div>
 
             <div className="space-y-2">
-              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest block">Badge Color</label>
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest block">Badge Color (Hex Code)</label>
               <div className="flex items-center gap-3 bg-[#050505] border border-white/10 px-3 py-1.5 rounded focus-within:border-aws-orange transition-colors">
-                <input type="color" value={formData.badge_color} onChange={e => setFormData(d => ({...d, badge_color: e.target.value}))} className="bg-transparent border-0 w-8 h-8 cursor-pointer rounded" />
-                <span className="text-white/70 font-mono text-xs">{formData.badge_color}</span>
+                <div 
+                  className="w-8 h-8 rounded border border-white/10 shrink-0" 
+                  style={{ backgroundColor: formData.badge_color }} 
+                />
+                <input 
+                  type="text" 
+                  value={formData.badge_color} 
+                  onChange={e => setFormData(d => ({...d, badge_color: e.target.value}))} 
+                  placeholder="#FF9900"
+                  maxLength={7}
+                  className="bg-transparent border-none text-white font-mono text-sm uppercase w-full focus:outline-none placeholder:text-white/20" 
+                />
               </div>
             </div>
 

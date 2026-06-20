@@ -9,7 +9,7 @@ const navLinks = [
   { label: 'Speakers', href: '#speakers' },
   { label: 'Tickets', href: '#tickets' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Sponsors', href: '/sponsors' },
+  { label: 'Sponsors', href: '#sponsors' },
 ];
 
 function Countdown() {

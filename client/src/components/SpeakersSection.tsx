@@ -44,7 +44,7 @@ export const SpeakersSection = () => {
         <SectionHeader 
           title="Speakers" 
           subtitle="Our lineup of industry experts, cloud architects, and visionaries is currently preparing in the paddock. Stay tuned for speaker reveals." 
-          sysId="04.SPK" 
+          sysId="02.SPK" 
         />
         
         <div className="md:mb-12 shrink-0">
