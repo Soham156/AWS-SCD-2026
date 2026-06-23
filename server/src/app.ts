@@ -10,6 +10,8 @@ import scannerRouter from './features/scanner/scannerRouter.js';
 import adminRouter from './features/admin/adminRouter.js';
 import applicationsRouter from './features/applications/applicationsRouter.js';
 import settingsRouter from './features/settings/settingsRouter.js';
+import emailRouter from './features/email/emailRouter.js';
+import { startEmailProcessor } from './features/email/emailProcessor.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
 
 const app = express();
@@ -22,6 +24,11 @@ if (missingEnvVars.length > 0) {
   console.error(`[FATAL] Missing required environment variables: ${missingEnvVars.join(', ')}`);
   console.error('Server cannot start securely without these secrets. Please configure them in your .env file.');
   process.exit(1);
+}
+
+// Non-fatal: warn if email provider is not configured
+if (!process.env.RESEND_API_KEY) {
+  console.warn('[WARN] RESEND_API_KEY is not set. Email delivery will be disabled.');
 }
 
 app.use(helmet());
@@ -53,6 +60,7 @@ app.use('/api/scan', scannerRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/applications', applicationsRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/email', emailRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -157,4 +165,7 @@ setInterval(async () => {
 
 app.listen(PORT, () => {
   console.log(`[Server] Running on http://localhost:${PORT}`);
+
+  // Start background email processor after server is ready
+  startEmailProcessor();
 });

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { createHmac } from 'crypto';
 import { supabase } from '../../shared/lib/supabase.js';
 import { generateQRToken } from '../../shared/lib/qrToken.js';
+import { enqueueRegistrationConfirmation } from '../email/emailQueue.js';
 
 const router = Router();
 
@@ -121,7 +122,9 @@ router.post('/cashfree', async (req, res, next) => {
         await supabase.rpc('increment_sold', { pass_id: regData.pass_type_id });
       }
 
-      // TODO: Trigger AWS SES email (deferred — SES not configured yet)
+      // Enqueue confirmation email (async, non-blocking — never delays webhook response)
+      enqueueRegistrationConfirmation(payment.registration_id, ticket_number, qr_token)
+        .catch(err => console.error('[Webhook] Failed to enqueue confirmation email:', err));
     } else if (event === 'PAYMENT_FAILED_WEBHOOK') {
       const orderId = eventData?.order?.order_id;
       if (orderId) {

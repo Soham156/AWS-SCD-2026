@@ -1,35 +1,21 @@
-import { useState } from 'react';
-import { Send, Eye, AlertTriangle, X } from 'lucide-react';
-import { adminApi } from '../services/adminApi';
-
-function extractHtmlFromMime(mime: string) {
-  if (!mime.trim()) return '';
-  // Try to find the HTML content
-  const htmlRegex = /(<html[\s\S]*<\/html>|<body[\s\S]*<\/body>|<div[\s\S]*<\/div>)/i;
-  const match = mime.match(htmlRegex);
-  if (match && match[1]) {
-    return match[1];
-  }
-  return `<div style="font-family: monospace; padding: 1rem; color: #666;">No valid HTML content detected yet...<br/>(Looking for &lt;html&gt;, &lt;body&gt;, or &lt;div&gt; tags)</div>`;
+interface ConfirmationEmailData {
+  full_name: string;
+  email: string;
+  ticket_number: string;
+  pass_name: string;
+  download_url: string;
+  ticket_page_url: string;
 }
 
-const DEFAULT_THEME_MIME = `From: AWS Student Community Day Dhule 2026 <no-reply@aws-scd-dhule.tech>
-Reply-To: info@aws-scd-dhule.tech
-To: {{attendee_email}}
-Subject: 🎟️ Your Ticket is Confirmed — AWS Student Community Day Dhule 2026
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="AWS-SCD-2026-BOUNDARY"
+export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData): { subject: string; html: string; text: string } {
+  const { full_name, email, ticket_number, pass_name, download_url, ticket_page_url } = data;
 
---AWS-SCD-2026-BOUNDARY
-Content-Type: text/plain; charset=UTF-8
+  const subject = `🎟️ Your Ticket is Confirmed — AWS Student Community Day Dhule 2026`;
 
-Your Ticket is Confirmed!
-Please view this email in an HTML-compatible client to see your ticket.
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
---AWS-SCD-2026-BOUNDARY
-Content-Type: text/html; charset=UTF-8
-
-<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -38,7 +24,7 @@ Content-Type: text/html; charset=UTF-8
 </head>
 <body style="margin:0;padding:0;background:#f0f2f5;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;padding:32px 16px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f2f5;padding:32px 16px;">
     <tr>
       <td align="center">
 
@@ -48,13 +34,13 @@ Content-Type: text/html; charset=UTF-8
 
           <!-- ═══ HEADER ═══ -->
           <tr>
-            <td align="center" style="background:#0f1923;padding: 28px 30px 28px;">
+            <td align="center" style="background:#0f1923;padding:32px 30px 28px;">
 
               <!-- Logo centered -->
               <img
                 src="https://aws-scd-dhule.tech/scd-dhule-logo.avif"
                 alt="AWS Student Community Day Dhule"
-                height="max-height:100%"
+                width="180"
                 style="display:block;margin:0 auto 16px;max-width:180px;"
               />
 
@@ -81,7 +67,7 @@ Content-Type: text/html; charset=UTF-8
             <td style="padding:36px 36px 28px;">
 
               <p style="margin:0 0 12px;font-size:16px;line-height:1.6;color:#374151;">
-                Hello <strong>{{attendee_name}}</strong>,
+                Hello <strong>${esc(full_name)}</strong>,
               </p>
 
               <p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#4b5563;">
@@ -116,7 +102,7 @@ Content-Type: text/html; charset=UTF-8
                           Ticket ID
                         </td>
                         <td style="font-size:14px;color:#1f2937;font-weight:600;font-family:monospace;border-radius:0 6px 6px 0;">
-                          {{ticket_id}}
+                          ${esc(ticket_number)}
                         </td>
                       </tr>
                       <tr>
@@ -124,7 +110,7 @@ Content-Type: text/html; charset=UTF-8
                           Name
                         </td>
                         <td style="font-size:14px;color:#374151;">
-                          {{attendee_name}}
+                          ${esc(full_name)}
                         </td>
                       </tr>
                       <tr style="background:rgba(255,153,0,0.08);">
@@ -132,7 +118,7 @@ Content-Type: text/html; charset=UTF-8
                           Email
                         </td>
                         <td style="font-size:14px;color:#374151;">
-                          {{attendee_email}}
+                          ${esc(email)}
                         </td>
                       </tr>
                       <tr>
@@ -140,7 +126,7 @@ Content-Type: text/html; charset=UTF-8
                           Category
                         </td>
                         <td style="font-size:14px;color:#374151;">
-                          {{ticket_type}}
+                          ${esc(pass_name)}
                         </td>
                       </tr>
                       <tr style="background:rgba(255,153,0,0.08);">
@@ -189,6 +175,18 @@ Content-Type: text/html; charset=UTF-8
                       </tr>
                     </table>
 
+                    <!-- Static map preview (Google Maps embed thumbnail) -->
+                    <a href="https://maps.google.com/?q=SVKM+Institute+of+Technology+Dhule" target="_blank"
+                       style="display:block;border-radius:8px;overflow:hidden;border:1px solid #93c5fd;margin-bottom:14px;">
+                      <img
+                        src="https://maps.googleapis.com/maps/api/staticmap?center=SVKM+Institute+of+Technology+Dhule&zoom=15&size=540x180&maptype=roadmap&markers=color:orange%7CSVKM+Institute+of+Technology+Dhule&key=YOUR_GOOGLE_MAPS_API_KEY"
+                        alt="Venue Map — SVKM's Institute of Technology, Dhule"
+                        width="100%"
+                        style="display:block;width:100%;max-width:540px;border-radius:8px;"
+                        onerror="this.style.display='none'"
+                      />
+                    </a>
+
                     <!-- Direction buttons -->
                     <table cellpadding="0" cellspacing="0" border="0">
                       <tr>
@@ -197,7 +195,7 @@ Content-Type: text/html; charset=UTF-8
                              target="_blank"
                              style="background:#ffffff;color:#374151;text-decoration:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:600;display:inline-block;border:1px solid #e5e7eb;vertical-align:middle;">
                             <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png"
-                                 alt="Google" height="16"
+                                 alt="Google" width="16" height="16"
                                  style="vertical-align:middle;margin-right:6px;display:inline-block;" />
                             <span style="vertical-align:middle;">Google Maps</span>
                           </a>
@@ -206,8 +204,8 @@ Content-Type: text/html; charset=UTF-8
                           <a href="https://maps.apple/p/yY~~WHcrydco3q"
                              target="_blank"
                              style="background:#ffffff;color:#374151;text-decoration:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:600;display:inline-block;border:1px solid #e5e7eb;vertical-align:middle;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
-                                 alt="Apple Maps"  height="16"
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Apple_Maps_icon.png/240px-Apple_Maps_icon.png"
+                                 alt="Apple Maps" width="16" height="16"
                                  style="vertical-align:middle;margin-right:6px;display:inline-block;border-radius:3px;" />
                             <span style="vertical-align:middle;">Apple Maps</span>
                           </a>
@@ -219,12 +217,23 @@ Content-Type: text/html; charset=UTF-8
                 </tr>
               </table>
 
-              <!-- ═══ CTA BUTTON ═══ -->
+              <!-- ═══ CTA BUTTONS ═══ -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                <tr>
+                  <td align="center">
+                    <a href="${esc(download_url)}"
+                       style="background:#FF9900;color:#111827;text-decoration:none;padding:14px 36px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block;letter-spacing:0.2px;">
+                      ⬇ Download Ticket &nbsp;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
                 <tr>
                   <td align="center">
-                    <a href="https://aws-scd-2026.vercel.app/ticket/{{ticket_id}}"
-                       style="background:#FF9900;color:#111827;text-decoration:none;padding:14px 36px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block;letter-spacing:0.2px;">
+                    <a href="${esc(ticket_page_url)}"
+                       style="background:#0f1923;color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:8px;font-weight:700;font-size:15px;display:inline-block;letter-spacing:0.2px;">
                       View My Ticket &nbsp;→
                     </a>
                   </td>
@@ -232,9 +241,9 @@ Content-Type: text/html; charset=UTF-8
               </table>
 
               <p style="font-size:13px;color:#9ca3af;text-align:center;margin:0 0 32px;line-height:1.6;">
-                If the button doesn't work, open:<br>
-                <a href="https://aws-scd-2026.vercel.app/ticket/{{ticket_id}}" style="color:#FF9900;word-break:break-all;">
-                  https://aws-scd-2026.vercel.app/ticket/{{ticket_id}}
+                If the buttons don't work, open:<br>
+                <a href="${esc(ticket_page_url)}" style="color:#FF9900;word-break:break-all;">
+                  ${esc(ticket_page_url)}
                 </a>
               </p>
 
@@ -309,7 +318,7 @@ Content-Type: text/html; charset=UTF-8
               <img
                 src="https://aws-scd-2026.vercel.app/AWS_Builder.png"
                 alt="AWS Student Community Day"
-                height="45"
+                width="100"
                 style="display:block;margin:0 auto 14px;max-width:100px;opacity:0.85;"
               />
 
@@ -334,132 +343,34 @@ Content-Type: text/html; charset=UTF-8
   </table>
 
 </body>
-</html>
+</html>`;
 
---AWS-SCD-2026-BOUNDARY--`;
+  const text = `Your Ticket is Confirmed!
+Hello ${full_name},
 
+Thank you for registering for AWS Student Community Day Dhule 2026.
+Your registration has been confirmed and your event ticket is ready.
 
-export function EmailShoutout() {
-  const [mimeMessage, setMimeMessage] = useState(DEFAULT_THEME_MIME);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+Ticket ID: ${ticket_number}
+Name: ${full_name}
+Category: ${pass_name}
 
-  const handleSend = async () => {
-    setIsSending(true);
-    setStatusMsg(null);
-    try {
-      await adminApi.sendShoutout({ mimeMessage });
-      setStatusMsg({ type: 'success', text: 'Shoutout queued successfully! Check server console.' });
-      setMimeMessage('');
-      setIsPreviewOpen(false);
-    } catch (err: any) {
-      console.error(err);
-      setStatusMsg({ type: 'error', text: err.response?.data?.error || 'Failed to send shoutout' });
-    } finally {
-      setIsSending(false);
-    }
-  };
+View your ticket online:
+${ticket_page_url}
 
-  return (
-    <div className="bg-[#111] border border-white/5 p-6 relative">
-      <h3 className="font-sans font-black italic text-lg text-white mb-2 flex items-center gap-2">
-        <Send size={18} className="text-aws-orange" />
-        Email Shoutout (Broadcast)
-      </h3>
-      <p className="font-mono text-xs text-white/40 mb-6">
-        Send a mass email to <strong>ALL emails in the database</strong>. 
-        <br/>Paste your raw MIME formatted message below.
-      </p>
+Download your ticket:
+${download_url}
 
-      {statusMsg && (
-        <div className={`p-4 mb-6 border font-mono text-xs ${statusMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
-          {statusMsg.text}
-        </div>
-      )}
+📋 Important Information:
+- Carry a valid Government ID or College ID for verification.
+- Please arrive at least 30 minutes before the event starts.
+- Your ticket contains a unique QR code required for check-in.
+- Keep this email accessible on the event day.
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-xs font-mono text-white/60 mb-2 uppercase tracking-widest">
-              Raw MIME Message Payload
-            </label>
-            <textarea
-              value={mimeMessage}
-              onChange={(e) => setMimeMessage(e.target.value)}
-              className="w-full h-[500px] bg-black border border-white/10 text-white p-4 font-mono text-sm focus:border-aws-orange focus:ring-1 focus:ring-aws-orange outline-none transition-all"
-              placeholder={`From: sender@example.com\nTo: recipient@example.com\nSubject: Important Update\nMIME-Version: 1.0\nContent-Type: text/html; charset=UTF-8\n\n<html>...</html>`}
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="block text-xs font-mono text-white/60 mb-2 uppercase tracking-widest">
-              Live HTML Preview
-            </label>
-            <div className="flex-1 bg-white border border-white/10 rounded-sm overflow-hidden h-[500px]">
-              <iframe
-                title="Email HTML Preview"
-                srcDoc={extractHtmlFromMime(mimeMessage)}
-                className="w-full h-full border-none"
-              />
-            </div>
-          </div>
-        </div>
+📍 Venue:
+SVKM's Institute of Technology, Nardana Road, Dhule, Maharashtra 424 001, India
 
-        <div className="flex justify-end pt-4">
-          <button
-            onClick={() => setIsPreviewOpen(true)}
-            disabled={!mimeMessage.trim() || isSending}
-            className="flex items-center gap-2 px-6 py-3 bg-white text-black font-mono text-sm uppercase tracking-widest hover:bg-aws-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Eye size={16} />
-            Preview & Send
-          </button>
-        </div>
-      </div>
+Questions? Reach us at info@aws-scd-dhule.tech`;
 
-      {/* Preview Modal */}
-      {isPreviewOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border border-white/10 w-full max-w-3xl flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-white/5 flex justify-between items-center">
-              <h4 className="font-sans font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <AlertTriangle size={18} className="text-f1-red" />
-                Confirm Mass Broadcast
-              </h4>
-              <button onClick={() => setIsPreviewOpen(false)} className="text-white/40 hover:text-white">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto flex-1 font-mono text-xs text-white/70">
-              <p className="mb-4 text-white">
-                You are about to send this raw MIME payload to <strong>ALL users in the database</strong>. 
-                Please verify the contents below:
-              </p>
-              <div className="bg-black p-4 border border-white/5 whitespace-pre-wrap overflow-x-auto">
-                {mimeMessage}
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 bg-[#0a0a0a]">
-              <button
-                onClick={() => setIsPreviewOpen(false)}
-                className="px-4 py-2 border border-white/10 text-white/60 hover:text-white font-mono text-xs uppercase transition-colors"
-                disabled={isSending}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSend}
-                disabled={isSending}
-                className="flex items-center gap-2 px-6 py-2 bg-f1-red text-white font-mono text-xs uppercase tracking-widest hover:bg-red-600 transition-colors disabled:opacity-50"
-              >
-                {isSending ? 'Sending...' : 'Confirm & Send to All'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return { subject, html, text };
 }

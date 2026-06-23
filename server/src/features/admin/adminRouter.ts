@@ -161,6 +161,7 @@ router.get('/registrations', async (req, res, next) => {
       payment_status,
       checked_in,
       search,
+      email_status,
       page = '1',
       limit = '50',
     } = req.query as Record<string, string>;
@@ -178,6 +179,7 @@ router.get('/registrations', async (req, res, next) => {
 
     if (pass_slug) query = query.eq('pass_slug', pass_slug);
     if (payment_status) query = query.eq('payment_status', payment_status);
+    if (email_status) query = query.eq('email_status', email_status);
     if (checked_in !== undefined && checked_in !== '') {
       query = query.eq('checked_in', checked_in === 'true');
     }
@@ -483,4 +485,113 @@ router.put('/applications/:type/:id/status', async (req, res, next) => {
   }
 });
 
+// --- Email Monitoring Endpoints ---
+
+// GET /api/admin/email-stats — email delivery dashboard
+router.get('/email-stats', async (_req, res, next) => {
+  try {
+    const { data: jobs, error } = await supabase
+      .from('email_jobs')
+      .select('status');
+
+    if (error) throw error;
+
+    const counts = { pending: 0, processing: 0, sent: 0, failed: 0, cancelled: 0, total: 0 };
+    (jobs || []).forEach((j) => {
+      counts[j.status as keyof typeof counts] = (counts[j.status as keyof typeof counts] || 0) + 1;
+      counts.total++;
+    });
+
+    res.json(counts);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/email-jobs — list email jobs with filtering
+router.get('/email-jobs', async (req, res, next) => {
+  try {
+    const {
+      status,
+      email_type,
+      page = '1',
+      limit = '50',
+    } = req.query as Record<string, string>;
+
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    const from = (pageNum - 1) * limitNum;
+    const to = from + limitNum - 1;
+
+    let query = supabase
+      .from('email_jobs')
+      .select('id, idempotency_key, email_type, recipient_email, recipient_name, subject, status, attempts, last_error, provider_message_id, created_at, updated_at, sent_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (status) query = query.eq('status', status);
+    if (email_type) query = query.eq('email_type', email_type);
+
+    const { data, count, error } = await query;
+    if (error) throw error;
+
+    res.json({
+      jobs: data || [],
+      total: count || 0,
+      page: pageNum,
+      limit: limitNum,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/email-retry — manually retry a failed email job
+router.post('/email-retry', async (req, res, next) => {
+  try {
+    const { job_id } = req.body;
+    if (!job_id) {
+      res.status(400).json({ error: 'job_id is required' });
+      return;
+    }
+
+    const { data: job, error: fetchErr } = await supabase
+      .from('email_jobs')
+      .select('id, status')
+      .eq('id', job_id)
+      .single();
+
+    if (fetchErr || !job) {
+      res.status(404).json({ error: 'Email job not found' });
+      return;
+    }
+
+    if (job.status === 'sent') {
+      res.status(400).json({ error: 'Job already sent successfully' });
+      return;
+    }
+
+    if (job.status === 'processing') {
+      res.status(400).json({ error: 'Job is currently being processed' });
+      return;
+    }
+
+    const { error: updateErr } = await supabase
+      .from('email_jobs')
+      .update({
+        status: 'pending',
+        last_error: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', job_id);
+
+    if (updateErr) throw updateErr;
+
+    res.json({ message: 'Job queued for retry' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
+

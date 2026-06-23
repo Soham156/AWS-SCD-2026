@@ -14,6 +14,7 @@ export function RegistrationsTable() {
     pass_slug: '',
     payment_status: '',
     checked_in: '',
+    email_status: '',
   });
   const [refunding, setRefunding] = useState<string | null>(null);
   const [passTypes, setPassTypes] = useState<{slug: string; name: string}[]>([]);
@@ -109,6 +110,16 @@ export function RegistrationsTable() {
           <option value="true">Checked In</option>
           <option value="false">Not Checked In</option>
         </select>
+        <select
+          value={filters.email_status}
+          onChange={(e) => { setFilters(f => ({...f, email_status: e.target.value})); setPage(1); }}
+          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+        >
+          <option value="">All Email Status</option>
+          <option value="sent">Sent</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
         <button onClick={fetchData} className="p-2 border border-white/10 text-white/30 hover:text-white hover:bg-white/5 transition-colors">
           <RefreshCw size={14} />
         </button>
@@ -119,7 +130,7 @@ export function RegistrationsTable() {
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-[#111] border-b border-white/10">
-              {['Ticket', 'Pass', 'Name', 'Email', 'Phone', 'Role', 'Org', 'Payment', 'Checked In', 'Date', 'Actions'].map(h => (
+              {['Ticket', 'Pass', 'Name', 'Email', 'Phone', 'Role', 'Org', 'Payment', 'Checked In', 'Email Sent', 'Date', 'Actions'].map(h => (
                 <th key={h} className="text-left py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px] whitespace-nowrap">
                   {h}
                 </th>
@@ -129,13 +140,13 @@ export function RegistrationsTable() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={10} className="text-center py-8">
+                <td colSpan={11} className="text-center py-8">
                   <Loader2 size={20} className="animate-spin text-white/20 mx-auto" />
                 </td>
               </tr>
             ) : registrations.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center py-8 text-white/20 font-mono text-xs">
+                <td colSpan={11} className="text-center py-8 text-white/20 font-mono text-xs">
                   No registrations found
                 </td>
               </tr>
@@ -172,6 +183,15 @@ export function RegistrationsTable() {
                     ) : (
                       <span className="text-white/10">—</span>
                     )}
+                  </td>
+                  <td className="py-2 px-3">
+                    <span className={`inline-block px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase ${
+                      r.email_status === 'sent' ? 'bg-emerald-400/10 text-emerald-400' :
+                      r.email_status === 'failed' ? 'bg-red-400/10 text-red-400' :
+                      'bg-yellow-400/10 text-yellow-400'
+                    }`}>
+                      {r.email_status || 'PENDING'}
+                    </span>
                   </td>
                   <td className="py-2 px-3 font-mono text-white/20 text-[10px] whitespace-nowrap">
                     {new Date(r.created_at).toLocaleDateString()}
