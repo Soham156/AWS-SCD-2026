@@ -102,11 +102,12 @@ async function processEmailBatch(): Promise<void> {
           text: metadata.text_body,
         });
 
-        // Success: mark as sent
+        // Success: mark as sent and clear html_body to save space
         await supabase
           .from('email_jobs')
           .update({
             status: 'sent',
+            html_body: '', // Free up database storage since we no longer need to send this
             provider_message_id: result.messageId,
             sent_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),

@@ -32,7 +32,11 @@ class ResendProvider implements EmailProvider {
   }
 
   async send(options: SendEmailOptions): Promise<SendEmailResult> {
-    const from = options.from || process.env.EMAIL_FROM || 'AWS Student Community Day Dhule 2026 <no-reply@aws-scd-dhule.tech>';
+    let envFrom = process.env.EMAIL_FROM || 'no-reply@aws-scd-dhule.tech';
+    if (!envFrom.includes('<')) {
+      envFrom = `AWS Student Community Day Dhule 2026 <${envFrom}>`;
+    }
+    const from = options.from || envFrom;
     const reply_to = options.replyTo || process.env.EMAIL_REPLY_TO || 'info@aws-scd-dhule.tech';
 
     const payload: any = {
