@@ -1,5 +1,6 @@
 import { supabase } from '../../shared/lib/supabase.js';
 import { getEmailProvider } from '../../shared/lib/emailProvider.js';
+import { generateTicketPdf } from './ticketPdfGenerator.js';
 
 const POLL_INTERVAL_MS = 10_000; // 10 seconds
 const BATCH_SIZE = 5;
@@ -95,12 +96,36 @@ async function processEmailBatch(): Promise<void> {
       try {
         const metadata = (job.metadata as any) || {};
         
-        const result = await provider.send({
+        const sendOptions: any = {
           to: job.recipient_email,
           subject: job.subject,
           html: job.html_body,
           text: metadata.text_body,
-        });
+        };
+
+        if (job.email_type === 'registration_confirmation' && metadata.ticket_number) {
+          try {
+            const pdfBuffer = await generateTicketPdf({
+              ticket_number: metadata.ticket_number,
+              full_name: metadata.full_name || job.recipient_name,
+              pass_name: metadata.pass_name || 'General Pass',
+              role: metadata.role || 'Attendee',
+              organization: metadata.organization || '-',
+              qr_token: metadata.qr_token || metadata.ticket_number,
+              badge_color: metadata.badge_color || '#6B7280',
+            });
+            sendOptions.attachments = [
+              {
+                filename: `Ticket-${metadata.ticket_number}.pdf`,
+                content: pdfBuffer,
+              }
+            ];
+          } catch (pdfErr) {
+            console.error('[Email Processor] Failed to generate PDF attachment:', pdfErr);
+          }
+        }
+        
+        const result = await provider.send(sendOptions);
 
         // Success: mark as sent and clear html_body to save space
         await supabase

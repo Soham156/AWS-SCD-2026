@@ -5,6 +5,7 @@ import { LanyardBadge } from '../components/LanyardBadge';
 import { TicketPass } from '../components/TicketPass';
 import { Loader2, ArrowLeft, Download } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 export function TicketPage() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ export function TicketPage() {
   const downloadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!id) return;
 
     let isMounted = true;
@@ -63,10 +65,18 @@ export function TicketPage() {
         backgroundColor: '#050505',
         pixelRatio: 2,
       });
-      const link = document.createElement('a');
-      link.download = `${ticket?.ticket_number || 'ticket'}.png`;
-      link.href = dataUrl;
-      link.click();
+
+      const width = downloadRef.current.offsetWidth;
+      const height = downloadRef.current.offsetHeight;
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [width, height],
+      });
+      
+      pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
+      pdf.save(`${ticket?.ticket_number || 'ticket'}.pdf`);
     } catch (err) {
       console.error('Download failed:', err);
     }
@@ -121,6 +131,7 @@ export function TicketPage() {
         role={ticket.role}
         organization={ticket.organization}
         badge_color={passData.badge_color}
+        qr_token={ticket.qr_token}
       />
 
       {/* Top-left nav */}

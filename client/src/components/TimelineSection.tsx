@@ -147,7 +147,7 @@ export const TimelineSection = () => {
           </span>
         </div>
 
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col">
+        <div className="relative z-10 flex flex-col">
           <SectionHeader
             title="Race Weekend Timeline"
             subtitle="Twelve sectors. One full day on the cloud racing calendar — from opening lights to the final chequered flag."

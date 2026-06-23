@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
-import { Environment, Lightformer } from '@react-three/drei';
+import { Environment, Lightformer, useTexture } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
@@ -15,6 +15,7 @@ export interface BadgeProps {
   role: string;
   organization: string;
   badge_color?: string;
+  qr_token?: string;
 }
 
 // --------------------------------------------------------
@@ -205,7 +206,21 @@ function createBandTexture(): THREE.CanvasTexture {
 }
 
 // --------------------------------------------------------
-// 3. BAND PHYSICS & RENDERING
+// 3. QR CODE TEXTURE MESH
+// --------------------------------------------------------
+function QRCodeMesh({ token }: { token: string }) {
+  const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(token)}&size=300&margin=1`;
+  const texture = useTexture(qrUrl);
+  return (
+    <mesh position={[0, -0.05, 0.006]}>
+      <planeGeometry args={[0.40, 0.40]} />
+      <meshBasicMaterial map={texture} transparent={true} />
+    </mesh>
+  );
+}
+
+// --------------------------------------------------------
+// 4. BAND PHYSICS & RENDERING
 // --------------------------------------------------------
 function Band({ badgeProps }: { badgeProps: BadgeProps }) {
   const band = useRef<any>(null);
@@ -347,6 +362,13 @@ function Band({ badgeProps }: { badgeProps: BadgeProps }) {
                 color="#ffffff"
               />
             </mesh>
+
+            {/* Pure WebGL QR Code Overlay (Fixes clipping issues) */}
+            {badgeProps.qr_token && (
+              <Suspense fallback={null}>
+                <QRCodeMesh token={badgeProps.qr_token} />
+              </Suspense>
+            )}
 
             {/* Back Card Face - Black */}
             <mesh position={[0, 0, -0.005]} rotation={[0, Math.PI, 0]}>

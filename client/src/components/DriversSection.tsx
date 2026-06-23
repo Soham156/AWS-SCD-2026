@@ -422,7 +422,7 @@ export const DriversSection = () => {
       {/* Decorative background glow */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-aws-orange/5 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none z-0"></div>
 
-      <div className="w-full mb-0 flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto relative z-10">
+      <div className="w-full mb-0 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
         <SectionHeader 
           title="Meet Our Team" 
           subtitle="Discover the talented individuals behind our success." 

@@ -9,6 +9,10 @@ export interface SendEmailOptions {
   text?: string;
   from?: string;
   replyTo?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+  }>;
 }
 
 export interface SendEmailResult {
@@ -49,6 +53,10 @@ class ResendProvider implements EmailProvider {
 
     if (options.text) {
       payload.text = options.text;
+    }
+
+    if (options.attachments) {
+      payload.attachments = options.attachments;
     }
 
     const { data, error } = await this.client.emails.send(payload);

@@ -128,6 +128,9 @@ export async function enqueueRegistrationConfirmation(
     metadata: {
       registration_id,
       ticket_number,
+      full_name: reg.full_name,
+      role: reg.role,
+      organization: reg.organization,
       pass_name: passType?.name || reg.pass_slug,
       badge_color: passType?.badge_color || '#6B7280',
       qr_token,

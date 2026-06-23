@@ -20,8 +20,8 @@ export const BecomeSponsorSection = () => {
       <div className="absolute -top-1/4 right-0 w-[600px] h-[600px] bg-aws-orange/5 blur-[150px] rounded-full pointer-events-none" />
       <div className="absolute -bottom-1/4 left-0 w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="w-full relative z-10 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="w-full relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl mx-auto">
           
           {/* Left Column: Information & Details */}
           <div className="lg:col-span-7 flex flex-col gap-6">

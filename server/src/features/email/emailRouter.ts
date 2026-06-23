@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
-import { generateTicketImage } from './ticketImageGenerator.js';
+import { generateTicketPdf } from './ticketPdfGenerator.js';
 import { verifyQRToken } from '../../shared/lib/qrToken.js';
 
 const router = Router();
@@ -52,7 +52,7 @@ router.get('/ticket/:id/download', async (req, res, next) => {
 
     const passType = reg.pass_types as any;
 
-    const pngBuffer = await generateTicketImage({
+    const pdfBuffer = await generateTicketPdf({
       ticket_number: reg.ticket_number,
       full_name: reg.full_name,
       pass_name: passType?.name || reg.pass_slug,
@@ -62,10 +62,10 @@ router.get('/ticket/:id/download', async (req, res, next) => {
       badge_color: passType?.badge_color || '#6B7280',
     });
 
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Disposition', `attachment; filename="${reg.ticket_number}.png"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${reg.ticket_number}.pdf"`);
     res.setHeader('Cache-Control', 'private, max-age=3600');
-    res.send(pngBuffer);
+    res.send(pdfBuffer);
   } catch (err) {
     next(err);
   }

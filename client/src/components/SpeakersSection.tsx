@@ -40,7 +40,7 @@ export const SpeakersSection = () => {
       <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-y-1/2 pointer-events-none"></div>
 
       {/* Header with action */}
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-7xl mx-auto">
+      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
         <SectionHeader 
           title="Speakers" 
           subtitle="Our lineup of industry experts, cloud architects, and visionaries is currently preparing in the paddock. Stay tuned for speaker reveals." 

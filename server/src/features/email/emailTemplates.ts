@@ -139,6 +139,14 @@ export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData):
                       </tr>
                       <tr>
                         <td style="font-size:13px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">
+                          Time
+                        </td>
+                        <td style="font-size:14px;color:#374151;">
+                          9:00 AM Onwards
+                        </td>
+                      </tr>
+                      <tr style="background:rgba(255,153,0,0.08);">
+                        <td style="font-size:13px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;">
                           Venue
                         </td>
                         <td style="font-size:14px;color:#374151;">
@@ -175,17 +183,7 @@ export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData):
                       </tr>
                     </table>
 
-                    <!-- Static map preview (Google Maps embed thumbnail) -->
-                    <a href="https://maps.google.com/?q=SVKM+Institute+of+Technology+Dhule" target="_blank"
-                       style="display:block;border-radius:8px;overflow:hidden;border:1px solid #93c5fd;margin-bottom:14px;">
-                      <img
-                        src="https://maps.googleapis.com/maps/api/staticmap?center=SVKM+Institute+of+Technology+Dhule&zoom=15&size=540x180&maptype=roadmap&markers=color:orange%7CSVKM+Institute+of+Technology+Dhule&key=YOUR_GOOGLE_MAPS_API_KEY"
-                        alt="Venue Map — SVKM's Institute of Technology, Dhule"
-                        width="100%"
-                        style="display:block;width:100%;max-width:540px;border-radius:8px;"
-                        onerror="this.style.display='none'"
-                      />
-                    </a>
+                    <!-- Static map preview (Removed as requested) -->
 
                     <!-- Direction buttons -->
                     <table cellpadding="0" cellspacing="0" border="0">
@@ -204,7 +202,7 @@ export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData):
                           <a href="https://maps.apple/p/yY~~WHcrydco3q"
                              target="_blank"
                              style="background:#ffffff;color:#374151;text-decoration:none;padding:9px 16px;border-radius:6px;font-size:13px;font-weight:600;display:inline-block;border:1px solid #e5e7eb;vertical-align:middle;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Apple_Maps_icon.png/240px-Apple_Maps_icon.png"
+                            <img src="https://img.icons8.com/?size=100&id=95294&format=png&color=000000"
                                  alt="Apple Maps" width="16" height="16"
                                  style="vertical-align:middle;margin-right:6px;display:inline-block;border-radius:3px;" />
                             <span style="vertical-align:middle;">Apple Maps</span>
@@ -318,8 +316,8 @@ export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData):
               <img
                 src="https://aws-scd-2026.vercel.app/AWS_Builder.png"
                 alt="AWS Student Community Day"
-                width="100"
-                style="display:block;margin:0 auto 14px;max-width:100px;opacity:0.85;"
+                width="250"
+                style="display:block;margin:0 auto 14px;max-width:250px;"
               />
 
               <p style="margin:0;color:#d1d5db;font-size:13px;font-weight:600;">

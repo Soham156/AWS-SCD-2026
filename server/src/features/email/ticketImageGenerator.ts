@@ -1,8 +1,8 @@
 import QRCode from 'qrcode';
 import sharp from 'sharp';
 
-const TICKET_WIDTH = 800;
-const TICKET_HEIGHT = 1000;
+const TICKET_WIDTH = 680;
+const TICKET_HEIGHT = 1100;
 
 /**
  * Generates a ticket PNG image server-side for email download links.
@@ -39,89 +39,59 @@ export async function generateTicketImage(params: {
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#0a0a0a"/>
-      <stop offset="100%" stop-color="#111111"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="${esc(badge_color)}"/>
       <stop offset="100%" stop-color="#FF9900"/>
     </linearGradient>
   </defs>
 
   <!-- Background -->
-  <rect width="${TICKET_WIDTH}" height="${TICKET_HEIGHT}" fill="url(#bg)" rx="24"/>
+  <rect width="${TICKET_WIDTH}" height="${TICKET_HEIGHT}" fill="url(#bg)"/>
+  <rect width="${TICKET_WIDTH}" height="${TICKET_HEIGHT}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
 
-  <!-- Border -->
-  <rect x="2" y="2" width="${TICKET_WIDTH - 4}" height="${TICKET_HEIGHT - 4}" fill="none"
-        stroke="${esc(badge_color)}" stroke-width="2" rx="22" opacity="0.4"/>
-
-  <!-- Top accent bar -->
-  <rect x="0" y="0" width="${TICKET_WIDTH}" height="6" fill="url(#accent)" rx="3"/>
+  <!-- Header bar -->
+  <rect x="0" y="0" width="${TICKET_WIDTH}" height="16" fill="url(#accent)"/>
 
   <!-- Event branding -->
-  <text x="400" y="70" text-anchor="middle" font-family="monospace" font-size="14"
-        fill="#FF9900" letter-spacing="6" font-weight="bold">AWS COMMUNITY DAY</text>
-  <text x="400" y="100" text-anchor="middle" font-family="monospace" font-size="12"
-        fill="rgba(255,255,255,0.4)" letter-spacing="4">DHULE 2026</text>
+  <text x="48" y="70" font-family="monospace" font-size="18" fill="rgba(255,255,255,0.4)" letter-spacing="2">AWS STUDENT COMMUNITY DAY</text>
+  <text x="48" y="100" font-family="monospace" font-size="18" fill="rgba(255,255,255,0.3)" letter-spacing="2">DHULE 2026</text>
+
+  <!-- Pass Type -->
+  <rect x="480" y="45" width="152" height="40" fill="${esc(badge_color)}"/>
+  <text x="556" y="71" text-anchor="middle" font-family="monospace" font-size="18" fill="white" font-weight="bold" letter-spacing="2">${esc(pass_name.toUpperCase())}</text>
 
   <!-- Divider -->
-  <line x1="60" y1="130" x2="740" y2="130" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <line x1="48" y1="140" x2="632" y2="140" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="10,10"/>
 
-  <!-- Pass type badge -->
-  <rect x="260" y="155" width="280" height="36" rx="18" fill="${esc(badge_color)}" opacity="0.2"/>
-  <rect x="260" y="155" width="280" height="36" rx="18" fill="none"
-        stroke="${esc(badge_color)}" stroke-width="1" opacity="0.6"/>
-  <text x="400" y="179" text-anchor="middle" font-family="monospace" font-size="14"
-        fill="${esc(badge_color)}" font-weight="bold" letter-spacing="3">${esc(pass_name.toUpperCase())}</text>
+  <!-- Attendee info -->
+  <text x="48" y="210" font-family="sans-serif" font-size="44" fill="white" font-weight="900" font-style="italic">${esc(full_name.toUpperCase())}</text>
+  ${organization ? `<text x="48" y="250" font-family="monospace" font-size="20" fill="rgba(255,255,255,0.4)">${esc(organization.toUpperCase())}</text>` : ''}
+  <text x="48" y="290" font-family="monospace" font-size="20" fill="#FF9900" letter-spacing="4">${esc(role.toUpperCase())}</text>
 
-  <!-- Attendee name -->
-  <text x="400" y="250" text-anchor="middle" font-family="sans-serif" font-size="36"
-        fill="white" font-weight="bold">${esc(full_name)}</text>
-
-  <!-- Role & Organization -->
-  <text x="400" y="290" text-anchor="middle" font-family="monospace" font-size="14"
-        fill="rgba(255,255,255,0.5)" letter-spacing="2">${esc(role.toUpperCase())} · ${esc(organization.toUpperCase())}</text>
-
+  <!-- QR Code Background -->
+  <rect x="140" y="340" width="400" height="400" fill="white"/>
   <!-- QR Code -->
-  <image x="275" y="340" width="250" height="250"
-         xlink:href="data:image/png;base64,${qrBase64}"/>
-
-  <!-- QR instruction -->
-  <text x="400" y="625" text-anchor="middle" font-family="monospace" font-size="11"
-        fill="rgba(255,255,255,0.3)" letter-spacing="2">SCAN TO CHECK IN</text>
-
-  <!-- Divider -->
-  <line x1="60" y1="660" x2="740" y2="660" stroke="rgba(255,255,255,0.1)" stroke-width="1"
-        stroke-dasharray="6,4"/>
+  ${qr_token ? `
+  <image x="140" y="340" width="400" height="400" xlink:href="data:image/png;base64,${qrBase64}"/>
+  ` : `
+  <rect x="140" y="340" width="400" height="400" fill="#f3f4f6"/>
+  <text x="340" y="540" text-anchor="middle" font-family="monospace" font-size="20" fill="#9ca3af" letter-spacing="2">QR Code pending</text>
+  `}
 
   <!-- Ticket number -->
-  <text x="400" y="720" text-anchor="middle" font-family="monospace" font-size="32"
-        fill="#FF9900" font-weight="bold" letter-spacing="4">${esc(ticket_number)}</text>
+  <text x="340" y="820" text-anchor="middle" font-family="monospace" font-size="18" fill="rgba(255,255,255,0.3)" letter-spacing="4" text-transform="uppercase">TICKET</text>
+  <text x="340" y="870" text-anchor="middle" font-family="monospace" font-size="36" fill="white" font-weight="bold" letter-spacing="2">${esc(ticket_number || 'PENDING CONFIRMATION')}</text>
 
-  <!-- Labels row -->
-  <text x="120" y="790" text-anchor="middle" font-family="monospace" font-size="10"
-        fill="rgba(255,255,255,0.3)" letter-spacing="2">TICKET ID</text>
-  <text x="400" y="790" text-anchor="middle" font-family="monospace" font-size="10"
-        fill="rgba(255,255,255,0.3)" letter-spacing="2">TYPE</text>
-  <text x="680" y="790" text-anchor="middle" font-family="monospace" font-size="10"
-        fill="rgba(255,255,255,0.3)" letter-spacing="2">STATUS</text>
+  <!-- Footer Divider -->
+  <line x1="48" y1="940" x2="632" y2="940" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="10,10"/>
 
-  <!-- Values row -->
-  <text x="120" y="815" text-anchor="middle" font-family="monospace" font-size="13"
-        fill="rgba(255,255,255,0.7)">${esc(ticket_number)}</text>
-  <text x="400" y="815" text-anchor="middle" font-family="monospace" font-size="13"
-        fill="rgba(255,255,255,0.7)">${esc(pass_name)}</text>
-  <text x="680" y="815" text-anchor="middle" font-family="monospace" font-size="13"
-        fill="#22C55E">CONFIRMED</text>
+  <!-- Footer Text -->
+  <text x="48" y="1000" font-family="monospace" font-size="16" fill="rgba(255,255,255,0.3)">14 August 2026</text>
+  <text x="48" y="1030" font-family="monospace" font-size="16" fill="rgba(255,255,255,0.3)">SVKM's IoT, Dhule</text>
+  <text x="632" y="1015" text-anchor="end" font-family="monospace" font-size="16" fill="rgba(255,255,255,0.2)">Show QR at gate</text>
 
-  <!-- Footer -->
-  <text x="400" y="900" text-anchor="middle" font-family="monospace" font-size="10"
-        fill="rgba(255,255,255,0.2)" letter-spacing="3">POWERED BY AWS · BUILT FOR THE COMMUNITY</text>
-
-  <!-- Subtle grid pattern overlay -->
-  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
-  </pattern>
-  <rect width="${TICKET_WIDTH}" height="${TICKET_HEIGHT}" fill="url(#grid)" rx="24"/>
 </svg>`;
 
   // Convert SVG to PNG using sharp

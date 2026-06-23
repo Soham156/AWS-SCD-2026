@@ -59,14 +59,14 @@ export const WhatYouGetSection = () => {
       <div className="absolute -left-10 top-1/4 w-[350px] h-[350px] bg-aws-orange/5 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute -right-10 bottom-1/4 w-[350px] h-[350px] bg-f1-red/5 blur-[130px] rounded-full pointer-events-none" />
 
-      <div className="w-full relative z-10 flex flex-col gap-16 max-w-7xl mx-auto">
+      <div className="w-full relative z-10 flex flex-col gap-16">
         <SectionHeader 
           title="Event Benefits" 
           subtitle="A comprehensive student experience crafted to accelerate your growth, validate your skills, and connect you with the tech ecosystem." 
           sysId="01.BEN" 
         />
 
-        <div className="flex sm:grid overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none gap-6 pb-6 sm:pb-0 px-4 sm:px-0 -mx-4 sm:mx-0 no-scrollbar sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex sm:grid overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none gap-6 pb-6 sm:pb-0 px-4 sm:px-0 -mx-4 sm:mx-auto no-scrollbar sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto w-full">
           {perks.map((perk, i) => {
             const Icon = perk.icon;
             
