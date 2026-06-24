@@ -50,9 +50,9 @@ export const TimelineSection = () => {
   const x = useTransform(smoothProgress, [0, 1], ["calc(0% + 0vw)", "calc(-100% + 100vw)"]);
 
   return (
-    <>
+    <div id="schedule">
       {/* 1. Desktop Layout (Connected to Scroll Progress) */}
-      <section id="schedule" ref={targetRef} className="hidden lg:block relative h-[800vh] bg-[#050505] border-b border-white/5">
+      <section ref={targetRef} className="hidden lg:block relative h-[800vh] bg-[#050505] border-b border-white/5">
         {/* Sticky container locks to screen while we scroll */}
         <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
           
@@ -139,7 +139,7 @@ export const TimelineSection = () => {
       </section>
 
       {/* 2. Mobile/Tablet Layout (Independent Horizontal Swipe) */}
-      <div id="schedule-mobile" className="lg:hidden relative py-20 px-4 bg-[#050505] overflow-hidden border-b border-white/5">
+      <div className="lg:hidden relative py-20 px-4 bg-[#050505] overflow-hidden border-b border-white/5">
         {/* Giant background text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
           <span className="font-sans font-black italic uppercase text-[24vw] leading-none text-white/[0.01] tracking-tighter whitespace-nowrap">
@@ -212,6 +212,6 @@ export const TimelineSection = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };

@@ -23,7 +23,23 @@ export const SmoothScroll = () => {
     gsap.ticker.add(tickerCallback);
     gsap.ticker.lagSmoothing(0);
 
+    // Globally intercept anchor clicks for smooth scrolling via Lenis
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+      if (!anchor) return;
+      
+      // Ignore if they click a React Router Link with no href, or a non-hash link
+      const href = anchor.getAttribute('href');
+      if (href && href.startsWith('#') && href.length > 1) {
+        e.preventDefault();
+        lenis.scrollTo(href);
+      }
+    };
+    document.addEventListener('click', handleClick);
+
     return () => {
+      document.removeEventListener('click', handleClick);
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
     };

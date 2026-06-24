@@ -31,15 +31,25 @@ import { CustomCursor } from './components/CustomCursor';
 import { SmoothScroll } from './components/SmoothScroll';
 import { SectionDivider } from './components/LayoutElements';
 
+let preloaderShown = false;
+
 function HomePage() {
   const isBot = /bot|googlebot|crawler|spider|robot|crawling|lighthouse/i.test(navigator.userAgent);
-  const [loading, setLoading] = useState(!isBot);
+  const [loading, setLoading] = useState(() => {
+    if (isBot) return false;
+    return !preloaderShown;
+  });
+
+  const handlePreloaderComplete = () => {
+    preloaderShown = true;
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] font-sans text-[#e0e0e0] flex flex-col overflow-x-clip">
       <AnimatePresence mode="wait">
         {loading && (
-           <Preloader key="preloader" onComplete={() => setLoading(false)} />
+           <Preloader key="preloader" onComplete={handlePreloaderComplete} />
         )}
       </AnimatePresence>
 
@@ -109,7 +119,7 @@ export default function App() {
         <Route path="/sponsors" element={<SponsorPage />} />
         <Route path="/ticket" element={<TicketsPurchasePage />} />
         <Route path="/ticket/:id" element={<TicketPage />} />
-        <Route path="/speaker" element={<SpeakerPage />} />
+        <Route path="/cfp" element={<SpeakerPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/status" element={<StatusPage />} />

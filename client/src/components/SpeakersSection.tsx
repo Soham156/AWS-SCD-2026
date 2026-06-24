@@ -49,7 +49,7 @@ export const SpeakersSection = () => {
         
         <div className="md:mb-12 shrink-0">
           <button
-            onClick={() => navigate('/speaker')}
+            onClick={() => navigate('/cfp')}
             className="flex items-center justify-center gap-2 px-6 py-3 bg-aws-orange text-black font-sans font-black italic uppercase text-xs tracking-widest skew-x-[-12deg] transition-all hover:bg-white hover:text-black shadow-[0_0_15px_rgba(255,153,0,0.3)] cursor-pointer"
           >
             <span className="skew-x-[12deg] flex items-center gap-1.5">
