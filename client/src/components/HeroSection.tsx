@@ -2,8 +2,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { AngledButton } from "./LayoutElements";
 import { Zap, Calendar, MapPin, Users, Mic, Wrench } from "lucide-react";
 import React, { useRef, useState, useEffect } from "react";
-
-
+import { Link } from "react-router-dom";
 
 export const HeroSection = () => {
   const { scrollY } = useScroll();
@@ -243,11 +242,11 @@ export const HeroSection = () => {
             transition={{ delay: 0.5, duration: 0.6 }}
             className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-2"
           >
-            <a href="#tickets">
+            <Link to="/ticket">
               <AngledButton primary={true}>
                 <span>Buy Ticket</span>
               </AngledButton>
-            </a>
+            </Link>
             <a href="#schedule">
               <AngledButton primary={false}>
                 <span>View Agenda</span>

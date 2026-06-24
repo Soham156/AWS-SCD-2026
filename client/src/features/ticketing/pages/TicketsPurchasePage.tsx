@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { ChevronRight, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { usePassTypes } from '../hooks/usePassTypes';
 import { useRegistration } from '../hooks/useRegistration';
@@ -15,6 +16,20 @@ export function TicketsPurchasePage() {
   const { passes, loading: passesLoading } = usePassTypes();
   const { registrationEnabled, loading: settingsLoading } = useSettings();
   const reg = useRegistration();
+  const [searchParams] = useSearchParams();
+
+  // Auto-select pass if passId is provided in URL
+  useEffect(() => {
+    if (!passesLoading && passes.length > 0 && reg.step === 1) {
+      const passId = searchParams.get('passId');
+      if (passId) {
+        const selectedPass = passes.find(p => p.id === passId);
+        if (selectedPass && selectedPass.is_active && (selectedPass.capacity - selectedPass.sold > 0)) {
+          reg.selectPass(selectedPass);
+        }
+      }
+    }
+  }, [passesLoading, passes, searchParams, reg.step, reg.selectPass]);
 
   if (settingsLoading) {
     return (

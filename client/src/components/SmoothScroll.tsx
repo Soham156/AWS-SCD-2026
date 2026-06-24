@@ -33,7 +33,11 @@ export const SmoothScroll = () => {
       const href = anchor.getAttribute('href');
       if (href && href.startsWith('#') && href.length > 1) {
         e.preventDefault();
-        lenis.scrollTo(href);
+        // Use a 2-second duration with a premium cinematic ease-out curve
+        lenis.scrollTo(href, { 
+          duration: 2, 
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+        });
       }
     };
     document.addEventListener('click', handleClick);

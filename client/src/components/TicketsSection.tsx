@@ -105,7 +105,7 @@ export const TicketsSection = () => {
                   <div className="mt-6 pt-5 border-t border-white/10">
                     {registrationEnabled && !isSoldOut ? (
                       <Link
-                        to="/ticket"
+                        to={`/ticket?passId=${tier.id}`}
                         style={{ backgroundColor: hex, color: '#000', boxShadow: `0 10px 15px -3px ${hex}33` }}
                         className="w-full text-center px-4 py-3.5 text-[11px] font-mono uppercase tracking-widest font-bold transition-all skew-x-[-6deg] block hover:bg-white hover:text-black"
                       >

@@ -109,12 +109,12 @@ export const HeaderSection = () => {
           <Countdown />
           <div className="h-6 w-px bg-white/10" />
 
-          <a 
-            href="#tickets" 
+          <Link 
+            to="/ticket" 
             className="ml-2 px-6 py-2 bg-aws-orange hover:bg-white text-black font-sans font-black italic uppercase text-xs tracking-widest skew-x-[-12deg] transition-all shadow-[0_0_15px_rgba(255,153,0,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
           >
             <span className="skew-x-[12deg] block">Buy Ticket</span>
-          </a>
+          </Link>
         </div>
 
         {/* Mobile menu toggle */}
@@ -154,7 +154,7 @@ export const HeaderSection = () => {
                   </a>
                 )
               ))}
-              <a href="#tickets" onClick={() => setMobileMenuOpen(false)} className="py-2 text-aws-orange font-bold hover:text-white transition-colors">Buy Ticket</a>
+              <Link to="/ticket" onClick={() => setMobileMenuOpen(false)} className="py-2 text-aws-orange font-bold hover:text-white transition-colors">Buy Ticket</Link>
             </div>
           </motion.div>
         )}
