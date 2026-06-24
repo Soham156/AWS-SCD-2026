@@ -104,7 +104,7 @@ export async function enqueueRegistrationConfirmation(
 
   const passType = reg.pass_types as any;
   const frontendUrl = (process.env.FRONTEND_URL || 'https://aws-scd-dhule.tech').replace(/\/+$/, '');
-  const serverUrl = (process.env.SERVER_URL || `http://localhost:${process.env.PORT || 3001}`).replace(/\/+$/, '');
+  const serverUrl = (process.env.SERVER_URL || 'https://api.aws-scd-dhule.tech/').replace(/\/+$/, '');
 
   const ticket_page_url = `${frontendUrl}/ticket/${registration_id}`;
   const download_url = `${serverUrl}/api/email/ticket/${registration_id}/download?token=${encodeURIComponent(qr_token)}`;
