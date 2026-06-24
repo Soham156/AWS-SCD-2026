@@ -121,6 +121,8 @@ setInterval(async () => {
         
       if (deleteErr) {
         console.error('[Cleanup] Failed to delete archived registrations:', deleteErr);
+      } else {
+        console.log(`[Cleanup] Successfully archived and cleaned up ${idsToDelete.length} abandoned registration(s) older than 24h.`);
       }
     }
   } catch (err) {
