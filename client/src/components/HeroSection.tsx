@@ -4,13 +4,15 @@ import { Zap, Calendar, MapPin, Users, Mic, Wrench } from "lucide-react";
 import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+let globalIsMuted = false;
+
 export const HeroSection = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(globalIsMuted);
   
   const [media, setMedia] = useState<{video: string, audio?: string} | null>(null);
   const [isLiteMode, setIsLiteMode] = useState(false);
@@ -60,6 +62,7 @@ export const HeroSection = () => {
       if (audioRef.current) {
         audioRef.current.muted = nextMuted;
       }
+      globalIsMuted = nextMuted;
       setIsMuted(nextMuted);
       window.dispatchEvent(new CustomEvent("muteStateChange", { detail: nextMuted }));
     };
@@ -110,6 +113,7 @@ export const HeroSection = () => {
             if (audioRef.current) {
               audioRef.current.muted = true;
             }
+            globalIsMuted = true;
             setIsMuted(true);
             window.dispatchEvent(new CustomEvent("muteStateChange", { detail: true }));
           });
@@ -139,6 +143,7 @@ export const HeroSection = () => {
           if (videoRef.current) {
             videoRef.current.muted = true;
             videoRef.current.play().catch(() => {});
+            globalIsMuted = true;
             setIsMuted(true);
           }
         });
@@ -169,7 +174,9 @@ export const HeroSection = () => {
             <video
               ref={videoRef}
               preload="auto"
+              autoPlay
               loop
+              muted={isMuted}
               playsInline
               fetchPriority="high"
               className="w-full h-full object-cover opacity-60 mix-blend-screen mix-blend-lighten"
@@ -179,7 +186,9 @@ export const HeroSection = () => {
               <audio
                 ref={audioRef}
                 preload="auto"
+                autoPlay
                 loop
+                muted={isMuted}
                 src={media.audio}
               />
             )}

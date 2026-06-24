@@ -45,6 +45,14 @@ function HomePage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    // If the preloader was skipped (or just finished), fire the greenLight event
+    // so the Hero section knows to immediately load and play the video.
+    if (!loading) {
+      setTimeout(() => window.dispatchEvent(new Event('greenLight')), 50);
+    }
+  }, [loading]);
+
   return (
     <div className="min-h-screen bg-[#050505] font-sans text-[#e0e0e0] flex flex-col overflow-x-clip">
       <AnimatePresence mode="wait">

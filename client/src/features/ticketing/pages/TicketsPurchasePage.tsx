@@ -16,7 +16,7 @@ export function TicketsPurchasePage() {
   const { passes, loading: passesLoading } = usePassTypes();
   const { registrationEnabled, loading: settingsLoading } = useSettings();
   const reg = useRegistration();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Auto-select pass if passId is provided in URL
   useEffect(() => {
@@ -26,10 +26,12 @@ export function TicketsPurchasePage() {
         const selectedPass = passes.find(p => p.id === passId);
         if (selectedPass && selectedPass.is_active && (selectedPass.capacity - selectedPass.sold > 0)) {
           reg.selectPass(selectedPass);
+          // Clear the passId from URL so if they click "Back" on step 2, they aren't instantly forced back to step 2
+          setSearchParams({}, { replace: true });
         }
       }
     }
-  }, [passesLoading, passes, searchParams, reg.step, reg.selectPass]);
+  }, [passesLoading, passes, searchParams, reg.step, reg.selectPass, setSearchParams]);
 
   if (settingsLoading) {
     return (
