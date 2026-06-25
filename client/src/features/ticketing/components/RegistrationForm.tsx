@@ -93,7 +93,8 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
     });
 
     return () => timeoutIds.forEach(clearTimeout);
-  }, [attendees, emailValidationStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attendees]);
 
   const updateField = (index: number, field: keyof AttendeeData, value: string) => {
     setAttendees(prev => {
