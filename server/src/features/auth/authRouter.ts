@@ -16,7 +16,7 @@ const verifyOtpSchema = z.object({
   otp: z.string().length(6),
 });
 
-import nodemailer from 'nodemailer';
+
 
 // Helper to send email via Mailtrap REST API
 async function sendMailtrapEmail(toEmail: string, otp: string) {
