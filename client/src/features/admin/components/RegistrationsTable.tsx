@@ -126,27 +126,33 @@ export function RegistrationsTable() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto border border-white/5">
-        <table className="w-full text-xs">
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs text-left">
           <thead>
-            <tr className="bg-[#111] border-b border-white/10">
-              {['Ticket', 'Pass', 'Name', 'Email', 'Phone', 'Role', 'Org', 'Payment', 'Checked In', 'Email Sent', 'Date', 'Actions'].map(h => (
-                <th key={h} className="text-left py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px] whitespace-nowrap">
-                  {h}
-                </th>
-              ))}
+            <tr className="border-b border-white/10">
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Ticket #</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Pass</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Name</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Email</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Phone</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Role</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Org</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Payment</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px] text-center">Check-in</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Email Status</th>
+              <th className="py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Date & Time</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={11} className="text-center py-8">
-                  <Loader2 size={20} className="animate-spin text-white/20 mx-auto" />
+                <td colSpan={12} className="py-8 text-center text-white/30">
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 </td>
               </tr>
             ) : registrations.length === 0 ? (
               <tr>
-                <td colSpan={11} className="text-center py-8 text-white/20 font-mono text-xs">
+                <td colSpan={12} className="py-8 text-center text-white/30 font-mono text-xs">
                   No registrations found
                 </td>
               </tr>
@@ -194,10 +200,10 @@ export function RegistrationsTable() {
                     </span>
                   </td>
                   <td className="py-2 px-3 font-mono text-white/20 text-[10px] whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="py-2 px-3">
-                    {/* Refund functionality removed */}
+                    {new Date(r.created_at).toLocaleString('en-IN', {
+                      day: '2-digit', month: 'short', year: 'numeric',
+                      hour: '2-digit', minute: '2-digit', hour12: true
+                    })}
                   </td>
                 </tr>
               ))

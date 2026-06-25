@@ -53,7 +53,7 @@ router.post('/cashfree', async (req, res, next) => {
       // Idempotency check
       const { data: payment } = await supabase
         .from('payments')
-        .select('*, registrations(id, pass_type_id, ticket_number)')
+        .select('*, orders(id, pass_type_id, promo_code_id, quantity)')
         .eq('cashfree_order_id', orderId)
         .single();
 
@@ -75,27 +75,6 @@ router.post('/cashfree', async (req, res, next) => {
         wasExpired = true;
       }
 
-      // Generate unique ticket number
-      let ticket_number = '';
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const candidate = generateTicketNumber();
-        const { data: conflict } = await supabase
-          .from('registrations')
-          .select('id')
-          .eq('ticket_number', candidate)
-          .single();
-        if (!conflict) {
-          ticket_number = candidate;
-          break;
-        }
-      }
-
-      if (!ticket_number) {
-        throw new Error('Failed to generate unique ticket number');
-      }
-
-      const qr_token = generateQRToken(ticket_number);
-
       // Update payment
       await supabase
         .from('payments')
@@ -106,25 +85,67 @@ router.post('/cashfree', async (req, res, next) => {
         })
         .eq('cashfree_order_id', orderId);
 
-      // Update registration with ticket details
+      // Update order
       await supabase
-        .from('registrations')
-        .update({
-          payment_status: 'PAID',
-          ticket_number,
-          qr_token
-        })
-        .eq('id', payment.registration_id);
+        .from('orders')
+        .update({ payment_status: 'PAID' })
+        .eq('id', payment.order_id);
 
-      // Increment sold count ONLY if it was expired (since the cron job decremented it)
-      const regData = payment.registrations as any;
-      if (wasExpired && regData?.pass_type_id) {
-        await supabase.rpc('increment_sold', { pass_id: regData.pass_type_id });
+      // Process each registration for the order
+      const { data: registrations } = await supabase
+        .from('registrations')
+        .select('id')
+        .eq('order_id', payment.order_id);
+
+      if (registrations) {
+        for (const reg of registrations) {
+          // Generate unique ticket number
+          let ticket_number = '';
+          for (let attempt = 0; attempt < 5; attempt++) {
+            const candidate = generateTicketNumber();
+            const { data: conflict } = await supabase
+              .from('registrations')
+              .select('id')
+              .eq('ticket_number', candidate)
+              .single();
+            if (!conflict) {
+              ticket_number = candidate;
+              break;
+            }
+          }
+
+          if (!ticket_number) throw new Error('Failed to generate unique ticket number');
+
+          const qr_token = generateQRToken(ticket_number);
+
+          // Update registration with ticket details
+          await supabase
+            .from('registrations')
+            .update({
+              payment_status: 'PAID',
+              ticket_number,
+              qr_token
+            })
+            .eq('id', reg.id);
+
+          // Enqueue confirmation email (async, non-blocking)
+          enqueueRegistrationConfirmation(reg.id, ticket_number, qr_token)
+            .catch(err => console.error('[Webhook] Failed to enqueue confirmation email:', err));
+        }
       }
 
-      // Enqueue confirmation email (async, non-blocking — never delays webhook response)
-      enqueueRegistrationConfirmation(payment.registration_id, ticket_number, qr_token)
-        .catch(err => console.error('[Webhook] Failed to enqueue confirmation email:', err));
+      const orderData = payment.orders as any;
+
+      if (orderData?.promo_code_id) {
+        // Increment promo uses atomically
+        await supabase.rpc('increment_promo_uses', { p_promo_id: orderData.promo_code_id });
+      }
+
+      // Increment sold count ONLY if it was expired (since the cron job decremented it)
+      if (wasExpired && orderData?.pass_type_id && orderData?.quantity) {
+        // Reserve tickets atomically (it was expired, so we must reclaim the inventory)
+        await supabase.rpc('reserve_tickets', { p_pass_id: orderData.pass_type_id, p_amount: orderData.quantity });
+      }
     } else if (event === 'PAYMENT_FAILED_WEBHOOK') {
       const orderId = eventData?.order?.order_id;
       if (orderId) {
@@ -133,29 +154,23 @@ router.post('/cashfree', async (req, res, next) => {
           .update({ status: 'failed', gateway_response: eventData })
           .eq('cashfree_order_id', orderId);
 
-        // We can optionally mark registration as FAILED if we want, but keeping it PENDING is also fine
-        // since we allow them to retry from PENDING state.
-        // Let's mark it as FAILED to be explicit
         const { data: payment } = await supabase
           .from('payments')
-          .select('registration_id, status, registrations(pass_type_id)')
+          .select('order_id, status, orders(pass_type_id)')
           .eq('cashfree_order_id', orderId)
           .single();
 
         if (payment) {
-          // If the payment was initiated, it had a reserved ticket. We must release it.
-          if (payment.status === 'initiated') {
-            const passId = (payment.registrations as any)?.pass_type_id;
-            if (passId) {
-              await supabase.rpc('decrement_sold', { pass_id: passId });
-            }
-          }
+          await supabase
+            .from('orders')
+            .update({ payment_status: 'FAILED' })
+            .eq('id', payment.order_id)
+            .neq('payment_status', 'PAID');
 
           await supabase
             .from('registrations')
             .update({ payment_status: 'FAILED' })
-            .eq('id', payment.registration_id)
-            // only update if not paid
+            .eq('order_id', payment.order_id)
             .neq('payment_status', 'PAID');
         }
       }

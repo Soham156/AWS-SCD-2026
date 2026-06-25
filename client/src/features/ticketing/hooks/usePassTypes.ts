@@ -14,6 +14,7 @@ export interface PassType {
   is_active: boolean;
   sort_order: number;
   badge_color: string;
+  label: string | null;
 }
 
 export function usePassTypes() {

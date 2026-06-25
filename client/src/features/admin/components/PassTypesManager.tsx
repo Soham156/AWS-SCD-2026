@@ -16,6 +16,7 @@ interface PassType {
   is_active: boolean;
   badge_color: string;
   sort_order: number;
+  label: string | null;
 }
 
 export function PassTypesManager() {
@@ -63,7 +64,7 @@ export function PassTypesManager() {
 
   const handleAddNew = () => {
     setEditId(null);
-    setFormData({ name: '', slug: '', description: '', price: 0, capacity: 0, perks: '', badge_color: '#6B7280', sort_order: 0 });
+    setFormData({ name: '', slug: '', description: '', price: 0, capacity: 0, perks: '', badge_color: '#6B7280', sort_order: 0, label: '' } as any);
     setShowCreate(true);
     setError(null);
   };
@@ -80,6 +81,7 @@ export function PassTypesManager() {
       badge_color: pt.badge_color,
       sort_order: pt.sort_order,
       is_active: pt.is_active,
+      label: (pt as any).label || '',
     } as any);
     setShowCreate(true);
     setError(null);
@@ -105,6 +107,7 @@ export function PassTypesManager() {
         is_active: (formData as any).is_active,
         badge_color: formData.badge_color,
         sort_order: Number(formData.sort_order),
+        label: (formData as any).label || null,
       });
       setEditId(null);
       setShowCreate(false);
@@ -126,6 +129,7 @@ export function PassTypesManager() {
         capacity: Number(formData.capacity),
         sort_order: Number(formData.sort_order),
         perks: formData.perks.split(',').map(p => p.trim()).filter(Boolean),
+        label: (formData as any).label || null,
       });
       setShowCreate(false);
       setFormData({ name: '', slug: '', description: '', price: 0, capacity: 0, perks: '', badge_color: '#6B7280', sort_order: 0 });
@@ -175,6 +179,11 @@ export function PassTypesManager() {
             <div className="space-y-2">
               <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Slug (URL safe, no spaces)</label>
               <input value={formData.slug} onChange={e => setFormData(d => ({...d, slug: e.target.value}))} placeholder="e.g. vip-paddock" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Tag/Label (Optional)</label>
+              <input value={(formData as any).label || ''} onChange={e => setFormData(d => ({...d, label: e.target.value}))} placeholder="e.g. MOST POPULAR, LIMITED" className="w-full bg-[#050505] border border-white/10 px-3 py-2.5 text-sm text-white font-mono focus:border-aws-orange focus:outline-none transition-colors rounded" />
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -251,6 +260,7 @@ export function PassTypesManager() {
             <tr className="border-b border-white/10">
               <th className="text-left py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Name</th>
               <th className="text-left py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Slug</th>
+              <th className="text-left py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Tag</th>
               <th className="text-right py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Price</th>
               <th className="text-right py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Sold/Cap</th>
               <th className="text-center py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Active</th>
@@ -264,6 +274,7 @@ export function PassTypesManager() {
                   <>
                     <td className="py-2 px-3 font-sans font-bold text-white">{pt.name}</td>
                     <td className="py-2 px-3 font-mono text-white/30">{pt.slug}</td>
+                    <td className="py-2 px-3 font-mono text-white/50">{pt.label || '-'}</td>
                     <td className="py-2 px-3 text-right font-mono text-white">₹{pt.price}</td>
                     <td className="py-2 px-3 text-right font-mono">
                       <span className="text-aws-orange">{pt.sold}</span>

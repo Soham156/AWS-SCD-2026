@@ -23,11 +23,11 @@ export const TicketsSection = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-5xl mx-auto relative z-10 items-stretch">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-5xl mx-auto relative z-10 items-stretch">
             {passes.filter(p => p.is_active).map((tier, i) => {
               const isSoldOut = tier.capacity - tier.sold <= 0;
               const hex = tier.badge_color || '#ffffff';
-              const label = i === 0 ? 'LIMITED RELEASE' : i === 1 ? 'MOST POPULAR' : 'PREMIUM';
+              const label = tier.label;
 
               return (
               <motion.div
@@ -42,7 +42,7 @@ export const TicketsSection = () => {
                   borderColor: `${hex}66`, 
                   boxShadow: isSoldOut ? 'none' : `0 0 40px ${hex}26` 
                 }}
-                className="relative w-full mx-auto max-w-[320px] rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group overflow-hidden transition-all duration-500 hover:-translate-y-2"
+                className="relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group overflow-hidden transition-all duration-500 hover:-translate-y-2"
               >
                 {/* Event Badge Top Bar */}
                 <div className="h-10 flex justify-between items-center px-5 z-20" style={{ backgroundColor: `${hex}1A`, color: hex }}>
@@ -55,7 +55,7 @@ export const TicketsSection = () => {
 
                 <div className="p-5 flex-1 flex flex-col relative z-20">
                   {/* Status & Name */}
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-4 gap-2">
                     <div>
                       <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
                         {tier.slug}
@@ -65,16 +65,18 @@ export const TicketsSection = () => {
                       </h3>
                     </div>
                     
-                    <div 
-                      className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm"
-                      style={{ 
-                        color: !registrationEnabled ? '#00ffff' : hex, 
-                        borderColor: !registrationEnabled ? '#00ffff4D' : `${hex}4D`, 
-                        backgroundColor: !registrationEnabled ? '#00ffff1A' : `${hex}1A` 
-                      }}
-                    >
-                      {!registrationEnabled ? "UPCOMING" : label}
-                    </div>
+                    {(!registrationEnabled || label) && (
+                      <div 
+                        className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
+                        style={{ 
+                          color: !registrationEnabled ? '#00ffff' : hex, 
+                          borderColor: !registrationEnabled ? '#00ffff4D' : `${hex}4D`, 
+                          backgroundColor: !registrationEnabled ? '#00ffff1A' : `${hex}1A` 
+                        }}
+                      >
+                        {!registrationEnabled ? "UPCOMING" : label}
+                      </div>
+                    )}
                   </div>
 
                   {/* Price */}

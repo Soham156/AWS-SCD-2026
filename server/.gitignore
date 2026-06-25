@@ -7,3 +7,5 @@ coverage/
 .env*
 !.env.example
 # .vscode
+
+testsprite_tests\tmp\config.json

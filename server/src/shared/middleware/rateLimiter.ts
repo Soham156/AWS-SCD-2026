@@ -22,3 +22,18 @@ export const applicationLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many application attempts. Please try again later.' },
 });
+
+export const otpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many OTP requests from this IP. Please try again later.' },
+});
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again later.' },
+});

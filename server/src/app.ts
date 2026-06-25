@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import passesRouter from './features/passes/passesRouter.js';
-import ticketsRouter from './features/tickets/ticketsRouter.js';
 import checkoutRouter from './features/checkout/checkoutRouter.js';
 import webhookRouter from './features/webhook/webhookRouter.js';
 import scannerRouter from './features/scanner/scannerRouter.js';
@@ -11,6 +10,8 @@ import adminRouter from './features/admin/adminRouter.js';
 import applicationsRouter from './features/applications/applicationsRouter.js';
 import settingsRouter from './features/settings/settingsRouter.js';
 import emailRouter from './features/email/emailRouter.js';
+import ordersRouter from './features/orders/ordersRouter.js';
+import authRouter from './features/auth/authRouter.js';
 import { startEmailProcessor } from './features/email/emailProcessor.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
 
@@ -53,7 +54,6 @@ app.use(express.json({
 
 // Mount feature routers
 app.use('/api/passes', passesRouter);
-app.use('/api/tickets', ticketsRouter);
 app.use('/api/checkout', checkoutRouter);
 app.use('/api/webhooks', webhookRouter);
 app.use('/api/scan', scannerRouter);
@@ -61,6 +61,8 @@ app.use('/api/admin', adminRouter);
 app.use('/api/applications', applicationsRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/email', emailRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/auth', authRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -138,7 +140,7 @@ setInterval(async () => {
     // Find payments initiated > 15 mins ago
     const { data: expiredPayments, error } = await supabase
       .from('payments')
-      .select('id, registrations(pass_type_id)')
+      .select('id, order_id, orders(pass_type_id, quantity)')
       .eq('status', 'initiated')
       .lt('created_at', fifteenMinsAgo);
 
@@ -153,12 +155,13 @@ setInterval(async () => {
         await supabase.from('payments').update({ status: 'expired' }).eq('id', p.id);
         
         // Release the ticket by decrementing the sold count
-        const passId = (p.registrations as any)?.pass_type_id;
+        const passId = (p.orders as any)?.pass_type_id;
+        const quantity = (p.orders as any)?.quantity || 1;
         if (passId) {
-          await supabase.rpc('decrement_sold', { pass_id: passId });
+          await supabase.rpc('release_tickets', { p_pass_id: passId, p_amount: quantity });
         }
       }
-      console.log(`[Session Cleanup] Released ${expiredPayments.length} reserved tickets.`);
+      console.log(`[Session Cleanup] Released tickets for ${expiredPayments.length} expired sessions.`);
     }
   } catch (err) {
     console.error('[Session Cleanup] Unexpected error:', err);

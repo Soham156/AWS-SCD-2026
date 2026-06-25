@@ -1,14 +1,16 @@
 import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { adminKeyGuard } from '../../shared/middleware/adminKeyGuard.js';
+import { authLimiter } from '../../shared/middleware/rateLimiter.js';
 
 const router = Router();
-router.use(adminKeyGuard);
 
 // GET /api/admin/verify
-router.get('/verify', (_req, res) => {
+router.get('/verify', authLimiter, adminKeyGuard, (_req, res) => {
   res.json({ success: true });
 });
+
+router.use(adminKeyGuard);
 
 // GET /api/admin/settings
 router.get('/settings', async (_req, res, next) => {
@@ -43,6 +45,105 @@ router.put('/settings', async (req, res, next) => {
       .select()
       .single();
 
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+// Promo Codes Management
+
+router.get('/promo-codes', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('promo_codes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/promo-codes', async (req, res, next) => {
+  try {
+    const { code, discount_percentage, min_quantity, max_uses, is_active } = req.body;
+    if (!code || discount_percentage === undefined || min_quantity === undefined || max_uses === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const { data, error } = await supabase
+      .from('promo_codes')
+      .insert({
+        code: code.toUpperCase(),
+        discount_percentage,
+        min_quantity,
+        max_uses,
+        is_active: is_active ?? true,
+        uses: 0
+      })
+      .select()
+      .single();
+    if (error) {
+      if (error.code === '23505') return res.status(400).json({ error: 'Promo code already exists' });
+      throw error;
+    }
+    res.status(201).json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put('/promo-codes/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { code, discount_percentage, min_quantity, max_uses, is_active } = req.body;
+    
+    // We do NOT update `uses` to preserve history, only `max_uses` can be increased
+    const updateData: any = {};
+    if (code !== undefined) updateData.code = code.toUpperCase();
+    if (discount_percentage !== undefined) updateData.discount_percentage = discount_percentage;
+    if (min_quantity !== undefined) updateData.min_quantity = min_quantity;
+    if (max_uses !== undefined) updateData.max_uses = max_uses;
+    if (is_active !== undefined) updateData.is_active = is_active;
+
+    const { data, error } = await supabase
+      .from('promo_codes')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') return res.status(400).json({ error: 'Promo code already exists' });
+      throw error;
+    }
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/promo-codes/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.from('promo_codes').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/promo-codes/:id/orders
+router.get('/promo-codes/:id/orders', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id, created_at, primary_email, total_amount, payment_status, quantity, discount')
+      .eq('promo_code_id', id)
+      .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
   } catch (err) {
@@ -256,7 +357,7 @@ router.put('/passes/:id', async (req, res, next) => {
     }
 
     // Only allow safe fields
-    const allowedFields = ['name', 'description', 'price', 'capacity', 'perks', 'is_active', 'badge_color', 'sort_order'];
+    const allowedFields = ['name', 'description', 'price', 'capacity', 'perks', 'is_active', 'badge_color', 'sort_order', 'label'];
     const safeUpdates: Record<string, any> = {};
     for (const key of allowedFields) {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key];
@@ -301,6 +402,7 @@ router.post('/passes', async (req, res, next) => {
         perks: perks || [],
         badge_color: badge_color || '#6B7280',
         sort_order: sort_order || 0,
+        label: req.body.label || null,
       })
       .select()
       .single();

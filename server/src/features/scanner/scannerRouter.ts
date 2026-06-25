@@ -2,14 +2,16 @@ import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { verifyQRToken } from '../../shared/lib/qrToken.js';
 import { scannerKeyGuard } from '../../shared/middleware/scannerKeyGuard.js';
+import { authLimiter } from '../../shared/middleware/rateLimiter.js';
 
 const router = Router();
-router.use(scannerKeyGuard);
 
 // GET /api/scan/verify-auth
-router.get('/verify-auth', (_req, res) => {
+router.get('/verify-auth', authLimiter, scannerKeyGuard, (_req, res) => {
   res.json({ success: true });
 });
+
+router.use(scannerKeyGuard);
 
 // GET /api/scan/stats
 router.get('/stats', async (_req, res, next) => {

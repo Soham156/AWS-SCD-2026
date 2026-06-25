@@ -1,40 +1,32 @@
 import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { checkoutLimiter } from '../../shared/middleware/rateLimiter.js';
-import crypto from 'crypto';
 
 const router = Router();
 
 // POST /api/checkout/initiate
 router.post('/initiate', checkoutLimiter, async (req, res, next) => {
   try {
-    const { ticket_id, pass_type_id } = req.body;
-    if (!ticket_id || !pass_type_id) {
-      res.status(400).json({ error: 'ticket_id and pass_type_id are required' });
+    const { order_id } = req.body;
+    if (!order_id) {
+      res.status(400).json({ error: 'order_id is required' });
       return;
     }
 
-    // Look up registration
-    const { data: registration, error: regErr } = await supabase
-      .from('registrations')
-      .select('*')
-      .eq('id', ticket_id)
+    // Look up order
+    const { data: order, error: orderErr } = await supabase
+      .from('orders')
+      .select('*, pass_types(*)')
+      .eq('id', order_id)
       .single();
 
-    if (regErr || !registration) {
-      res.status(404).json({ error: 'Registration not found' });
+    if (orderErr || !order) {
+      res.status(404).json({ error: 'Order not found' });
       return;
     }
 
-    // Look up pass type
-    const { data: passType, error: ptErr } = await supabase
-      .from('pass_types')
-      .select('*')
-      .eq('id', pass_type_id)
-      .single();
-
-    if (ptErr || !passType) {
-      res.status(404).json({ error: 'Pass type not found' });
+    if (order.payment_status === 'PAID') {
+      res.status(400).json({ error: 'Order is already paid.' });
       return;
     }
 
@@ -51,19 +43,11 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
       return;
     }
 
-    // Attempt to atomically reserve a ticket
-    const { data: reserved, error: rpcErr } = await supabase.rpc('initiate_checkout', {
-      p_reg_id: ticket_id,
-      p_pass_id: pass_type_id
-    });
-
-    if (rpcErr || !reserved) {
-      res.status(400).json({ error: 'This pass type is now sold out or cannot be reserved.' });
-      return;
-    }
-
-    const shortId = registration.id.split('-')[0];
-    const orderId = `SCD-${shortId}-${Date.now()}`;
+    // Note: Inventory check is handled in step 1. But ideally, we might re-check it here if desired.
+    // For now, we proceed to Cashfree.
+    
+    const shortId = order.id.split('-')[0];
+    const cashfreeOrderId = `SCD-${shortId}-${Date.now()}`;
 
     let frontendUrl = (process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app').replace(/\/+$/, '');
     if (!frontendUrl.startsWith('http')) {
@@ -72,18 +56,17 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const isSandbox = process.env.CASHFREE_APP_ID?.startsWith('TEST');
     const cashfreeBaseUrl = isSandbox ? 'https://sandbox.cashfree.com/pg' : 'https://api.cashfree.com/pg';
 
-
-
     const parsedPlatform = parseFloat(process.env.PLATFORM_FEE_PERCENT || '');
     const platformFeePercent = isNaN(parsedPlatform) ? 1 : parsedPlatform;
 
     const parsedGateway = parseFloat(process.env.GATEWAY_FEE_PERCENT || '');
     const gatewayFeePercent = isNaN(parsedGateway) ? 1.6 : parsedGateway;
     
-    const basePrice = Number(passType.price);
+    // total_amount is already discounted
+    const basePrice = Number(order.total_amount);
     const platformFee = (basePrice * platformFeePercent) / 100;
     const gatewayFee = (basePrice * gatewayFeePercent) / 100;
-    const totalAmount = Math.round((basePrice + platformFee + gatewayFee) * 100) / 100;
+    const finalAmount = Math.round((basePrice + platformFee + gatewayFee) * 100) / 100;
 
     // Create Cashfree order via API
     const cashfreeRes = await fetch(`${cashfreeBaseUrl}/orders`, {
@@ -95,17 +78,17 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
         'x-client-secret': process.env.CASHFREE_SECRET_KEY || '',
       },
       body: JSON.stringify({
-        order_id: orderId,
-        order_amount: totalAmount,
+        order_id: cashfreeOrderId,
+        order_amount: finalAmount,
         order_currency: 'INR',
         customer_details: {
-          customer_id: registration.id.slice(0, 50), // Cashfree limit is 50 chars
-          customer_name: registration.full_name,
-          customer_email: registration.email,
-          customer_phone: registration.phone,
+          customer_id: order.id.slice(0, 50), // Cashfree limit is 50 chars
+          customer_name: "Group Buyer",
+          customer_email: order.primary_email || "test@example.com",
+          customer_phone: "9999999999", // Can be pulled from first attendee if needed
         },
         order_meta: {
-          return_url: `${frontendUrl}/ticket/${registration.id}?order_id={order_id}`,
+          return_url: `${frontendUrl}/ticket/${order.id}?order_id={order_id}`,
         },
       }),
     });
@@ -114,7 +97,6 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
 
     if (!cashfreeRes.ok) {
       console.error('[Cashfree Error]', cashfreeData);
-      // Return the exact Cashfree error so we can debug it in the browser
       res.status(502).json({ 
         error: 'Payment gateway error', 
         details: cashfreeData,
@@ -125,15 +107,15 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
 
     // Insert payment row
     await supabase.from('payments').insert({
-      registration_id: registration.id,
-      cashfree_order_id: orderId,
-      amount: totalAmount,
+      order_id: order.id,
+      cashfree_order_id: cashfreeOrderId,
+      amount: finalAmount,
       status: 'initiated',
     });
 
     res.json({
       payment_session_id: cashfreeData.payment_session_id,
-      cashfree_order_id: orderId,
+      cashfree_order_id: cashfreeOrderId,
     });
   } catch (err) {
     next(err);

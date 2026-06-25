@@ -18,20 +18,28 @@ export function TicketsPurchasePage() {
   const reg = useRegistration();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Auto-select pass if passId is provided in URL
+  // Restore order if orderId is present in URL
+  const hasOrder = !!reg.order;
+  const regStep = reg.step;
+  const regLoading = reg.loading;
   useEffect(() => {
-    if (!passesLoading && passes.length > 0 && reg.step === 1) {
-      const passId = searchParams.get('passId');
-      if (passId) {
-        const selectedPass = passes.find(p => p.id === passId);
-        if (selectedPass && selectedPass.is_active && (selectedPass.capacity - selectedPass.sold > 0)) {
-          reg.selectPass(selectedPass);
-          // Clear the passId from URL so if they click "Back" on step 2, they aren't instantly forced back to step 2
-          setSearchParams({}, { replace: true });
-        }
+    const orderId = searchParams.get('orderId');
+    const passId = searchParams.get('passId');
+
+    if (orderId && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
+      reg.restoreOrder(orderId);
+    } else if (passId && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
+      const pass = passes.find(p => p.id === passId);
+      if (pass) {
+        reg.selectPass(pass);
+        // Clear passId so back button works properly
+        setSearchParams((prev) => {
+          prev.delete('passId');
+          return prev;
+        }, { replace: true });
       }
     }
-  }, [passesLoading, passes, searchParams, reg.step, reg.selectPass, setSearchParams]);
+  }, [searchParams, hasOrder, regStep, regLoading, passesLoading, passes, reg, setSearchParams]);
 
   if (settingsLoading) {
     return (
@@ -110,7 +118,7 @@ export function TicketsPurchasePage() {
           </div>
 
           {/* Content */}
-          <div className="p-6 sm:p-8 min-h-[400px]">
+          <div className="p-4 sm:p-8 min-h-[400px]">
             {reg.step === 1 && (
               <PassTypeSelector
                 passes={passes}
@@ -123,20 +131,26 @@ export function TicketsPurchasePage() {
               <div className="max-w-md mx-auto">
                 <RegistrationForm
                   selectedPass={reg.selectedPass}
+                  initialAttendees={reg.attendees}
+                  verifiedEmail={reg.primaryEmail}
                   loading={reg.loading}
                   error={reg.error}
-                  onSubmit={reg.submitForm}
+                  onSubmit={reg.submitAttendees}
                   onBack={reg.goBack}
                 />
               </div>
             )}
 
-            {reg.step === 3 && reg.selectedPass && (
+            {reg.step === 3 && reg.selectedPass && reg.order && (
               <div className="max-w-md mx-auto">
                 <OrderSummary
                   selectedPass={reg.selectedPass}
-                  formData={reg.formData}
+                  quantity={reg.order.quantity}
+                  attendees={reg.attendees}
+                  discountAmount={reg.order.discountAmount}
                   loading={reg.loading}
+                  onApplyPromo={reg.applyPromo}
+                  onRemovePromo={reg.removePromo}
                   onProceed={reg.proceedToPaymentStep}
                   onBack={reg.goBack}
                 />
@@ -155,16 +169,15 @@ export function TicketsPurchasePage() {
               </div>
             )}
 
-            {reg.step === 5 && reg.selectedPass && reg.ticketResult && (
+            {reg.step === 5 && reg.selectedPass && reg.order && (
               <div className="max-w-md mx-auto">
-                {/* Note: ticketNumber might be empty until user checks their email, but we display the ID or fetch it later. For now, pass what we have. */}
                 <SuccessScreen
-                  ticketNumber={reg.ticketResult.ticket_number || 'PENDING GENERATION'}
-                  ticketId={reg.ticketResult.ticket_id}
-                  fullName={reg.formData.full_name}
-                  email={reg.formData.email}
+                  ticketNumber={reg.order.order_id.split('-')[0]} // Simplified
+                  ticketId={reg.order.order_id}
+                  fullName={reg.primaryEmail || "Group Buyer"}
+                  email={reg.primaryEmail}
                   selectedPass={reg.selectedPass}
-                  qrToken={reg.ticketResult.qr_token}
+                  qrToken={"GROUP"} // For groups, we say tickets are emailed
                 />
               </div>
             )}
