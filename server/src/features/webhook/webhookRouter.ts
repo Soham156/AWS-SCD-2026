@@ -136,10 +136,8 @@ router.post('/cashfree', async (req, res, next) => {
         }
       }
 
-      if (orderData?.promo_code_id) {
-        // Increment promo uses atomically
-        await supabase.rpc('increment_promo_uses', { p_promo_id: orderData.promo_code_id });
-      }
+      // Note: Promo code uses increment is handled automatically by the database trigger `on_order_payment_success`
+      // on the public.orders table when payment_status changes to 'PAID'.
 
       // Increment sold count ONLY if it was expired (since the cron job decremented it)
       if (wasExpired && orderData?.pass_type_id && orderData?.quantity) {

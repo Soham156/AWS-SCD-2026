@@ -340,6 +340,21 @@ BEGIN
 END;
 $function$;
 
+CREATE OR REPLACE FUNCTION public.handle_order_payment_success()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.payment_status = 'PAID' AND (OLD.payment_status IS NULL OR OLD.payment_status <> 'PAID') AND NEW.promo_code_id IS NOT NULL THEN
+    PERFORM public.increment_promo_uses(NEW.promo_code_id);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_order_payment_success
+  AFTER UPDATE ON public.orders
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_order_payment_success();
+
 -- Part 4: Row Level Security (RLS)
 
 ALTER TABLE public.pass_types ENABLE ROW LEVEL SECURITY;
