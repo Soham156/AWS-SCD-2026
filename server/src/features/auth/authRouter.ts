@@ -70,14 +70,24 @@ router.get('/check-email', async (req, res, next) => {
 
     const { data: existingRegs } = await supabase
       .from('registrations')
-      .select('order_id')
+      .select('order_id, payment_status')
       .eq('email', email);
 
     const { data: existingOrders } = await supabase
       .from('orders')
-      .select('id')
+      .select('id, payment_status')
       .eq('primary_email', email);
 
+    // 1. Check if they have a PAID registration or PAID order directly
+    const hasPaidReg = existingRegs?.some(r => r.payment_status === 'PAID');
+    const hasPaidOrder = existingOrders?.some(o => o.payment_status === 'PAID');
+
+    if (hasPaidReg || hasPaidOrder) {
+      res.json({ registered: true });
+      return;
+    }
+
+    // 2. Fallback to check if there are any 'paid' rows in payments table
     const orderIds = Array.from(new Set([
       ...(existingRegs || []).map(r => r.order_id),
       ...(existingOrders || []).map(o => o.id)
@@ -117,13 +127,21 @@ router.post('/send-otp', otpLimiter, async (req, res, next) => {
     // Check if email is already associated with a successful payment (either as primary_email or attendee)
     const { data: existingRegs } = await supabase
       .from('registrations')
-      .select('order_id')
+      .select('order_id, payment_status')
       .eq('email', email);
 
     const { data: existingOrders } = await supabase
       .from('orders')
-      .select('id')
+      .select('id, payment_status')
       .eq('primary_email', email);
+
+    const hasPaidReg = existingRegs?.some(r => r.payment_status === 'PAID');
+    const hasPaidOrder = existingOrders?.some(o => o.payment_status === 'PAID');
+
+    if (hasPaidReg || hasPaidOrder) {
+      res.status(400).json({ error: 'EMAIL_ALREADY_REGISTERED' });
+      return;
+    }
 
     const orderIds = Array.from(new Set([
       ...(existingRegs || []).map(r => r.order_id),

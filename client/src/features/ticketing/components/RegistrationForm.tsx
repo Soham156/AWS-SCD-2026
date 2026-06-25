@@ -328,6 +328,12 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
               {fieldErrors[index]?.email && emailValidationStatus[attendee.email] !== 'registered' && (
                 <p className="text-f1-red text-[10px] font-mono mt-1">{fieldErrors[index].email}</p>
               )}
+
+              {index === 0 && otpError && (
+                <p className="text-f1-red text-[10px] font-mono mt-1 flex items-center gap-1">
+                  <AlertCircle size={10} /> {otpError}
+                </p>
+              )}
             </div>
 
             {/* OTP Field (only shows for primary when sent and not verified) */}
@@ -354,7 +360,6 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
                     {otpLoading ? <Loader2 size={14} className="animate-spin" /> : 'Confirm'}
                   </button>
                 </div>
-                {otpError && <p className="text-f1-red text-[10px] font-mono mt-1">{otpError}</p>}
                 <p className="text-white/40 text-[10px] font-mono mt-2">We sent a verification code to {attendee.email}. Please check your inbox or spam folder.</p>
               </motion.div>
             )}
