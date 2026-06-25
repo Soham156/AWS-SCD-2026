@@ -89,7 +89,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
           customer_phone: primaryPhone,
         },
         order_meta: {
-          return_url: `${frontendUrl}/ticket/${order.id}?order_id={order_id}`,
+          return_url: `${frontendUrl}/ticket?orderId=${order.id}&verify=true`,
         },
       }),
     });

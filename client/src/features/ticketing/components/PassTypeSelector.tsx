@@ -9,7 +9,7 @@ interface Props {
   onSelect: (pass: PassType, quantity: number) => void;
 }
 
-function SkeletonCard() {
+export function SkeletonCard() {
   return (
     <div className="border border-white/5 bg-[#111] p-6 animate-pulse rounded-[1.5rem]">
       <div className="h-4 w-20 bg-white/10 rounded mb-6" />

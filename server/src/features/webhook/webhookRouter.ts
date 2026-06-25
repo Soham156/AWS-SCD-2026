@@ -97,6 +97,8 @@ router.post('/cashfree', async (req, res, next) => {
         .select('id')
         .eq('order_id', payment.order_id);
 
+      const orderData = payment.orders as any;
+
       if (registrations) {
         for (const reg of registrations) {
           // Generate unique ticket number
@@ -129,12 +131,10 @@ router.post('/cashfree', async (req, res, next) => {
             .eq('id', reg.id);
 
           // Enqueue confirmation email (async, non-blocking)
-          enqueueRegistrationConfirmation(reg.id, ticket_number, qr_token)
+          enqueueRegistrationConfirmation(reg.id, ticket_number, qr_token, orderData?.primary_email)
             .catch(err => console.error('[Webhook] Failed to enqueue confirmation email:', err));
         }
       }
-
-      const orderData = payment.orders as any;
 
       if (orderData?.promo_code_id) {
         // Increment promo uses atomically

@@ -4,6 +4,9 @@ import { getCashfree } from '../../../lib/cashfree';
 import type { PassType } from './usePassTypes';
 
 export interface AttendeeData {
+  id?: string;
+  ticket_number?: string;
+  qr_token?: string;
   full_name: string;
   email: string;
   phone: string;
@@ -71,19 +74,12 @@ export function useRegistration() {
     }
   }, []);
 
-  const restoreOrder = useCallback(async (orderId: string) => {
+  const restoreOrder = useCallback(async (orderId: string, shouldVerify = false, pollAttempts = 0) => {
     setState((s) => ({ ...s, loading: true }));
     try {
       const res = await api.get(`/api/orders/${orderId}`);
       const data = res.data;
-      
-      if (data.payment_status === 'PAID') {
-        setState((s) => ({ ...s, step: 5, loading: false, order: { order_id: data.id, total_amount: data.total_amount, quantity: data.quantity } }));
-        return;
-      }
-
-      setState((s) => ({
-        ...s,
+      const fullStateUpdate = {
         selectedPass: {
           id: data.pass_types.id,
           name: data.pass_types.name,
@@ -94,10 +90,26 @@ export function useRegistration() {
         } as PassType,
         quantity: data.quantity,
         order: { order_id: data.id, total_amount: data.total_amount, quantity: data.quantity, discountAmount: data.discount },
-        step: data.primary_email ? 3 : 2, // If it has email, they already submitted attendees
         primaryEmail: data.primary_email || '',
         attendees: data.attendees && data.attendees.length > 0 ? data.attendees : [],
         loading: false
+      };
+
+      if (data.payment_status === 'PAID') {
+        setState((s) => ({ ...s, ...fullStateUpdate, step: 5 }));
+        return;
+      }
+
+      // If returning from Cashfree, give the webhook up to 30 seconds to arrive
+      if (shouldVerify && (data.payment_status === 'PENDING' || data.payment_status === 'INITIATED') && pollAttempts < 15) {
+        setTimeout(() => restoreOrder(orderId, true, pollAttempts + 1), 2000);
+        return;
+      }
+
+      setState((s) => ({
+        ...s,
+        ...fullStateUpdate,
+        step: data.primary_email ? 3 : 2
       }));
     } catch (err) {
       setState((s) => ({ ...s, loading: false, error: 'Failed to restore session.' }));

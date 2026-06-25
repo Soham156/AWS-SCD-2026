@@ -25,9 +25,10 @@ export function TicketsPurchasePage() {
   useEffect(() => {
     const orderId = searchParams.get('orderId');
     const passId = searchParams.get('passId');
+    const shouldVerify = searchParams.get('verify') === 'true';
 
     if (orderId && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
-      reg.restoreOrder(orderId);
+      reg.restoreOrder(orderId, shouldVerify);
     } else if (passId && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
       const pass = passes.find(p => p.id === passId);
       if (pass) {
@@ -122,7 +123,7 @@ export function TicketsPurchasePage() {
             {reg.step === 1 && (
               <PassTypeSelector
                 passes={passes}
-                loading={passesLoading}
+                loading={passesLoading || reg.loading || (!!searchParams.get('orderId') && !hasOrder)}
                 onSelect={reg.selectPass}
               />
             )}
@@ -172,12 +173,13 @@ export function TicketsPurchasePage() {
             {reg.step === 5 && reg.selectedPass && reg.order && (
               <div className="max-w-md mx-auto">
                 <SuccessScreen
-                  ticketNumber={reg.order.order_id.split('-')[0]} // Simplified
-                  ticketId={reg.order.order_id}
+                  ticketNumber={reg.attendees?.[0]?.ticket_number || reg.order.order_id.split('-')[0]}
+                  ticketId={reg.attendees?.[0]?.id || reg.order.order_id}
                   fullName={reg.primaryEmail || "Group Buyer"}
                   email={reg.primaryEmail}
                   selectedPass={reg.selectedPass}
-                  qrToken={"GROUP"} // For groups, we say tickets are emailed
+                  qrToken={reg.attendees?.[0]?.qr_token || "GROUP"}
+                  quantity={reg.order.quantity}
                 />
               </div>
             )}

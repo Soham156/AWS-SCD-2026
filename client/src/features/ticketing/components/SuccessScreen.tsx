@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { motion } from "motion/react";
 import { CheckCircle, Mail, ExternalLink } from "lucide-react";
+// @ts-ignore
+import confetti from "canvas-confetti";
 import { TicketPass } from "./TicketPass";
 import type { PassType } from "../hooks/usePassTypes";
 
@@ -10,6 +13,7 @@ interface Props {
   email: string;
   selectedPass: PassType;
   qrToken?: string;
+  quantity?: number;
 }
 
 export function SuccessScreen({
@@ -19,7 +23,39 @@ export function SuccessScreen({
   email,
   selectedPass,
   qrToken,
+  quantity = 1,
 }: Props) {
+  useEffect(() => {
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+
+    const randomInRange = (min: number, max: number) =>
+      Math.random() * (max - min) + min;
+
+    const interval: any = setInterval(function () {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        particleCount,
+        startVelocity: 30,
+        spread: 360,
+        origin: {
+          x: randomInRange(0.1, 0.9),
+          y: Math.random() - 0.2,
+        },
+        colors: ["#E10600", "#F2A900", "#ffffff", "#2563EB", "#10B981"],
+        zIndex: 1000,
+      });
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -52,7 +88,7 @@ export function SuccessScreen({
       </div>
 
       {/* Pass badge */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-6">
         <span
           className="inline-block px-3 py-1 text-xs font-mono font-bold uppercase tracking-wider text-white"
           style={{ backgroundColor: selectedPass.badge_color }}
@@ -62,12 +98,20 @@ export function SuccessScreen({
       </div>
 
       {/* Email notice */}
-      <div className="flex items-center justify-center gap-2 text-white/50 text-xs font-mono mb-6">
-        <Mail size={14} />
-        <span>
-          Your Paddock Pass is on its way to{" "}
-          <span className="text-white">{email}</span>
-        </span>
+      <div className="max-w-sm mx-auto flex flex-col items-center justify-center gap-2 text-white/70 text-xs font-mono mb-8 text-center bg-white/5 border border-white/10 p-5 rounded-xl">
+        <Mail size={18} className="text-aws-orange mb-1" />
+        {quantity > 1 ? (
+          <span>
+            <span className="text-white font-bold block mb-1 text-sm">Group Registration Confirmed</span>
+            All {quantity} Paddock Passes are on their way to <span className="text-white font-bold">{email}</span>.<br/><br/>
+            An individual copy has also been sent to each attendee's personal email!
+          </span>
+        ) : (
+          <span>
+            Your Paddock Pass is on its way to{" "}
+            <span className="text-white font-bold">{email}</span>
+          </span>
+        )}
       </div>
 
       {/* View ticket link */}
@@ -80,21 +124,6 @@ export function SuccessScreen({
         <ExternalLink size={12} />
         View Full Paddock Pass
       </a>
-
-      {/* Ticket pass preview */}
-      {qrToken && (
-        <div className="mt-4">
-          <TicketPass
-            ticket_number={ticketNumber}
-            full_name={fullName}
-            pass_name={selectedPass.name}
-            role="Attendee"
-            organization=""
-            qr_token={qrToken}
-            badge_color={selectedPass.badge_color}
-          />
-        </div>
-      )}
     </motion.div>
   );
 }

@@ -87,7 +87,7 @@ export function TicketPage() {
       <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center">
         <Loader2 size={32} className="animate-spin text-aws-orange mb-4" />
         <p className="font-mono text-sm text-white/50 tracking-widest uppercase">
-          Verifying Payment...
+          Loading Pass...
         </p>
       </div>
     );

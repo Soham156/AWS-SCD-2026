@@ -1,9 +1,10 @@
 import { motion } from 'motion/react';
 import { SectionHeader } from './LayoutElements';
-import { Check, Loader2, TrendingUp } from 'lucide-react';
+import { Check, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePassTypes } from '../features/ticketing/hooks/usePassTypes';
 import { useSettings } from '../features/ticketing/hooks/useSettings';
+import { SkeletonCard } from '../features/ticketing/components/PassTypeSelector';
 
 export const TicketsSection = () => {
   const { passes, loading: passesLoading } = usePassTypes();
@@ -18,8 +19,8 @@ export const TicketsSection = () => {
       <SectionHeader title="Paddock Passes" subtitle="Secure your spot on the grid. Choose the pass that fits your profile and join the cloud revolution." sysId="05.TKT" />
 
       {loading ? (
-        <div className="flex justify-center py-20 relative z-10">
-          <Loader2 className="animate-spin text-aws-orange" size={32} />
+        <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-5xl mx-auto relative z-10 items-stretch">
+          {[1,2,3].map(i => <div key={i} className="w-full sm:w-[320px]"><SkeletonCard /></div>)}
         </div>
       ) : (
         <>

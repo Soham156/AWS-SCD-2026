@@ -89,6 +89,7 @@ export async function enqueueRegistrationConfirmation(
   registration_id: string,
   ticket_number: string,
   qr_token: string,
+  primary_email?: string
 ): Promise<void> {
   // Fetch registration + pass type details
   const { data: reg, error } = await supabase
@@ -118,6 +119,19 @@ export async function enqueueRegistrationConfirmation(
     ticket_page_url,
   });
 
+  const metadata = {
+    registration_id,
+    ticket_number,
+    full_name: reg.full_name,
+    role: reg.role,
+    organization: reg.organization,
+    pass_name: passType?.name || reg.pass_slug,
+    badge_color: passType?.badge_color || '#6B7280',
+    qr_token,
+    text_body: text,
+  };
+
+  // 1. Send to the actual attendee
   await enqueueEmail({
     idempotency_key: `${registration_id}:registration_confirmation`,
     email_type: 'registration_confirmation',
@@ -125,16 +139,19 @@ export async function enqueueRegistrationConfirmation(
     recipient_name: reg.full_name,
     subject,
     html_body: html,
-    metadata: {
-      registration_id,
-      ticket_number,
-      full_name: reg.full_name,
-      role: reg.role,
-      organization: reg.organization,
-      pass_name: passType?.name || reg.pass_slug,
-      badge_color: passType?.badge_color || '#6B7280',
-      qr_token,
-      text_body: text,
-    },
+    metadata,
   });
+
+  // 2. If part of a group registration, send a copy to the primary buyer
+  if (primary_email && primary_email !== reg.email) {
+    await enqueueEmail({
+      idempotency_key: `${registration_id}:registration_confirmation_group_copy`,
+      email_type: 'registration_confirmation',
+      recipient_email: primary_email,
+      recipient_name: "Group Buyer",
+      subject: `[Group Copy] ${subject}`,
+      html_body: html,
+      metadata,
+    });
+  }
 }
