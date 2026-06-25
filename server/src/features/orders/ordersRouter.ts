@@ -18,7 +18,7 @@ const attendeesSchema = z.object({
   attendees: z.array(z.object({
     full_name: z.string().min(1),
     email: z.string().email(),
-    phone: z.string().regex(/^[0-9]{10}$/).optional().or(z.literal('')),
+    phone: z.string().regex(/^[0-9]{10}$/),
     role: z.enum(['student', 'professional']),
     organization: z.string().min(1),
   })).min(1),

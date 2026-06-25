@@ -16,7 +16,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     // Look up order
     const { data: order, error: orderErr } = await supabase
       .from('orders')
-      .select('*, pass_types(*)')
+      .select('*, pass_types(*), registrations(phone)')
       .eq('id', order_id)
       .single();
 
@@ -67,6 +67,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const platformFee = (basePrice * platformFeePercent) / 100;
     const gatewayFee = (basePrice * gatewayFeePercent) / 100;
     const finalAmount = Math.round((basePrice + platformFee + gatewayFee) * 100) / 100;
+    const primaryPhone = order.registrations?.[0]?.phone || "0000000000";
 
     // Create Cashfree order via API
     const cashfreeRes = await fetch(`${cashfreeBaseUrl}/orders`, {
@@ -85,7 +86,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
           customer_id: order.id.slice(0, 50), // Cashfree limit is 50 chars
           customer_name: "Group Buyer",
           customer_email: order.primary_email || "test@example.com",
-          customer_phone: "9999999999", // Can be pulled from first attendee if needed
+          customer_phone: primaryPhone,
         },
         order_meta: {
           return_url: `${frontendUrl}/ticket/${order.id}?order_id={order_id}`,

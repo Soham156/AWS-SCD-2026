@@ -65,7 +65,7 @@ CREATE TABLE public.registrations (
   checked_in boolean DEFAULT false,
   checked_in_at timestamptz,
   created_at timestamptz DEFAULT now(),
-  phone text,
+  phone text NOT NULL,
   email_sent boolean DEFAULT false,
   email_status text DEFAULT 'pending'::text,
   order_id uuid REFERENCES public.orders(id)
@@ -99,7 +99,7 @@ CREATE TABLE public.archived_registrations (
   checked_in_at timestamptz,
   created_at timestamptz DEFAULT now(),
   archived_at timestamptz DEFAULT now(),
-  phone text,
+  phone text NOT NULL,
   email_sent boolean DEFAULT false,
   email_status text DEFAULT 'pending'::text,
   order_id uuid REFERENCES public.orders(id)

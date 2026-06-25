@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { z } from 'zod';
 import { Loader2, AlertCircle, CheckCircle2, UserPlus, Trash2 } from 'lucide-react';
@@ -9,7 +9,7 @@ import { api } from '../../../lib/api';
 const attendeeSchema = z.object({
   full_name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email'),
-  phone: z.string().regex(/^[0-9]{10}$/, 'Must be a valid 10-digit number').optional().or(z.literal('')),
+  phone: z.string().regex(/^[0-9]{10}$/, 'Must be a valid 10-digit number'),
   role: z.enum(['student', 'professional'], { message: 'Please select a role' }),
   organization: z.string().min(2, 'Organization is required'),
 });
@@ -52,6 +52,8 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
 
   const primaryEmail = attendees[0]?.email;
 
+  const checkedEmailsRef = useRef<Set<string>>(new Set());
+
   // Real-time email debounced checking
   useEffect(() => {
     const timeoutIds: NodeJS.Timeout[] = [];
@@ -63,20 +65,27 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
       const isValidFormat = z.string().email().safeParse(email).success;
       
       if (!isValidFormat) {
-        if (emailValidationStatus[email] !== 'invalid') {
-          setEmailValidationStatus(prev => ({ ...prev, [email]: 'invalid' }));
-        }
+        setEmailValidationStatus(prev => {
+          if (prev[email] === 'invalid') return prev;
+          return { ...prev, [email]: 'invalid' };
+        });
         return;
       }
 
-      // If we already know the status, don't check again
-      if (emailValidationStatus[email]) return;
+      // If we already checked this exact email successfully, don't check again
+      if (checkedEmailsRef.current.has(email)) {
+        return;
+      }
 
-      setEmailValidationStatus(prev => ({ ...prev, [email]: 'checking' }));
+      setEmailValidationStatus(prev => {
+        if (prev[email] === 'checking') return prev;
+        return { ...prev, [email]: 'checking' };
+      });
 
       const tid = setTimeout(async () => {
         try {
           const res = await api.get(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+          checkedEmailsRef.current.add(email);
           setEmailValidationStatus(prev => ({ 
             ...prev, 
             [email]: res.data.registered ? 'registered' : 'available' 
@@ -287,7 +296,7 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
                     type="button"
                     onClick={handleSendOtp}
                     disabled={otpLoading || !attendee.email || emailValidationStatus[attendee.email] === 'registered' || emailValidationStatus[attendee.email] === 'checking'}
-                    className="w-full sm:w-auto shrink-0 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-mono uppercase transition-colors whitespace-nowrap disabled:opacity-50"
+                    className="w-full sm:w-auto shrink-0 px-4 py-2 bg-aws-orange hover:bg-white text-black font-bold text-xs font-mono uppercase transition-colors whitespace-nowrap disabled:opacity-50"
                   >
                     {otpLoading ? <Loader2 size={14} className="animate-spin" /> : (otpSent ? 'Resend' : 'Verify')}
                   </button>
@@ -370,7 +379,7 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
               {/* Phone */}
               <div>
                 <label className="block font-mono text-[10px] uppercase tracking-widest text-white/40 mb-1.5">
-                  Phone (Optional)
+                  Phone *
                 </label>
                 <input
                   type="tel"
