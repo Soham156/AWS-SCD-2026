@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { SectionHeader } from './LayoutElements';
@@ -93,10 +94,10 @@ export const SpeakersSection = () => {
       </div>
 
       {/* Speaker Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 max-w-7xl mx-auto relative z-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 lg:gap-10 max-w-7xl mx-auto relative z-10">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-[#0d0d0d] aspect-[3/3.7] sm:aspect-[3/4.2] rounded-xl border border-white/5" />
+            <div key={i} className="animate-pulse bg-[#0d0d0d] min-h-[300px] sm:min-h-[400px] rounded-xl border border-white/5" />
           ))
         ) : (
           speakers.map((speaker, i) => (
@@ -106,10 +107,11 @@ export const SpeakersSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="group relative"
+              className="group relative cursor-pointer h-full"
+              onClick={() => setSelectedSpeaker(speaker)}
             >
               {/* Card Body */}
-              <div className="relative bg-[#0d0d0d] border border-white/5 aspect-[3/3.7] sm:aspect-[3/4.2] overflow-hidden flex flex-col justify-between p-3 sm:p-6 transition-all duration-500 hover:border-aws-orange/40 hover:shadow-[0_0_30px_rgba(255,153,0,0.1)] rounded-xl">
+              <div className="relative bg-[#0d0d0d] border border-white/5 h-full overflow-hidden flex flex-col justify-start p-4 sm:p-6 transition-all duration-500 hover:border-aws-orange/40 hover:shadow-[0_0_30px_rgba(255,153,0,0.1)] rounded-xl">
                 
                 {/* Background gradient that shifts on hover */}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
@@ -124,8 +126,8 @@ export const SpeakersSection = () => {
                 </div>
 
                 {/* Center - Tech Scanner Avatar HUD */}
-                <div className="relative z-10 flex-1 flex items-center justify-center my-2 sm:my-3">
-                  <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full border border-white/10 flex items-center justify-center relative bg-white/[0.01]">
+                <div className="relative z-10 flex-1 flex items-center justify-center my-4 sm:my-6">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-white/10 flex items-center justify-center relative bg-white/[0.01] shrink-0">
                     {/* Rotating dashed borders */}
                     <div className="absolute inset-[-4px] rounded-full border border-transparent border-t-aws-orange/40 group-hover:animate-[spin_6s_linear_infinite]" />
                     <div className="absolute inset-[-8px] rounded-full border border-transparent border-b-f1-red/30 group-hover:animate-[spin_4s_linear_reverse_infinite]" />
@@ -136,7 +138,7 @@ export const SpeakersSection = () => {
                         <img 
                           src={`/Speakers/${speaker.image}`} 
                           alt={speaker.name} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                             const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon');
@@ -150,13 +152,13 @@ export const SpeakersSection = () => {
                 </div>
 
                 {/* Bottom - Info */}
-                <div className="relative z-10 border-t border-white/5 pt-3 sm:pt-4 text-left h-[90px] sm:h-[135px] flex flex-col justify-start">
-                  <h3 className="font-sans font-black italic text-sm sm:text-xl uppercase tracking-tighter text-white/80 group-hover:text-white transition-colors truncate">
+                <div className="relative z-10 border-t border-white/5 pt-3 sm:pt-4 text-left mt-auto flex flex-col justify-start">
+                  <h3 className="font-sans font-black italic text-sm sm:text-xl uppercase tracking-tighter text-white/80 group-hover:text-white transition-colors break-words">
                     {speaker.name}
                   </h3>
-                  <p className="font-mono text-[8px] sm:text-xs text-white/50 tracking-wider mt-1 flex items-center gap-1.5 truncate font-semibold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse shrink-0" />
-                    {speaker.designation}
+                  <p className="font-mono text-[8px] sm:text-xs text-white/50 tracking-wider mt-1 flex items-start gap-1.5 font-semibold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse shrink-0 mt-[0.3rem]" />
+                    <span className="break-words leading-tight">{speaker.designation}</span>
                   </p>
 
                   {/* AWS Community Roles / Titles */}
@@ -198,11 +200,11 @@ export const SpeakersSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: speakers.length * 0.1, duration: 0.6 }}
-            className="group relative cursor-pointer"
+            className="group relative cursor-pointer h-full"
             onClick={() => navigate('/cfp')}
           >
             {/* Card Body */}
-            <div className="relative bg-[#0d0d0d] border border-white/5 aspect-[3/3.7] sm:aspect-[3/4.2] overflow-hidden flex flex-col justify-between p-3 sm:p-6 transition-all duration-500 hover:border-aws-orange/40 hover:shadow-[0_0_30px_rgba(255,153,0,0.1)] rounded-xl">
+            <div className="relative bg-[#0d0d0d] border border-white/5 h-full overflow-hidden flex flex-col justify-start p-4 sm:p-6 transition-all duration-500 hover:border-aws-orange/40 hover:shadow-[0_0_30px_rgba(255,153,0,0.1)] rounded-xl">
               
               {/* Background gradient that shifts on hover */}
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
@@ -217,8 +219,8 @@ export const SpeakersSection = () => {
               </div>
 
               {/* Center - Tech Scanner Avatar HUD */}
-              <div className="relative z-10 flex-1 flex items-center justify-center my-2 sm:my-3">
-                <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-full border border-dashed border-aws-orange/30 flex items-center justify-center relative bg-white/[0.01]">
+              <div className="relative z-10 flex-1 flex items-center justify-center my-4 sm:my-6">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-dashed border-aws-orange/30 flex items-center justify-center relative bg-white/[0.01] shrink-0">
                   {/* Rotating dashed borders */}
                   <div className="absolute inset-[-4px] rounded-full border border-transparent border-t-aws-orange/40 group-hover:animate-[spin_6s_linear_infinite]" />
                   <div className="absolute inset-[-8px] rounded-full border border-transparent border-b-f1-red/30 group-hover:animate-[spin_4s_linear_reverse_infinite]" />
@@ -231,13 +233,13 @@ export const SpeakersSection = () => {
               </div>
 
               {/* Bottom - Info */}
-              <div className="relative z-10 border-t border-white/5 pt-3 sm:pt-4 text-left h-[90px] sm:h-[135px] flex flex-col justify-start">
-                <h3 className="font-sans font-black italic text-sm sm:text-xl uppercase tracking-tighter text-white/80 group-hover:text-white transition-colors truncate">
+              <div className="relative z-10 border-t border-white/5 pt-3 sm:pt-4 text-left mt-auto flex flex-col justify-start">
+                <h3 className="font-sans font-black italic text-sm sm:text-xl uppercase tracking-tighter text-white/80 group-hover:text-white transition-colors break-words">
                   More Speakers
                 </h3>
-                <p className="font-mono text-[8px] sm:text-xs text-white/50 tracking-wider mt-1 flex items-center gap-1.5 truncate font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse shrink-0" />
-                  Announcing Soon
+                <p className="font-mono text-[8px] sm:text-xs text-white/50 tracking-wider mt-1 flex items-start gap-1.5 font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse shrink-0 mt-[0.3rem]" />
+                  <span className="break-words leading-tight">Announcing Soon</span>
                 </p>
 
                 {/* AWS Community Roles / Titles */}
@@ -259,13 +261,14 @@ export const SpeakersSection = () => {
       </div>
 
       {/* Telemetry Detail Modal */}
-      <AnimatePresence>
-        {selectedSpeaker && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10"
-            role="dialog"
-            aria-modal="true"
-          >
+      {createPortal(
+        <AnimatePresence>
+          {selectedSpeaker && (
+            <div 
+              className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 md:p-10"
+              role="dialog"
+              aria-modal="true"
+            >
             {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -402,7 +405,9 @@ export const SpeakersSection = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </section>
   );
 };
