@@ -5,11 +5,12 @@ import { Link } from 'react-router-dom';
 
 const navLinks = [
   { label: 'About', href: '#about' },
-  { label: 'Agenda', href: '#schedule' },
   { label: 'Call For Papers', href: '/cfp' },
+  { label: 'Agenda', href: '#schedule' },
+  { label: 'Sponsors', href: '#sponsors' },
   { label: 'Tickets', href: '#tickets' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Sponsors', href: '#sponsors' },
+  { label: 'Badge', href: '/badge' },
 ];
 
 function Countdown() {

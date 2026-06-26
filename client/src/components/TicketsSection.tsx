@@ -19,12 +19,12 @@ export const TicketsSection = () => {
       <SectionHeader title="Paddock Passes" subtitle="Secure your spot on the grid. Choose the pass that fits your profile and join the cloud revolution." sysId="05.TKT" />
 
       {loading ? (
-        <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-5xl mx-auto relative z-10 items-stretch">
+        <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
           {[1,2,3].map(i => <div key={i} className="w-full sm:w-[320px]"><SkeletonCard /></div>)}
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-5xl mx-auto relative z-10 items-stretch">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
             {passes.filter(p => p.is_active).map((tier, i) => {
               const isSoldOut = tier.capacity - tier.sold <= 0;
               const hex = tier.badge_color || '#ffffff';

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../lib/api';
 
 export interface PassType {
@@ -22,38 +22,25 @@ export function usePassTypes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    api.get('/api/passes')
-      .then((res) => {
-        if (Array.isArray(res.data)) {
-          setPasses(res.data);
-        } else {
-          setError('Invalid response from server');
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.response?.data?.error || 'Failed to load passes');
-        setLoading(false);
-      });
+  const fetchPasses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/api/passes');
+      if (Array.isArray(res.data)) {
+        setPasses(res.data);
+      } else {
+        setError('Invalid response from server');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to load passes');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const refetch = () => {
-    setLoading(true);
-    api.get('/api/passes')
-      .then((res) => {
-        if (Array.isArray(res.data)) {
-          setPasses(res.data);
-        } else {
-          setError('Invalid response from server');
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.response?.data?.error || 'Failed to load passes');
-        setLoading(false);
-      });
-  };
+  useEffect(() => {
+    fetchPasses();
+  }, [fetchPasses]);
 
-  return { passes, loading, error, refetch };
+  return { passes, loading, error, refetch: fetchPasses };
 }

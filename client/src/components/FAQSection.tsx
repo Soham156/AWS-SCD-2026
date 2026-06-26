@@ -22,7 +22,7 @@ answer: "Knowledge, networking, industry insights, career opportunities, certifi
 },
 {
 question: "Will there be internships or job opportunities?",
-answer: "We can't guarantee internships or job offers. We can guarantee you'll meet people whose LinkedIn profiles will immediately make you reconsider your current resume."
+answer: "Yes, absolutely! There will be active internship and job opportunities. Multiple sponsors, tech companies, and community partners are scouting for talented builders at the event. Make sure to keep your resumes updated, portfolios ready, and your LinkedIn profiles in prime condition!"
 },
 {
 question: "Will there be networking opportunities?",
@@ -81,6 +81,9 @@ answer: "Tickets are non-refundable once purchased. Ticket transfers may be allo
 
 export const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [showAll, setShowAll] = useState(false);
+  
+  const displayedFaqs = showAll ? faqs : faqs.slice(0, 5);
 
   return (
     <section className="relative py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
@@ -92,7 +95,7 @@ export const FAQSection = () => {
       </div>
 
       <div className="max-w-3xl mx-auto mt-12 sm:mt-16 flex flex-col gap-3 relative z-10">
-        {faqs.map((faq, i) => {
+        {displayedFaqs.map((faq, i) => {
           const isOpen = openIndex === i;
           
           return (
@@ -143,6 +146,18 @@ export const FAQSection = () => {
             </motion.div>
           )
         })}
+
+        {!showAll && faqs.length > 5 && (
+          <div className="flex flex-col items-center mt-8 gap-3">
+            <p className="text-white/50 font-sans italic text-sm">Still some questions?</p>
+            <button 
+              onClick={() => setShowAll(true)}
+              className="px-8 py-3 bg-[#0a0a0a] hover:bg-aws-orange text-white text-sm font-black font-sans uppercase italic tracking-wider transition-all duration-300 border border-white/10 hover:border-aws-orange shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,153,0,0.4)]"
+            >
+              See More FAQs
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )

@@ -26,10 +26,10 @@ import { FooterSection } from './components/FooterSection';
 const SponsorPage = lazy(() => import('./components/SponsorPage').then(module => ({ default: module.SponsorPage })));
 const NotFoundPage = lazy(() => import('./components/NotFoundPage').then(module => ({ default: module.NotFoundPage })));
 const StatusPage = lazy(() => import('./components/StatusPage').then(module => ({ default: module.StatusPage })));
+const BadgePage = lazy(() => import('./components/BadgePage').then(module => ({ default: module.BadgePage })));
 import { BackToTop } from './components/BackToTop';
 import { CustomCursor } from './components/CustomCursor';
 import { SmoothScroll } from './components/SmoothScroll';
-import { SectionDivider } from './components/LayoutElements';
 
 let preloaderShown = false;
 
@@ -72,25 +72,17 @@ function HomePage() {
             <LogoMarquee />
             <WhatYouGetSection />
 
-            {/* <SectionDivider label="// 02" /> */}
-
             {/* Act 2: The Program */}
             <SpeakersSection />
             <TimelineSection />
-
-            {/* <SectionDivider label="// 03" /> */}
 
             {/* Act 3: The Team & Tickets */}
             <BecomeSponsorSection />
             <TicketsSection />
             <DriversSection />
 
-            {/* <SectionDivider label="// 04" /> */}
-
             {/* Act 4: Venue & Logistics */}
             <DirectionsSection />
-
-            {/* <SectionDivider label="// 05" /> */}
 
             {/* Act 5: Social Proof & Info */}
             <GallerySection />
@@ -131,6 +123,7 @@ export default function App() {
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/status" element={<StatusPage />} />
+        <Route path="/badge" element={<BadgePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
