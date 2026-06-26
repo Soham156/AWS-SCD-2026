@@ -10,6 +10,15 @@ export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string
 
 
   useEffect(() => {
+    if (shouldRender) {
+      document.body.classList.add('preloader-active');
+    }
+    return () => {
+      document.body.classList.remove('preloader-active');
+    };
+  }, [shouldRender]);
+
+  useEffect(() => {
     const lastPlayed = localStorage.getItem('scd_intro_played');
     const isRecent = lastPlayed && (Date.now() - parseInt(lastPlayed, 10) < 15000);
 

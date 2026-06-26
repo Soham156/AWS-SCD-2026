@@ -22,7 +22,7 @@ answer: "Knowledge, networking, industry insights, career opportunities, certifi
 },
 {
 question: "Will there be internships or job opportunities?",
-answer: "We can't guarantee internships or job offers. We can guarantee you'll meet people whose LinkedIn profiles will immediately make you reconsider your current resume."
+answer: "Yes, absolutely! There will be active internship and job opportunities. Multiple sponsors, tech companies, and community partners are scouting for talented builders at the event. Make sure to keep your resumes updated, portfolios ready, and your LinkedIn profiles in prime condition!"
 },
 {
 question: "Will there be networking opportunities?",
