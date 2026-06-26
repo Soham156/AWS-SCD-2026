@@ -49,7 +49,7 @@ const AutoPlayVideo = ({ src }: { src: string }) => {
       playsInline
       preload="none"
       aria-hidden="true"
-      className="w-full h-auto object-cover"
+      className="w-full h-full object-cover"
     >
       <source src={src} />
     </video>
@@ -118,16 +118,54 @@ const Lightbox = ({ items, initialIdx, onClose }: { items: string[], initialIdx:
   return createPortal(lightboxContent, document.body);
 };
 
+const ASPECT_RATIOS = [
+  'aspect-[3/4]',   // Portrait
+  'aspect-[4/3]',   // Landscape
+  'aspect-[1/1]',   // Square
+  'aspect-[2/3]',   // Tall Portrait
+  'aspect-[16/10]', // Wide Landscape
+  'aspect-[4/5]',   // Portrait
+];
+
 export const GallerySection = () => {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [columnsCount, setColumnsCount] = useState(4);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      if (window.innerWidth >= 1024) {
+        setColumnsCount(4);
+      } else if (window.innerWidth >= 768) {
+        setColumnsCount(3);
+      } else {
+        setColumnsCount(2);
+      }
+    };
+
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
 
   const items = useMemo(() => {
     const videos = galleryFiles.filter((f) => VIDEO_EXT.test(f));
     const images = shuffle(galleryFiles.filter((f) => !VIDEO_EXT.test(f)));
     return [...videos, ...images];
   }, []);
+
+  const visibleItems = useMemo(() => {
+    return items.slice(0, showAll ? items.length : 8);
+  }, [items, showAll]);
+
+  const columns = useMemo(() => {
+    const cols: string[][] = Array.from({ length: columnsCount }, () => []);
+    visibleItems.forEach((item, index) => {
+      cols[index % columnsCount].push(item);
+    });
+    return cols;
+  }, [visibleItems, columnsCount]);
 
   return (
     <section id="gallery" className="relative mt-0 py-16 sm:py-24 px-4 sm:px-12 lg:px-24 bg-[#050505]">
@@ -138,77 +176,82 @@ export const GallerySection = () => {
           sysId="08.GLY"
         />
         <p className="font-sans text-xs sm:text-sm md:text-base opacity-60 font-medium leading-relaxed max-w-xl mb-8 -mt-2 relative z-10">
-        Real moments from our community events, workshops, and cloud conferences.
-      </p>
+          Real moments from our community events, workshops, and cloud conferences.
+        </p>
       </div>
       
-      <div className="mt-12 relative z-10 columns-2 md:columns-3 lg:columns-4 gap-2 sm:gap-4">
-        {items.slice(0, showAll ? items.length : 8).map((src, i) => {
-          const isVideo = VIDEO_EXT.test(src);
-          const isActive = activeIdx === i;
+      <div className="mt-12 relative z-10 grid gap-2 sm:gap-4" style={{ gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))` }}>
+        {columns.map((columnItems, colIdx) => (
+          <div key={colIdx} className="flex flex-col gap-2 sm:gap-4">
+            {columnItems.map((src) => {
+              const globalIdx = items.indexOf(src);
+              const isVideo = VIDEO_EXT.test(src);
+              const isActive = activeIdx === globalIdx;
+              const aspectClass = isVideo ? 'aspect-video' : ASPECT_RATIOS[globalIdx % ASPECT_RATIOS.length];
 
-          return (
-            <motion.div
-              key={src}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: (i % 8) * 0.06, duration: 0.45 }}
-              className="relative mb-2 sm:mb-4 overflow-hidden rounded-xl border border-white/10 bg-zinc-900 break-inside-avoid gallery-tile cursor-pointer"
-              onTouchEnd={(e) => {
-                // Prevent ghost click triggering lightbox immediately if they just tapped to hover
-                if (!isActive && !isVideo) {
-                  e.preventDefault();
-                  setActiveIdx(i);
-                }
-              }}
-              onClick={() => {
-                setActiveIdx(isActive ? null : i);
-                setLightboxIdx(i);
-              }}
-            >
-              {isVideo ? (
-                <div className="relative w-full">
-                  <AutoPlayVideo src={src} />
-                  <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full pointer-events-none">
-                    <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse" />
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-white/80">
-                      Live Recap
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="relative w-full overflow-hidden">
-                  <img
-                    src={src}
-                    alt={`Event photo ${i + 1}`}
-                    loading="lazy"
-                    decoding="async"
-                    className={`w-full h-auto block object-cover transition-all duration-500 ${
-                      isActive ? 'scale-105 brightness-110' : ''
-                    }`}
-                    data-active={isActive ? 'true' : undefined}
-                  />
+              return (
+                <motion.div
+                  key={src}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: (globalIdx % 8) * 0.06, duration: 0.45 }}
+                  className="relative overflow-hidden rounded-xl border border-white/10 bg-zinc-900 gallery-tile cursor-pointer break-inside-avoid"
+                  onTouchEnd={(e) => {
+                    if (!isActive && !isVideo) {
+                      e.preventDefault();
+                      setActiveIdx(globalIdx);
+                    }
+                  }}
+                  onClick={() => {
+                    setActiveIdx(isActive ? null : globalIdx);
+                    setLightboxIdx(globalIdx);
+                  }}
+                >
+                  {isVideo ? (
+                    <div className="relative w-full aspect-video overflow-hidden">
+                      <AutoPlayVideo src={src} />
+                      <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded-full pointer-events-none">
+                        <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse" />
+                        <span className="font-mono text-[9px] uppercase tracking-widest text-white/80">
+                          Live Recap
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={`relative w-full overflow-hidden ${aspectClass}`}>
+                      <img
+                        src={src}
+                        alt={`Event photo ${globalIdx + 1}`}
+                        loading="lazy"
+                        decoding="async"
+                        className={`w-full h-full block object-cover transition-all duration-500 ${
+                          isActive ? 'scale-105 brightness-110' : ''
+                        }`}
+                        data-active={isActive ? 'true' : undefined}
+                      />
 
-                  <div
-                    className={`gallery-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none transition-opacity duration-300 ${
-                      isActive ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  />
+                      <div
+                        className={`gallery-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none transition-opacity duration-300 ${
+                          isActive ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      />
 
-                  <div
-                    className={`gallery-label absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-widest flex items-center gap-1.5 transition-all duration-300 ${
-                      isActive ? 'text-white/80' : 'text-transparent'
-                    }`}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
-                    View Full
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          );
-        })}
+                      <div
+                        className={`gallery-label absolute bottom-2 left-2 font-mono text-[9px] uppercase tracking-widest flex items-center gap-1.5 transition-all duration-300 ${
+                          isActive ? 'text-white/80' : 'text-transparent'
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-aws-orange" />
+                        View Full
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {!showAll && items.length > 8 && (

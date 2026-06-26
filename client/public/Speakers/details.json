@@ -1,0 +1,67 @@
+[
+    {
+        "id": 1,
+        "name": "Pushkar Thakur",
+        "image": "1667990794682.jpeg",
+        "designation": "SDE II @ Procedure",
+        "role": "Co-Organizer, AWS User Group Nashik | AWS Community Builder",
+        "sessionType": "Technical Keynote",
+        "sessionTitle": "Building Modern Applications on AWS",
+        "topic": "AWS Cloud, Containers, Serverless, Databases, AI & Career Opportunities",
+        "shortDescription": "Explore modern AWS application architectures using containers, serverless, managed databases, and AI services while gaining insights into cloud career opportunities.",
+        "category": "Keynote Speaker",
+        "featured": true
+    },
+    {
+        "id": 2,
+        "name": "Ameya Vaidya",
+        "image": "1780647595003.png",
+        "designation": "Trainer & Tech Speaker",
+        "role": "AWS Community Builder | AWS User Group Pune Leader",
+        "sessionType": "Technical Session 2",
+        "sessionTitle": "AWS Storage & Databases Deep Dive",
+        "topic": "Amazon S3, Amazon RDS, Amazon DynamoDB",
+        "shortDescription": "Learn how AWS storage and database services power scalable, reliable, and cost-effective cloud applications.",
+        "category": "Cloud Architect",
+        "featured": false
+    },
+    {
+        "id": 3,
+        "name": "Nilesh Vaghela",
+        "image": "1714482688164.jpeg",
+        "designation": "CEO, ElectroMech & CloudKida",
+        "role": "AWS Community Hero | AWS User Group Ahmedabad Leader | Former AAI & RHCI",
+        "sessionType": "Technical Session 3",
+        "sessionTitle": "DevOps on AWS",
+        "topic": "CI/CD, Infrastructure as Code, Automation",
+        "shortDescription": "Discover modern DevOps practices using AWS services, CI/CD pipelines, Infrastructure as Code, and automation.",
+        "category": "DevOps Leader",
+        "featured": false
+    },
+    {
+        "id": 4,
+        "name": "Abhijeet Chinchole",
+        "image": "1726836394723.jpeg",
+        "designation": "Platform & Product Engineering Leader",
+        "role": "CTO, Cloudlytics by Blazeclan",
+        "sessionType": "Technical Session 4",
+        "sessionTitle": "Generative AI with AWS",
+        "topic": "Amazon Bedrock, Amazon Q",
+        "shortDescription": "Build enterprise-ready generative AI applications using Amazon Bedrock and Amazon Q with real-world use cases.",
+        "category": "AI Specialist",
+        "featured": false
+    },
+    {
+        "id": 5,
+        "name": "Abhishek Maurya",
+        "image": "1701733317510.jpeg",
+        "designation": "Senior Cloud Engineer",
+        "role": "Orange Business India | AWS Community Builder | CKA",
+        "sessionType": "Technical Session 5",
+        "sessionTitle": "Cloud Security on AWS",
+        "topic": "IAM, AWS WAF, GuardDuty, Security Best Practices",
+        "shortDescription": "Learn AWS security fundamentals and best practices for securing cloud workloads using AWS native security services.",
+        "category": "Security Expert",
+        "featured": false
+    }
+]

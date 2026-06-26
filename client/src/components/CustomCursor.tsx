@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
  *
  * ✦ Upright (0°) while moving normally
  * ✦ Tilts to 30° when over any clickable element
- * ✦ Native cursor is hidden via index.css @media(hover:hover)
+ * ✦ Native cursor is hidden via index.css when CustomCursor is active
  *
  * NOTE: We intentionally do NOT use getComputedStyle to detect "pointer"
  * cursor, because our global CSS sets cursor:none !important on everything,
@@ -14,12 +14,36 @@ import { useEffect, useRef, useState } from 'react';
 export const CustomCursor = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
-  const [visible, setVisible] = useState(false);
+  const [shouldShow, setShouldShow] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
+    const checkVisibility = () => {
+      const isMobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+      const isLite = localStorage.getItem('scd_lite_mode') === 'true' || document.body.classList.contains('lite-mode');
+      const isPreloader = document.body.classList.contains('preloader-active');
+      
+      setShouldShow(!isMobile && !isLite && !isPreloader);
+    };
 
-    /** Walk up the DOM — return true if element or any ancestor is "clickable" */
+    checkVisibility();
+
+    const handleLiteChange = () => checkVisibility();
+    const observer = new MutationObserver(() => checkVisibility());
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('scd_lite_mode_change', handleLiteChange);
+    window.addEventListener('resize', handleLiteChange);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scd_lite_mode_change', handleLiteChange);
+      window.removeEventListener('resize', handleLiteChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!shouldShow) return;
+
     const isClickable = (el: Element | null): boolean => {
       while (el && el !== document.documentElement) {
         const tag = el.tagName.toLowerCase();
@@ -35,7 +59,7 @@ export const CustomCursor = () => {
         const cls = (el as HTMLElement).className ?? '';
         if (typeof cls === 'string' && /\bcursor-pointer\b/.test(cls)) return true;
 
-        // onClick prop compiled to attribute (rare but possible)
+        // onClick prop compiled to attribute
         if ((el as HTMLElement).hasAttribute('onclick')) return true;
 
         el = el.parentElement;
@@ -43,19 +67,10 @@ export const CustomCursor = () => {
       return false;
     };
 
-    const onMove = (e: MouseEvent | TouchEvent) => {
-      let clientX, clientY, target;
-
-      if ('touches' in e) {
-        if (e.touches.length === 0) return;
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-        target = document.elementFromPoint(clientX, clientY) || e.target;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-        target = e.target;
-      }
+    const onMove = (e: MouseEvent) => {
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+      const target = e.target;
 
       const clickable = isClickable(target as Element);
 
@@ -74,36 +89,29 @@ export const CustomCursor = () => {
     const onEnter = () => { if (cursorRef.current) cursorRef.current.style.opacity = '1'; };
 
     window.addEventListener('mousemove', onMove, { passive: true });
-    window.addEventListener('touchmove', onMove, { passive: true });
-    window.addEventListener('touchstart', onMove, { passive: true });
     document.documentElement.addEventListener('mouseleave', onLeave);
     document.documentElement.addEventListener('mouseenter', onEnter);
-    document.documentElement.addEventListener('touchend', onLeave);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('touchstart', onMove);
       document.documentElement.removeEventListener('mouseleave', onLeave);
       document.documentElement.removeEventListener('mouseenter', onEnter);
-      document.documentElement.removeEventListener('touchend', onLeave);
     };
-  }, []);
+  }, [shouldShow]);
 
-  if (!visible) return null;
+  if (!shouldShow) return null;
 
   return (
     <div
       ref={cursorRef}
       aria-hidden="true"
-      className="hidden md:block"
       style={{
         position: 'fixed',
         left: '-200px',
         top: '-200px',
-        width: '50px',
-        height: '50px',
+        width: '28px',
+        height: '28px',
         pointerEvents: 'none',
         zIndex: 99999,
         transform: 'translate(-50%, -50%) rotate(0deg)',
