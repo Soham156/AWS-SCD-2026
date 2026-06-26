@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 
 export const BadgePage = () => {
   const [name, setName] = useState('');
-  const [role, setRole] = useState('VIP');
+  const [role, setRole] = useState('ATTENDEE');
   const [image, setImage] = useState<string | null>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -44,16 +44,16 @@ export const BadgePage = () => {
   };
 
   return (
-    <div className="h-[100vh] bg-[#050505] text-[#e0e0e0] flex flex-col font-sans relative overflow-x-hidden overflow-y-auto">
+    <div className="h-[110vh] bg-[#050505] text-[#e0e0e0] flex flex-col font-sans relative overflow-x-hidden overflow-y-auto">
       {/* Background aesthetics */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-f1-red/10 blur-[120px] rounded-full mix-blend-screen" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-aws-orange/10 blur-[150px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8 flex-grow flex flex-col">
+      <div className="relative z-10 w-full max-w-7xl mx-auto mt-0 pt-0 px-4 sm:px-6 lg:px-8 py-4 md:py-8 flex-grow flex flex-col">
         {/* Header */}
-        <header className="flex items-center justify-between mb-6 md:mb-8 relative z-50">
+        <header className="flex items-center justify-between mb-2 md:mb-4 relative z-50">
           <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-aws-orange transition-colors group cursor-pointer relative z-50">
             <ArrowLeft className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" />
             <span className="font-mono text-sm tracking-wider uppercase">Back to Home</span>
@@ -65,7 +65,8 @@ export const BadgePage = () => {
           </div>
         </header>
 
-        <div className="mb-10 md:mb-16">
+        <div className="mb-4 md:mb-6 flex flex-col lg:flex-row lg:justify-between  ">
+          <div >
           <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-white mb-2">
             Show you're <span className="text-aws-orange font-sans normal-case italic">in.</span>
           </h1>
@@ -74,6 +75,9 @@ export const BadgePage = () => {
             Download and share it on your socials to let everyone know!
           </p>
         </div>
+    
+        </div>
+        
 
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
           
@@ -167,16 +171,28 @@ export const BadgePage = () => {
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-[9px] font-mono tracking-widest uppercase text-white/80">Role</span>
-                      <span className="text-xl font-black text-white leading-none mt-1">{role || 'ATTENDEE'}</span>
+                      <span className="text-xl font-black text-white leading-none uppercase mt-1">{role || 'ATTENDEE'}</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </div>    
+               <div className="mt-3 flex  flex-col gap-1.5 border-t border-white/10 pt-2">
+                  <div className="flex items-center gap-2 text-xs text-white/40">
+                    <CheckCircle2 className="w-3 h-3 text-green-500" />
+                    <span>Everything happens in your browser.</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-white/40">
+                    <CheckCircle2 className="w-3 h-3 text-green-500" />
+                    <span>Your photo is never uploaded to any server.</span>
+                  </div>
+                </div>
+
             </div>
           </div>
+          
 
           {/* Right Column: Controls */}
-          <div className="w-full lg:w-1/2 flex flex-col space-y-6">
+          <div className="w-full lg:w-1/2 flex flex-col space-y-4 lg:space-y-5">
             {/* Step 1 */}
             <div className="flex gap-4">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-aws-orange/20 border border-aws-orange flex items-center justify-center text-aws-orange font-bold font-mono text-sm shadow-[0_0_15px_rgba(255,153,0,0.3)]">
@@ -265,17 +281,7 @@ export const BadgePage = () => {
                   {isGenerating ? 'Generating...' : 'Download Badge'}
                 </button>
 
-                {/* Privacy note */}
-                <div className="mt-5 flex flex-col gap-1.5 border-t border-white/10 pt-4">
-                  <div className="flex items-center gap-2 text-xs text-white/40">
-                    <CheckCircle2 className="w-3 h-3 text-green-500" />
-                    <span>Everything happens in your browser.</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-white/40">
-                    <CheckCircle2 className="w-3 h-3 text-green-500" />
-                    <span>Your photo is never uploaded to any server.</span>
-                  </div>
-                </div>
+               
               </div>
             </div>
             

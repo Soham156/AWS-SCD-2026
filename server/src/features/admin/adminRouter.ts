@@ -179,12 +179,12 @@ router.get('/stats', async (_req, res, next) => {
     // Get true revenue from paid payments
     const { data: paymentsData } = await supabase
       .from('payments')
-      .select('amount, registrations(pass_type_id)')
+      .select('amount, orders(pass_type_id)')
       .eq('status', 'paid');
 
     const revenueMap: Record<string, number> = {};
     (paymentsData || []).forEach((p) => {
-      const pId = (p.registrations as any)?.pass_type_id;
+      const pId = (p.orders as any)?.pass_type_id;
       if (pId) {
         revenueMap[pId] = (revenueMap[pId] || 0) + Number(p.amount || 0);
       }
@@ -285,8 +285,7 @@ router.get('/registrations', async (req, res, next) => {
       query = query.eq('checked_in', checked_in === 'true');
     }
     if (search) {
-      // Escape commas to prevent PostgREST from splitting the .or() conditions incorrectly
-      const safeSearch = search.replace(/,/g, '');
+      const safeSearch = search.replace(/[%_.,()\/\[\]]/g, '');
       query = query.or(`full_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`);
     }
 

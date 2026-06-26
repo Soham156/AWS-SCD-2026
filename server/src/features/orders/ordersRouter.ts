@@ -47,11 +47,8 @@ router.post('/create', async (req, res, next) => {
       return;
     }
 
-    // Atomically reserve tickets
-    const { data: reserved, error: reserveError } = await supabase
-      .rpc('reserve_tickets', { p_pass_id: pass_type_id, p_amount: quantity });
-
-    if (reserveError || !reserved) {
+    // Soft check inventory to prevent obviously doomed orders
+    if (passType.capacity - passType.sold < quantity) {
       res.status(400).json({ error: 'SOLD_OUT', message: `Not enough tickets remaining.` });
       return;
     }

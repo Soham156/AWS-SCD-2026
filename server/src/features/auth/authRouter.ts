@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../../shared/lib/supabase.js';
-import crypto from 'crypto';
+import { randomInt, timingSafeEqual } from 'crypto';
 import { otpLimiter } from '../../shared/middleware/rateLimiter.js';
 import { otpEmailTemplate } from './otpEmailTemplate.js';
 
@@ -179,7 +179,7 @@ router.post('/send-otp', otpLimiter, async (req, res, next) => {
     }
 
     // Generate 6-digit OTP
-    const otp = crypto.randomInt(100000, 999999).toString();
+    const otp = randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 mins
 
     // Save to DB
@@ -241,7 +241,7 @@ router.post('/verify-otp', otpLimiter, async (req, res, next) => {
     }
 
     // Verify OTP
-    if (otpRecord.otp !== otp) {
+    if (!timingSafeEqual(Buffer.from(otpRecord.otp), Buffer.from(otp))) {
       // Increment attempts
       await supabase
         .from('otp_verifications')

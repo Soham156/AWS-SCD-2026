@@ -43,9 +43,37 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
       return;
     }
 
-    // Note: Inventory check is handled in step 1. But ideally, we might re-check it here if desired.
-    // For now, we proceed to Cashfree.
-    
+    // --- TICKET LOCKING (SEMAPHORE) ---
+    // 1. Check for any previous 'initiated' payments for this order
+    const { data: activePayments } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('order_id', order.id)
+      .eq('status', 'initiated');
+
+    if (activePayments && activePayments.length > 0) {
+      // 2. Expire old sessions to prevent double-locking inventory
+      await supabase
+        .from('payments')
+        .update({ status: 'abandoned' })
+        .in('id', activePayments.map(p => p.id));
+        
+      // Release tickets from those old sessions
+      await supabase.rpc('release_tickets', { 
+        p_pass_id: order.pass_type_id, 
+        p_amount: order.quantity * activePayments.length 
+      });
+    }
+
+    // 3. Atomically reserve the tickets for this specific payment session
+    const { data: reserved, error: reserveError } = await supabase
+      .rpc('reserve_tickets', { p_pass_id: order.pass_type_id, p_amount: order.quantity });
+
+    if (reserveError || !reserved) {
+      res.status(400).json({ error: 'SOLD_OUT', message: 'Sorry, these tickets just sold out.' });
+      return;
+    }
+    // ----------------------------------
     const shortId = order.id.split('-')[0];
     const cashfreeOrderId = `SCD-${shortId}-${Date.now()}`;
 
@@ -98,6 +126,8 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
 
     if (!cashfreeRes.ok) {
       console.error('[Cashfree Error]', cashfreeData);
+      // Release the tickets we just reserved since payment session creation failed
+      await supabase.rpc('release_tickets', { p_pass_id: order.pass_type_id, p_amount: order.quantity });
       res.status(502).json({ 
         error: 'Payment gateway error', 
         details: cashfreeData,

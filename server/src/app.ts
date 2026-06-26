@@ -20,7 +20,7 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3001');
 
 // Fail-safe startup checks
-const requiredEnvVars = ['ADMIN_SECRET', 'SCANNER_SECRET', 'CASHFREE_SECRET_KEY'];
+const requiredEnvVars = ['ADMIN_SECRET', 'SCANNER_SECRET', 'CASHFREE_SECRET_KEY', 'QR_HMAC_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(key => !process.env[key]);
 if (missingEnvVars.length > 0) {
   console.error(`[FATAL] Missing required environment variables: ${missingEnvVars.join(', ')}`);

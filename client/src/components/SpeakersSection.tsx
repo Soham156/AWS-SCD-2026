@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { SectionHeader } from './LayoutElements';
-import { User, Mic, X, Terminal, Tag, Sparkles } from 'lucide-react';
+import { User, Mic, X, Terminal, Sparkles } from 'lucide-react';
 
 interface Speaker {
   id: number;

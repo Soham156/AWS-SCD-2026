@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createHmac } from 'crypto';
+import { createHmac, randomInt } from 'crypto';
 import { supabase } from '../../shared/lib/supabase.js';
 import { generateQRToken } from '../../shared/lib/qrToken.js';
 import { enqueueRegistrationConfirmation } from '../email/emailQueue.js';
@@ -7,8 +7,8 @@ import { enqueueRegistrationConfirmation } from '../email/emailQueue.js';
 const router = Router();
 
 function generateTicketNumber(): string {
-  const num = Math.floor(1000 + Math.random() * 9000);
-  return `AWS-${num}-26`;
+  const num = randomInt(100000, 999999);
+  return `SCD-${num}-26`;
 }
 
 // POST /api/webhooks/cashfree
@@ -116,7 +116,10 @@ router.post('/cashfree', async (req, res, next) => {
             }
           }
 
-          if (!ticket_number) throw new Error('Failed to generate unique ticket number');
+          if (!ticket_number) {
+            console.error(`[Webhook] Failed to generate unique ticket number for reg ${reg.id}`);
+            continue;
+          }
 
           const qr_token = generateQRToken(ticket_number);
 
@@ -147,18 +150,29 @@ router.post('/cashfree', async (req, res, next) => {
     } else if (event === 'PAYMENT_FAILED_WEBHOOK') {
       const orderId = eventData?.order?.order_id;
       if (orderId) {
-        await supabase
-          .from('payments')
-          .update({ status: 'failed', gateway_response: eventData })
-          .eq('cashfree_order_id', orderId);
-
+        // Fetch current state BEFORE updating to avoid double ticket releases
         const { data: payment } = await supabase
           .from('payments')
-          .select('order_id, status, orders(pass_type_id)')
+          .select('order_id, status, orders(pass_type_id, quantity)')
           .eq('cashfree_order_id', orderId)
           .single();
 
         if (payment) {
+          // If it was still 'initiated', release the tickets to the pool immediately.
+          // If it was already 'expired', the cron job already handled the release.
+          if (payment.status === 'initiated') {
+            const passId = (payment.orders as any)?.pass_type_id;
+            const quantity = (payment.orders as any)?.quantity || 1;
+            if (passId) {
+              await supabase.rpc('release_tickets', { p_pass_id: passId, p_amount: quantity });
+            }
+          }
+
+          await supabase
+            .from('payments')
+            .update({ status: 'failed', gateway_response: eventData })
+            .eq('cashfree_order_id', orderId);
+
           await supabase
             .from('orders')
             .update({ payment_status: 'FAILED' })

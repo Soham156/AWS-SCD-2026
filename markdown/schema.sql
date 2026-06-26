@@ -41,12 +41,12 @@ CREATE TABLE public.promo_codes (
 CREATE TABLE public.orders (
   id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   primary_email character varying,
-  pass_type_id uuid REFERENCES public.pass_types(id),
+  pass_type_id uuid REFERENCES public.pass_types(id) ON DELETE SET NULL,
   quantity integer NOT NULL DEFAULT 1,
   subtotal numeric NOT NULL DEFAULT 0,
   discount numeric NOT NULL DEFAULT 0,
   total_amount numeric NOT NULL DEFAULT 0,
-  promo_code_id uuid REFERENCES public.promo_codes(id),
+  promo_code_id uuid REFERENCES public.promo_codes(id) ON DELETE SET NULL,
   payment_status character varying DEFAULT 'PENDING'::character varying,
   created_at timestamptz DEFAULT now()
 );
@@ -54,7 +54,7 @@ CREATE TABLE public.orders (
 CREATE TABLE public.registrations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   ticket_number text UNIQUE,
-  pass_type_id uuid NOT NULL REFERENCES public.pass_types(id),
+  pass_type_id uuid REFERENCES public.pass_types(id) ON DELETE SET NULL,
   pass_slug text NOT NULL,
   full_name text NOT NULL,
   email text NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE public.payments (
 CREATE TABLE public.archived_registrations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   ticket_number text,
-  pass_type_id uuid REFERENCES public.pass_types(id),
+  pass_type_id uuid REFERENCES public.pass_types(id) ON DELETE SET NULL,
   pass_slug text,
   full_name text,
   email text,
