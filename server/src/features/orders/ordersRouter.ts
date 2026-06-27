@@ -38,12 +38,17 @@ router.post('/create', async (req, res, next) => {
     // Validate pass type
     const { data: passType, error: ptError } = await supabase
       .from('pass_types')
-      .select('id, price, capacity, sold')
+      .select('id, price, capacity, sold, is_locked')
       .eq('id', pass_type_id)
       .single();
 
     if (ptError || !passType) {
       res.status(404).json({ error: 'PASS_NOT_FOUND', message: 'Invalid pass type.' });
+      return;
+    }
+
+    if (passType.is_locked) {
+      res.status(403).json({ error: 'PASS_LOCKED', message: 'This pass is not available for purchase yet.' });
       return;
     }
 

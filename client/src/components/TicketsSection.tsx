@@ -27,6 +27,8 @@ export const TicketsSection = () => {
           <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
             {passes.filter(p => p.is_active).map((tier, i) => {
               const isSoldOut = tier.capacity - tier.sold <= 0;
+              const isLocked = tier.is_locked;
+              const isDisabled = isSoldOut || isLocked;
               const hex = tier.badge_color || '#ffffff';
               const label = tier.label;
 
@@ -37,13 +39,13 @@ export const TicketsSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.6 }}
-                onMouseEnter={(e) => { if (!isSoldOut) e.currentTarget.style.borderColor = hex; }}
+                onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.borderColor = hex; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${hex}66`; }}
                 style={{ 
                   borderColor: `${hex}66`, 
-                  boxShadow: isSoldOut ? 'none' : `0 0 40px ${hex}26` 
+                  boxShadow: isDisabled ? 'none' : `0 0 40px ${hex}26` 
                 }}
-                className="relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group overflow-hidden transition-all duration-500 hover:-translate-y-2"
+                className={`relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
               >
                 {/* Event Badge Top Bar */}
                 <div className="h-10 flex justify-between items-center px-5 z-20" style={{ backgroundColor: `${hex}1A`, color: hex }}>
@@ -66,16 +68,24 @@ export const TicketsSection = () => {
                       </h3>
                     </div>
                     
-                    {(!registrationEnabled || label) && (
+                    {(!registrationEnabled || isLocked || label) && (
                       <div 
                         className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
-                        style={{ 
-                          color: !registrationEnabled ? '#00ffff' : hex, 
-                          borderColor: !registrationEnabled ? '#00ffff4D' : `${hex}4D`, 
-                          backgroundColor: !registrationEnabled ? '#00ffff1A' : `${hex}1A` 
+                        style={!registrationEnabled ? { 
+                          color: '#00ffff', 
+                          borderColor: '#00ffff4D', 
+                          backgroundColor: '#00ffff1A' 
+                        } : isLocked ? {
+                          color: '#f59e0b',
+                          borderColor: '#f59e0b4D',
+                          backgroundColor: '#f59e0b1A'
+                        } : {
+                          color: hex, 
+                          borderColor: `${hex}4D`, 
+                          backgroundColor: `${hex}1A` 
                         }}
                       >
-                        {!registrationEnabled ? "UPCOMING" : label}
+                        {!registrationEnabled ? "UPCOMING" : isLocked ? "Opening Soon" : label}
                       </div>
                     )}
                   </div>
@@ -106,7 +116,7 @@ export const TicketsSection = () => {
 
                   {/* Bottom Action Section */}
                   <div className="mt-6 pt-5 border-t border-white/10">
-                    {registrationEnabled && !isSoldOut ? (
+                    {registrationEnabled && !isDisabled ? (
                       <Link
                         to={`/ticket?passId=${tier.id}`}
                         style={{ backgroundColor: hex, color: '#000', boxShadow: `0 10px 15px -3px ${hex}33` }}
@@ -120,7 +130,7 @@ export const TicketsSection = () => {
                         className="w-full text-center px-4 py-3.5 text-[11px] font-mono uppercase tracking-widest font-bold bg-white/5 text-white/20 skew-x-[-6deg] block cursor-not-allowed"
                       >
                         <span className="skew-x-[6deg] block">
-                          {!registrationEnabled ? "Opening Soon" : "Grid Full"}
+                          {!registrationEnabled ? "Opening Soon" : isLocked ? "Coming Soon" : "Grid Full"}
                         </span>
                       </button>
                     )}
@@ -128,7 +138,7 @@ export const TicketsSection = () => {
                 </div>
 
                 {/* Hover Glow Effect */}
-                {!isSoldOut && (
+                {!isDisabled && (
                   <div 
                     className="absolute top-0 left-0 right-0 h-32 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
                     style={{ background: `linear-gradient(to bottom, ${hex}33, transparent)` }}

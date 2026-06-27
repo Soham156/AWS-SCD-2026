@@ -12,6 +12,7 @@ export interface PassType {
   available: number;
   perks: string[];
   is_active: boolean;
+  is_locked: boolean;
   sort_order: number;
   badge_color: string;
   label: string | null;

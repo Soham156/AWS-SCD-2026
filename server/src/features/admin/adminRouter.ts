@@ -356,7 +356,7 @@ router.put('/passes/:id', async (req, res, next) => {
     }
 
     // Only allow safe fields
-    const allowedFields = ['name', 'description', 'price', 'capacity', 'perks', 'is_active', 'badge_color', 'sort_order', 'label'];
+    const allowedFields = ['name', 'description', 'price', 'capacity', 'perks', 'is_active', 'is_locked', 'badge_color', 'sort_order', 'label'];
     const safeUpdates: Record<string, any> = {};
     for (const key of allowedFields) {
       if (updates[key] !== undefined) safeUpdates[key] = updates[key];

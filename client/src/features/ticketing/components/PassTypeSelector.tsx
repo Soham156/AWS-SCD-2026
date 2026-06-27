@@ -46,6 +46,8 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
     <div className="flex flex-wrap justify-center gap-4 items-stretch">
       {passes.map((pass, i) => {
         const soldOut = pass.available <= 0;
+        const locked = pass.is_locked;
+        const disabled = soldOut || locked;
         const hex = pass.badge_color || '#ffffff';
         const label = pass.label;
 
@@ -56,12 +58,12 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1, duration: 0.4 }}
             style={{ 
-              borderColor: soldOut ? '#ffffff0D' : `${hex}66`, 
-              boxShadow: soldOut ? 'none' : `0 0 40px ${hex}26` 
+              borderColor: disabled ? '#ffffff0D' : `${hex}66`, 
+              boxShadow: disabled ? 'none' : `0 0 40px ${hex}26` 
             }}
             className={`relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group transition-all duration-300 ${
-              soldOut
-                ? 'opacity-50 grayscale'
+              disabled
+                ? locked ? 'opacity-70' : 'opacity-50 grayscale'
                 : `hover:-translate-y-1`
             }`}
           >
@@ -83,7 +85,14 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
                   </h3>
                 </div>
                 
-                {label && (
+                {locked ? (
+                  <div 
+                    className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
+                    style={{ color: '#f59e0b', borderColor: '#f59e0b4D', backgroundColor: '#f59e0b1A' }}
+                  >
+                    Opening Soon
+                  </div>
+                ) : label && (
                   <div 
                     className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
                     style={{ color: hex, borderColor: `${hex}4D`, backgroundColor: `${hex}1A` }}
@@ -117,6 +126,8 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
               <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
                 {soldOut ? (
                   <div className="font-mono text-[10px] tracking-widest uppercase text-white/30">GRID FULL</div>
+                ) : locked ? (
+                  <div className="font-mono text-[10px] tracking-widest uppercase text-amber-400/70">Coming Soon</div>
                 ) : (
                   <button
                     onClick={() => onSelect(pass, 1)}
@@ -130,7 +141,7 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
             </div>
 
             {/* Hover Glow Effect */}
-            {!soldOut && (
+            {!disabled && (
               <div 
                 className="absolute top-0 left-0 right-0 h-32 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-t-[1.5rem]"
                 style={{ background: `linear-gradient(to bottom, ${hex}33, transparent)` }}

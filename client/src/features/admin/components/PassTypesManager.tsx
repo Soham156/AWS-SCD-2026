@@ -14,6 +14,7 @@ interface PassType {
   sold: number;
   perks: string[];
   is_active: boolean;
+  is_locked: boolean;
   badge_color: string;
   sort_order: number;
   label: string | null;
@@ -81,6 +82,7 @@ export function PassTypesManager() {
       badge_color: pt.badge_color,
       sort_order: pt.sort_order,
       is_active: pt.is_active,
+      is_locked: pt.is_locked,
       label: (pt as any).label || '',
     } as any);
     setShowCreate(true);
@@ -105,6 +107,7 @@ export function PassTypesManager() {
         capacity: Number(formData.capacity),
         perks: formData.perks.split(',').map(p => p.trim()).filter(Boolean),
         is_active: (formData as any).is_active,
+        is_locked: (formData as any).is_locked,
         badge_color: formData.badge_color,
         sort_order: Number(formData.sort_order),
         label: (formData as any).label || null,
@@ -230,15 +233,27 @@ export function PassTypesManager() {
             </div>
             
             {editId && (
-              <div className="space-y-2">
-                <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Active Status</label>
-                <div className="flex items-center gap-3 mt-2">
-                  <button onClick={() => setFormData(d => ({...d, is_active: !(d as any).is_active}))} className={`w-10 h-5 rounded-full transition-colors relative ${((formData as any).is_active) ? 'bg-emerald-500' : 'bg-white/10'}`}>
-                    <div className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 ${((formData as any).is_active) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                  </button>
-                  <span className="text-white/70 text-xs font-mono">{((formData as any).is_active) ? 'Active' : 'Hidden'}</span>
+              <>
+                <div className="space-y-2">
+                  <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Active Status</label>
+                  <div className="flex items-center gap-3 mt-2">
+                    <button onClick={() => setFormData(d => ({...d, is_active: !(d as any).is_active}))} className={`w-10 h-5 rounded-full transition-colors relative ${((formData as any).is_active) ? 'bg-emerald-500' : 'bg-white/10'}`}>
+                      <div className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 ${((formData as any).is_active) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                    <span className="text-white/70 text-xs font-mono">{((formData as any).is_active) ? 'Active' : 'Hidden'}</span>
+                  </div>
                 </div>
-              </div>
+                <div className="space-y-2">
+                  <label className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Locked (Coming Soon)</label>
+                  <div className="flex items-center gap-3 mt-2">
+                    <button onClick={() => setFormData(d => ({...d, is_locked: !(d as any).is_locked}))} className={`w-10 h-5 rounded-full transition-colors relative ${((formData as any).is_locked) ? 'bg-amber-500' : 'bg-white/10'}`}>
+                      <div className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-0.5 ${((formData as any).is_locked) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                    </button>
+                    <span className="text-white/70 text-xs font-mono">{((formData as any).is_locked) ? 'Locked' : 'Unlocked'}</span>
+                  </div>
+                  <p className="text-white/30 text-[9px] font-mono">Locked passes are visible but cannot be purchased</p>
+                </div>
+              </>
             )}
           </div>
 
@@ -264,6 +279,7 @@ export function PassTypesManager() {
               <th className="text-right py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Price</th>
               <th className="text-right py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Sold/Cap</th>
               <th className="text-center py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Active</th>
+              <th className="text-center py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Locked</th>
               <th className="text-center py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Color</th>
               <th className="text-right py-2 px-3 font-mono text-white/30 uppercase tracking-widest text-[9px]">Actions</th>
             </tr>
@@ -282,6 +298,9 @@ export function PassTypesManager() {
                     </td>
                     <td className="py-2 px-3 text-center">
                       <span className={`inline-block w-2 h-2 rounded-full ${pt.is_active ? 'bg-emerald-400' : 'bg-white/10'}`} />
+                    </td>
+                    <td className="py-2 px-3 text-center">
+                      <span className={`inline-block w-2 h-2 rounded-full ${pt.is_locked ? 'bg-amber-400' : 'bg-white/10'}`} />
                     </td>
                     <td className="py-2 px-3 text-center">
                       <span className="inline-block w-4 h-4 rounded" style={{ backgroundColor: pt.badge_color }} />
