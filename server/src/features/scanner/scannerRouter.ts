@@ -64,26 +64,126 @@ router.post('/verify', async (req, res, next) => {
       return;
     }
 
+    const passData = registration.pass_types as any;
+
     if (registration.checked_in) {
-      res.json({ status: 'ALREADY_CHECKED_IN', checked_in_at: registration.checked_in_at });
+      res.json({
+        status: 'ALREADY_CHECKED_IN',
+        id: registration.id,
+        attendee_name: registration.full_name,
+        ticket_number: registration.ticket_number,
+        pass_slug: passData?.slug || registration.pass_slug,
+        organization: registration.organization,
+        checked_in_at: registration.checked_in_at
+      });
       return;
     }
 
-    // Check in
-    const now = new Date().toISOString();
-    await supabase
-      .from('registrations')
-      .update({ checked_in: true, checked_in_at: now })
-      .eq('id', registration.id);
-
-    const passData = registration.pass_types as any;
     res.json({
       status: 'VALID',
+      id: registration.id,
       attendee_name: registration.full_name,
       ticket_number: registration.ticket_number,
       pass_slug: passData?.slug || registration.pass_slug,
       organization: registration.organization,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/scan/checkin
+router.post('/checkin', async (req, res, next) => {
+  try {
+    const { registration_id } = req.body;
+    if (!registration_id) {
+      res.status(400).json({ error: 'registration_id is required' });
+      return;
+    }
+
+    const { data: registration, error } = await supabase
+      .from('registrations')
+      .select('*, pass_types(name, slug)')
+      .eq('id', registration_id)
+      .single();
+
+    if (error || !registration) {
+      res.status(404).json({ error: 'Registration not found' });
+      return;
+    }
+
+    if (registration.payment_status !== 'PAID') {
+      res.status(400).json({ error: 'Ticket is not paid' });
+      return;
+    }
+
+    if (registration.checked_in) {
+      res.status(400).json({ error: 'Attendee is already checked in' });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const { error: updateError } = await supabase
+      .from('registrations')
+      .update({ checked_in: true, checked_in_at: now })
+      .eq('id', registration.id);
+
+    if (updateError) throw updateError;
+
+    const passData = registration.pass_types as any;
+    res.json({
+      success: true,
+      attendee_name: registration.full_name,
+      ticket_number: registration.ticket_number,
+      pass_slug: passData?.slug || registration.pass_slug,
+      organization: registration.organization,
+      checked_in_at: now
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/scan/search
+router.post('/search', async (req, res, next) => {
+  try {
+    const { query } = req.body;
+    if (!query) {
+      res.status(400).json({ error: 'Search query is required' });
+      return;
+    }
+
+    const cleanQuery = query.trim();
+
+    const { data: registrations, error } = await supabase
+      .from('registrations')
+      .select('*, pass_types(name, slug)')
+      .eq('payment_status', 'PAID')
+      .or(`ticket_number.ilike.%${cleanQuery}%,email.ilike.%${cleanQuery}%,full_name.ilike.%${cleanQuery}%`)
+      .order('full_name', { ascending: true })
+      .limit(20);
+
+    if (error) throw error;
+
+    res.json(registrations);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/scan/attendees
+router.get('/attendees', async (_req, res, next) => {
+  try {
+    const { data: registrations, error } = await supabase
+      .from('registrations')
+      .select('id, full_name, ticket_number, checked_in, checked_in_at, pass_slug, pass_types(name, slug), organization')
+      .eq('checked_in', true)
+      .eq('payment_status', 'PAID')
+      .order('checked_in_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json(registrations);
   } catch (err) {
     next(err);
   }

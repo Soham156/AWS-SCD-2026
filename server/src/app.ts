@@ -17,6 +17,7 @@ import { startEmailProcessor } from './features/email/emailProcessor.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = parseInt(process.env.PORT || '3001');
 
 // Fail-safe startup checks

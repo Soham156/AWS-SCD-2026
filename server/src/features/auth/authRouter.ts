@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../../shared/lib/supabase.js';
+import { redis } from '../../shared/lib/redis.js';
 import { randomInt, timingSafeEqual, createHash } from 'crypto';
 import { otpLimiter } from '../../shared/middleware/rateLimiter.js';
 import { otpEmailTemplate } from './otpEmailTemplate.js';
@@ -166,14 +167,12 @@ router.post('/send-otp', otpLimiter, async (req, res, next) => {
     }
 
     // Rate limiting: Check recent OTP requests (max 3 per 5 mins)
-    const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    const { data: recentRequests } = await supabase
-      .from('otp_verifications')
-      .select('id')
-      .eq('email', email)
-      .gt('created_at', fiveMinsAgo);
-
-    if (recentRequests && recentRequests.length >= 3) {
+    const limitKey = `otp_limit:${email}`;
+    const requestCount = await redis.incr(limitKey);
+    if (requestCount === 1) {
+      await redis.expire(limitKey, 300); // 5 minutes TTL
+    }
+    if (requestCount > 3) {
       res.status(429).json({ error: 'RATE_LIMIT_EXCEEDED', message: 'Too many OTP requests. Please try again later.' });
       return;
     }
@@ -181,18 +180,10 @@ router.post('/send-otp', otpLimiter, async (req, res, next) => {
     // Generate 6-digit OTP
     const otp = randomInt(100000, 999999).toString();
     const hashedOtp = createHash('sha256').update(otp).digest('hex');
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 mins
 
-    // Save to DB
-    const { error: insertError } = await supabase
-      .from('otp_verifications')
-      .insert({
-        email,
-        otp: hashedOtp,
-        expires_at: expiresAt,
-      });
-
-    if (insertError) throw insertError;
+    // Save to Redis (10 minutes TTL)
+    const otpKey = `otp:${email}`;
+    await redis.set(otpKey, JSON.stringify({ otp: hashedOtp, attempts: 0 }), { ex: 600 });
 
     // Send via Mailtrap
     await sendMailtrapEmail(email, otp);
@@ -214,51 +205,39 @@ router.post('/verify-otp', otpLimiter, async (req, res, next) => {
 
     const { email, otp } = parsed.data;
 
-    // Get the latest unverified OTP for this email
-    const { data: otpRecord, error } = await supabase
-      .from('otp_verifications')
-      .select('*')
-      .eq('email', email)
-      .eq('verified', false)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+    // Get OTP from Redis
+    const otpKey = `otp:${email}`;
+    const data = await redis.get<{ otp: string; attempts: number }>(otpKey);
 
-    if (error || !otpRecord) {
-      res.status(400).json({ error: 'INVALID_OTP', message: 'No pending OTP found for this email.' });
-      return;
-    }
-
-    // Check expiry
-    if (new Date() > new Date(otpRecord.expires_at)) {
-      res.status(400).json({ error: 'OTP_EXPIRED', message: 'This OTP has expired. Please request a new one.' });
+    if (!data) {
+      res.status(400).json({ error: 'INVALID_OTP', message: 'No pending OTP found for this email or it has expired.' });
       return;
     }
 
     // Check max attempts
-    if (otpRecord.attempts >= 3) {
+    if (data.attempts >= 3) {
       res.status(400).json({ error: 'MAX_ATTEMPTS_REACHED', message: 'Too many failed attempts. Please request a new OTP.' });
       return;
     }
 
     // Verify OTP
     const hashedInputOtp = createHash('sha256').update(otp).digest('hex');
-    if (!timingSafeEqual(Buffer.from(otpRecord.otp), Buffer.from(hashedInputOtp))) {
-      // Increment attempts
-      await supabase
-        .from('otp_verifications')
-        .update({ attempts: otpRecord.attempts + 1 })
-        .eq('id', otpRecord.id);
+    const isMatch = data.otp.length === hashedInputOtp.length && 
+      timingSafeEqual(Buffer.from(data.otp), Buffer.from(hashedInputOtp));
+    if (!isMatch) {
+      // Increment attempts and update key in Redis keeping the remaining TTL
+      data.attempts += 1;
+      const ttl = await redis.ttl(otpKey);
+      if (ttl > 0) {
+        await redis.set(otpKey, JSON.stringify(data), { ex: ttl });
+      }
 
       res.status(400).json({ error: 'INVALID_OTP', message: 'Incorrect OTP.' });
       return;
     }
 
-    // Mark as verified
-    await supabase
-      .from('otp_verifications')
-      .update({ verified: true })
-      .eq('id', otpRecord.id);
+    // Successfully verified -> delete key from Redis
+    await redis.del(otpKey);
 
     res.status(200).json({ message: 'Email verified successfully' });
   } catch (err) {

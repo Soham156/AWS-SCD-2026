@@ -24,7 +24,8 @@ CREATE TABLE public.pass_types (
   sort_order integer DEFAULT 0,
   badge_color text DEFAULT '#6B7280'::text,
   created_at timestamptz DEFAULT now(),
-  label character varying
+  label character varying,
+  is_locked boolean DEFAULT false
 );
 
 CREATE TABLE public.promo_codes (
@@ -154,15 +155,6 @@ CREATE TABLE public.sponsor_applications (
   created_at timestamptz DEFAULT now()
 );
 
-CREATE TABLE public.otp_verifications (
-  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-  email character varying NOT NULL,
-  otp character varying NOT NULL,
-  attempts integer DEFAULT 0,
-  expires_at timestamptz NOT NULL,
-  verified boolean DEFAULT false,
-  created_at timestamptz DEFAULT now()
-);
 
 -- Part 2: Email Tables
 
@@ -366,8 +358,6 @@ CREATE POLICY "service_role_all" ON public.promo_codes FOR ALL USING (true) WITH
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "service_role_all" ON public.orders FOR ALL USING (true) WITH CHECK (true);
 
-ALTER TABLE public.otp_verifications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "service_role_all" ON public.otp_verifications FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE public.email_jobs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Service role full access on email_jobs" ON public.email_jobs FOR ALL USING (true) WITH CHECK (true);
