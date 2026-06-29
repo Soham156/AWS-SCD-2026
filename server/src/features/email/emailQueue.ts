@@ -142,13 +142,13 @@ export async function enqueueRegistrationConfirmation(
     metadata,
   });
 
-  // 2. If part of a group registration, send a copy to the primary buyer
+  // 2. If part of a group registration, send a copy to the primary registrant
   if (primary_email && primary_email !== reg.email) {
     await enqueueEmail({
       idempotency_key: `${registration_id}:registration_confirmation_group_copy`,
       email_type: 'registration_confirmation',
       recipient_email: primary_email,
-      recipient_name: "Group Buyer",
+      recipient_name: "Primary Registrant",
       subject: `[Group Copy] ${subject}`,
       html_body: html,
       metadata,
