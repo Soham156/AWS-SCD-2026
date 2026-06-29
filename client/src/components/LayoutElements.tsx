@@ -15,7 +15,7 @@ export const AngledButton: React.FC<{ children: React.ReactNode, primary?: boole
     : "border border-white/20 text-white hover:bg-white/10";
 
   return (
-    <button className={`${base} ${style}`} onClick={onClick}>
+    <button type="button" className={`${base} ${style}`} onClick={onClick}>
       <span className="relative z-10 flex items-center space-x-2 skew-x-[12deg]">{children}</span>
     </button>
   );

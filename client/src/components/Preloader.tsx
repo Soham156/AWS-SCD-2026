@@ -4,11 +4,17 @@ import { motion, AnimatePresence } from 'motion/react';
 export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string }) => {
   const [lights, setLights] = useState(0);
   const [started, setStarted] = useState(false);
-  const [shouldRender, setShouldRender] = useState(true);
+  const [shouldRender] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const lastPlayed = localStorage.getItem('scd_intro_played');
+    const isRecent = lastPlayed && (Date.now() - parseInt(lastPlayed, 10) < 15000);
+    return !isRecent;
+  });
   const audioCtxRef = useRef<AudioContext | null>(null);
   const engineAudioRef = useRef<HTMLAudioElement | null>(null);
 
 
+  /* eslint-disable react-doctor/prefer-use-effect-event */
   useEffect(() => {
     if (shouldRender) {
       document.body.classList.add('preloader-active');
@@ -21,19 +27,23 @@ export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string
   useEffect(() => {
     const lastPlayed = localStorage.getItem('scd_intro_played');
     const isRecent = lastPlayed && (Date.now() - parseInt(lastPlayed, 10) < 15000);
+    let timer: any;
 
     if (isRecent) {
-      const isLite = localStorage.getItem('scd_lite_mode') === 'true';
+      const isLite = /* eslint-disable-next-line react-doctor/js-cache-storage */ localStorage.getItem('scd_lite_mode') === 'true';
       if (isLite) {
         document.body.classList.add('lite-mode');
       } else {
         document.body.classList.remove('lite-mode');
       }
-      setShouldRender(false);
       // Defer the event dispatch slightly to ensure HeroSection has mounted its listener
-      setTimeout(() => window.dispatchEvent(new Event('greenLight')), 50);
+      timer = setTimeout(() => window.dispatchEvent(new Event('greenLight')), 50);
       onComplete();
     }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [onComplete]);
 
   const playBeep = (freq: number, duration: number, type: OscillatorType = 'square') => {
@@ -183,12 +193,14 @@ export const Preloader = ({ onComplete }: { onComplete: () => void; key?: string
             className="flex flex-col items-center justify-center h-full w-full relative z-20"
           >
             <button
+              type="button"
               onClick={handleStart}
               className="px-12 py-5 bg-[#E10600] text-white uppercase tracking-widest font-black text-2xl skew-x-[-15deg] hover:bg-white hover:text-black transition-colors shadow-[0_0_30px_rgba(225,6,0,0.4)]"
             >
               <span className="skew-x-[15deg] block">Start Engine</span>
             </button>
             <button
+              type="button"
               onClick={handleLiteModeStart}
               className="mt-4 px-8 py-3 border border-white/20 text-white uppercase tracking-widest font-bold text-sm skew-x-[-15deg] hover:bg-white hover:text-black hover:border-white transition-colors"
             >

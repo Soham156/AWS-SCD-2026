@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { api } from '../../../lib/api';
 
+const getHeaders = () => ({
+  'X-Admin-Key': sessionStorage.getItem('scd_admin_key') || ''
+});
+
 export const AdminSettings = () => {
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -10,10 +14,6 @@ export const AdminSettings = () => {
   useEffect(() => {
     fetchSettings();
   }, []);
-
-  const getHeaders = () => ({
-    'X-Admin-Key': sessionStorage.getItem('scd_admin_key') || ''
-  });
 
   const fetchSettings = async () => {
     try {
@@ -63,7 +63,7 @@ export const AdminSettings = () => {
             When disabled, the site will show "OPENING SOON" instead of allowing users to purchase tickets.
           </p>
         </div>
-        <button
+        <button aria-label="button" type="button"
           onClick={toggleRegistration}
           disabled={saving}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${

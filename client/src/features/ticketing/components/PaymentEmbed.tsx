@@ -59,7 +59,7 @@ export function PaymentEmbed({ selectedPass, loading, error, onInitiatePayment, 
           <p className="font-mono text-xs text-white/50">
             Payment window should open automatically.
           </p>
-          <button
+          <button type="button"
             onClick={onInitiatePayment}
             className="px-6 py-2.5 bg-aws-orange text-black text-xs font-mono uppercase tracking-widest font-bold hover:bg-white transition-colors"
           >
@@ -68,7 +68,7 @@ export function PaymentEmbed({ selectedPass, loading, error, onInitiatePayment, 
         </div>
       )}
 
-      <button
+      <button type="button"
         onClick={onBack}
         className="mt-4 text-white/30 hover:text-white/60 text-xs font-mono uppercase tracking-widest transition-colors"
       >

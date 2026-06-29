@@ -119,7 +119,7 @@ export const DirectionsSection = () => {
               const isActive = activeTab === tab.id;
               const Icon = tab.icon;
               return (
-                <button
+                <button type="button"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex flex-col items-center justify-center gap-2 p-3 sm:p-4 border transition-all duration-300 ${

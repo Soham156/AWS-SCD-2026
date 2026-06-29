@@ -6,13 +6,13 @@ import { Send } from 'lucide-react';
 
 const speakerSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   city: z.string().min(2, "City is required"),
   organization: z.string().min(2, "Organization is required"),
   designation: z.string().min(2, "Designation is required"),
-  linkedin_url: z.string().url("Must be a valid URL"),
-  portfolio_url: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  linkedin_url: z.url("Must be a valid URL"),
+  portfolio_url: z.url("Must be a valid URL").optional().or(z.literal('')),
   session_title: z.string().min(5, "Session title is required"),
   session_abstract: z.string().min(20, "Session abstract must be at least 20 characters"),
   category: z.string().min(1, "Category is required"),
@@ -24,6 +24,46 @@ const speakerSchema = z.object({
 });
 
 type SpeakerFormData = z.infer<typeof speakerSchema>;
+
+const InputField = ({ label, name, placeholder, type = "text", required = false, register, errors }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <input
+      type={type}
+      placeholder={placeholder}
+      {...register(name)}
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm"
+    />
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
+
+const SelectField = ({ label, name, options, required = false, register, errors }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <select
+      {...register(name)}
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm appearance-none"
+    >
+      <option value="">Select {label.replace(' *', '')}</option>
+      {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+    </select>
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
+
+const TextAreaField = ({ label, name, placeholder, required = false, register, errors }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <textarea
+      placeholder={placeholder}
+      rows={4}
+      {...register(name)}
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm resize-y"
+    />
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
 
 export const SpeakerForm = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -64,52 +104,12 @@ export const SpeakerForm = () => {
         </div>
         <h3 className="text-2xl font-black italic uppercase text-white mb-2">CFP Submitted</h3>
         <p className="text-white/60 mb-6">Thank you for applying to speak at AWS Student Community Day. Our team will review your proposal and get back to you soon.</p>
-        <button onClick={() => window.location.reload()} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white font-mono text-xs uppercase tracking-widest transition-colors">
+        <button type="button" onClick={() => window.location.reload()} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white font-mono text-xs uppercase tracking-widest transition-colors">
           Submit Another
         </button>
       </div>
     );
   }
-
-  const InputField = ({ label, name, placeholder, type = "text", required = false }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        {...register(name)}
-        className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm"
-      />
-      {errors[name as keyof SpeakerFormData] && <span className="text-[#E10600] text-xs font-mono">{errors[name as keyof SpeakerFormData]?.message as string}</span>}
-    </div>
-  );
-
-  const SelectField = ({ label, name, options, required = false }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-      <select
-        {...register(name)}
-        className="bg-[#0a0a0a] border border-white/10 p-3 text-white focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm appearance-none"
-      >
-        <option value="">Select {label.replace(' *', '')}</option>
-        {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-      </select>
-      {errors[name as keyof SpeakerFormData] && <span className="text-[#E10600] text-xs font-mono">{errors[name as keyof SpeakerFormData]?.message as string}</span>}
-    </div>
-  );
-
-  const TextAreaField = ({ label, name, placeholder, required = false }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-      <textarea
-        placeholder={placeholder}
-        rows={4}
-        {...register(name)}
-        className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm resize-y"
-      />
-      {errors[name as keyof SpeakerFormData] && <span className="text-[#E10600] text-xs font-mono">{errors[name as keyof SpeakerFormData]?.message as string}</span>}
-    </div>
-  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 bg-[#111] p-6 sm:p-10 border border-white/5">
@@ -118,14 +118,14 @@ export const SpeakerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-aws-orange border-b border-white/10 pb-2 mb-6">Personal Information</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField label="Full Name" name="full_name" placeholder="e.g. Jane Doe" required />
-          <InputField label="Email Address" name="email" type="email" placeholder="name@email.com" required />
-          <InputField label="Phone Number" name="phone" placeholder="+91 99999 99999" required />
-          <InputField label="City" name="city" placeholder="Dhule, Mumbai, etc." required />
-          <InputField label="Organization" name="organization" placeholder="e.g. Acme Corp" required />
-          <InputField label="Designation" name="designation" placeholder="e.g. Student, SDE, Founder" required />
-          <InputField label="LinkedIn URL" name="linkedin_url" placeholder="https://linkedin.com/in/username" required />
-          <InputField label="Portfolio / Social URL" name="portfolio_url" placeholder="https://github.com/username" />
+          <InputField label="Full Name" name="full_name" placeholder="e.g. Jane Doe" required register={register} errors={errors} />
+          <InputField label="Email Address" name="email" type="email" placeholder="name@email.com" required register={register} errors={errors} />
+          <InputField label="Phone Number" name="phone" placeholder="+91 99999 99999" required register={register} errors={errors} />
+          <InputField label="City" name="city" placeholder="Dhule, Mumbai, etc." required register={register} errors={errors} />
+          <InputField label="Organization" name="organization" placeholder="e.g. Acme Corp" required register={register} errors={errors} />
+          <InputField label="Designation" name="designation" placeholder="e.g. Student, SDE, Founder" required register={register} errors={errors} />
+          <InputField label="LinkedIn URL" name="linkedin_url" placeholder="https://linkedin.com/in/username" required register={register} errors={errors} />
+          <InputField label="Portfolio / Social URL" name="portfolio_url" placeholder="https://github.com/username" register={register} errors={errors} />
         </div>
       </div>
 
@@ -133,12 +133,12 @@ export const SpeakerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-aws-orange border-b border-white/10 pb-2 mb-6">Session Details</h4>
         <div className="flex flex-col gap-6">
-          <InputField label="Session Title" name="session_title" placeholder="e.g. Scaling Webapps with AWS Serverless Architecture" required />
-          <TextAreaField label="Session Abstract / Description" name="session_abstract" placeholder="Explain what the audience will learn, key tech stacks, and demo details..." required />
+          <InputField label="Session Title" name="session_title" placeholder="e.g. Scaling Webapps with AWS Serverless Architecture" required register={register} errors={errors} />
+          <TextAreaField label="Session Abstract / Description" name="session_abstract" placeholder="Explain what the audience will learn, key tech stacks, and demo details..." required register={register} errors={errors} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <SelectField label="Category" name="category" required options={['Cloud Computing', 'AWS Architecture', 'Serverless', 'Containers & Kubernetes', 'DevOps', 'Generative AI', 'Machine Learning', 'Security', 'Data Engineering', 'Career Growth', 'Open Source', 'Startup Journey']} />
-            <SelectField label="Session Level" name="session_level" required options={['Beginner (100)', 'Intermediate (200)', 'Advanced (300)', 'Expert (400)']} />
-            <SelectField label="Duration" name="duration" required options={['20 Min (Lightning)', '30 Min (Standard)', '45 Min (Deep Dive)']} />
+            <SelectField label="Category" name="category" required options={['Cloud Computing', 'AWS Architecture', 'Serverless', 'Containers & Kubernetes', 'DevOps', 'Generative AI', 'Machine Learning', 'Security', 'Data Engineering', 'Career Growth', 'Open Source', 'Startup Journey']} register={register} errors={errors} />
+            <SelectField label="Session Level" name="session_level" required options={['Beginner (100)', 'Intermediate (200)', 'Advanced (300)', 'Expert (400)']} register={register} errors={errors} />
+            <SelectField label="Duration" name="duration" required options={['20 Min (Lightning)', '30 Min (Standard)', '45 Min (Deep Dive)']} register={register} errors={errors} />
           </div>
         </div>
       </div>
@@ -147,9 +147,9 @@ export const SpeakerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-aws-orange border-b border-white/10 pb-2 mb-6">Speaker Profile</h4>
         <div className="flex flex-col gap-6">
-          <TextAreaField label="Speaker Biography" name="bio" placeholder="Tell us about your background, achievements, and work experience..." required />
-          <TextAreaField label="Previous Speaking Experience" name="previous_experience" placeholder="List any past talks, meetups, workshops, or video links..." />
-          <TextAreaField label="Additional Notes / Setup Requests" name="notes" placeholder="Audio-video setup, specific date availability, or other considerations..." />
+          <TextAreaField label="Speaker Biography" name="bio" placeholder="Tell us about your background, achievements, and work experience..." required register={register} errors={errors} />
+          <TextAreaField label="Previous Speaking Experience" name="previous_experience" placeholder="List any past talks, meetups, workshops, or video links..." register={register} errors={errors} />
+          <TextAreaField label="Additional Notes / Setup Requests" name="notes" placeholder="Audio-video setup, specific date availability, or other considerations..." register={register} errors={errors} />
         </div>
       </div>
 

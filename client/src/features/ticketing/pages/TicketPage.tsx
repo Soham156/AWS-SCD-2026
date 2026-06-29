@@ -107,7 +107,7 @@ export function TicketPage() {
             Back to Home
           </Link>
           {error?.includes('timed out') && (
-            <button
+            <button type="button"
               onClick={() => window.location.reload()}
               className="inline-flex items-center gap-2 text-emerald-400 text-xs font-mono uppercase tracking-widest hover:text-white transition-colors cursor-pointer"
             >
@@ -147,7 +147,7 @@ export function TicketPage() {
 
       {/* Top-right download */}
       <div className="fixed top-6 right-6 z-10">
-        <button
+        <button type="button"
           onClick={handleDownload}
           className="inline-flex items-center gap-2 bg-aws-orange text-black font-bold text-xs font-mono uppercase tracking-widest hover:bg-white hover:text-black transition-colors px-4 py-2 border border-aws-orange shadow-[0_0_15px_rgba(255,153,0,0.4)] cursor-pointer"
         >

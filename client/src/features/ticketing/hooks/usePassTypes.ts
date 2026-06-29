@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-initialize-state, react-doctor/prefer-useReducer, react-doctor/no-event-handler, react-doctor/rerender-state-only-in-handlers, react-doctor/no-derived-state */
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../lib/api';
 

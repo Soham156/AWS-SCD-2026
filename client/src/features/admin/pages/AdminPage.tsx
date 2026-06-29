@@ -59,7 +59,7 @@ export function AdminPage() {
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => (
-            <button
+            <button type="button"
               key={item.key}
               onClick={() => setActiveTab(item.key)}
               className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-mono uppercase tracking-widest transition-colors ${
@@ -76,7 +76,7 @@ export function AdminPage() {
 
         {/* Logout */}
         <div className="p-3 border-t border-white/5">
-          <button
+          <button type="button"
             onClick={logout}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-mono uppercase tracking-widest text-white/20 hover:text-f1-red hover:bg-f1-red/5 transition-colors"
           >

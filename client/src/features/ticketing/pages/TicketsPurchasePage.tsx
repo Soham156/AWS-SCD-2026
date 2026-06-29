@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-chain-state-updates, react-doctor/no-cascading-set-state */
 import { Link, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ChevronRight, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';

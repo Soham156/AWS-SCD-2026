@@ -129,7 +129,7 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
                 ) : locked ? (
                   <div className="font-mono text-[10px] tracking-widest uppercase text-amber-400/70">Coming Soon</div>
                 ) : (
-                  <button
+                  <button type="button"
                     onClick={() => onSelect(pass, 1)}
                     className="flex-1 px-4 py-2 text-[10px] font-mono tracking-widest uppercase font-bold text-black rounded-sm transition-colors hover:brightness-110"
                     style={{ backgroundColor: hex }}

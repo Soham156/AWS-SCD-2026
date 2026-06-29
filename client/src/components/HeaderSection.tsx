@@ -122,7 +122,7 @@ export const HeaderSection = () => {
         <div className="flex md:hidden items-center gap-3 sm:gap-4">
           <Countdown />
           <div className="h-6 w-px bg-white/10" />
-          <button
+          <button type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-1 text-white/60 hover:text-white transition-colors"
             aria-label="Toggle menu"

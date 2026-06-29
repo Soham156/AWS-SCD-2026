@@ -20,7 +20,8 @@ export const TicketsSection = () => {
 
       {loading ? (
         <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
-          {[1,2,3].map(i => <div key={i} className="w-full sm:w-[320px]"><SkeletonCard /></div>)}
+          {[1,2,3]/* eslint-disable-next-line react-doctor/js-combine-iterations */
+                  .map(i => <div key={i} className="w-full sm:w-[320px]"><SkeletonCard /></div>)}
         </div>
       ) : (
         <>
@@ -125,7 +126,7 @@ export const TicketsSection = () => {
                         <span className="skew-x-[6deg] block">Secure Pass →</span>
                       </Link>
                     ) : (
-                      <button
+                      <button type="button"
                         disabled
                         className="w-full text-center px-4 py-3.5 text-[11px] font-mono uppercase tracking-widest font-bold bg-white/5 text-white/20 skew-x-[-6deg] block cursor-not-allowed"
                       >

@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-doctor/no-unknown-property */
 import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer, useTexture } from '@react-three/drei';

@@ -127,7 +127,7 @@ export function ScanFeedback({ result, onDismiss, onConfirm, isConfirming }: Pro
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
-              initial={{ scale: 0 }}
+              initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
@@ -168,7 +168,7 @@ export function ScanFeedback({ result, onDismiss, onConfirm, isConfirming }: Pro
 
             {result.status === 'VALID' && result.id && (
               <div className="mt-8 flex flex-col gap-3 w-full px-4">
-                <button
+                <button type="button"
                   disabled={isConfirming}
                   onClick={() => onConfirm(result.id!)}
                   className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 active:scale-95 transition-all text-black font-sans font-black italic tracking-wide py-4 uppercase border border-emerald-400 cursor-pointer flex justify-center items-center"
@@ -182,7 +182,7 @@ export function ScanFeedback({ result, onDismiss, onConfirm, isConfirming }: Pro
                     'CONFIRM CHECK-IN'
                   )}
                 </button>
-                <button
+                <button type="button"
                   disabled={isConfirming}
                   onClick={onDismiss}
                   className="w-full border border-white/20 hover:bg-white/10 disabled:opacity-50 active:scale-95 transition-all text-white font-mono text-xs tracking-wider py-3 uppercase cursor-pointer"
@@ -193,7 +193,7 @@ export function ScanFeedback({ result, onDismiss, onConfirm, isConfirming }: Pro
             )}
 
             {result.status !== 'VALID' && (
-              <button
+              <button type="button"
                 onClick={onDismiss}
                 className="mt-8 border border-white/20 hover:bg-white/10 active:scale-95 transition-all text-white font-mono text-xs tracking-wider px-6 py-2.5 uppercase cursor-pointer"
               >

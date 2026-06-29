@@ -81,12 +81,12 @@ export const PartnersTable = () => {
                 <div className="flex flex-col gap-2">
                   {p.status === 'PENDING' && (
                     <>
-                      <button onClick={() => handleUpdateStatus(p.id, 'APPROVED')} className="px-3 py-1 bg-[#00ff00]/10 text-[#00ff00] hover:bg-[#00ff00]/20 text-xs font-mono uppercase tracking-widest transition-colors">Approve</button>
-                      <button onClick={() => handleUpdateStatus(p.id, 'REJECTED')} className="px-3 py-1 bg-[#E10600]/10 text-[#E10600] hover:bg-[#E10600]/20 text-xs font-mono uppercase tracking-widest transition-colors">Reject</button>
+                      <button type="button" onClick={() => handleUpdateStatus(p.id, 'APPROVED')} className="px-3 py-1 bg-[#00ff00]/10 text-[#00ff00] hover:bg-[#00ff00]/20 text-xs font-mono uppercase tracking-widest transition-colors">Approve</button>
+                      <button type="button" onClick={() => handleUpdateStatus(p.id, 'REJECTED')} className="px-3 py-1 bg-[#E10600]/10 text-[#E10600] hover:bg-[#E10600]/20 text-xs font-mono uppercase tracking-widest transition-colors">Reject</button>
                     </>
                   )}
                   {p.status !== 'PENDING' && (
-                    <button onClick={() => handleUpdateStatus(p.id, 'PENDING')} className="px-3 py-1 bg-white/10 text-white/70 hover:bg-white/20 text-xs font-mono uppercase tracking-widest transition-colors">Reset</button>
+                    <button type="button" onClick={() => handleUpdateStatus(p.id, 'PENDING')} className="px-3 py-1 bg-white/10 text-white/70 hover:bg-white/20 text-xs font-mono uppercase tracking-widest transition-colors">Reset</button>
                   )}
                 </div>
               </td>

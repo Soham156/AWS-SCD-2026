@@ -80,7 +80,7 @@ export const SpeakerPage = () => {
 
         {/* Tab Switcher */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-          <button
+          <button type="button"
             onClick={() => setActiveTab('speaker')}
             className={`px-8 py-4 font-mono text-sm uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
               activeTab === 'speaker' 
@@ -90,7 +90,7 @@ export const SpeakerPage = () => {
           >
             <Mic size={18} /> Apply as Speaker
           </button>
-          <button
+          <button type="button"
             onClick={() => setActiveTab('partner')}
             className={`px-8 py-4 font-mono text-sm uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
               activeTab === 'partner' 

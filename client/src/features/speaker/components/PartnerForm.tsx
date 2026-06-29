@@ -7,17 +7,57 @@ import { Handshake } from 'lucide-react';
 const partnerSchema = z.object({
   community_name: z.string().min(2, "Community name is required"),
   community_type: z.string().min(1, "Community type is required"),
-  website_url: z.string().url("Must be a valid URL"),
+  website_url: z.url("Must be a valid URL"),
   member_size: z.string().min(1, "Member size is required"),
   organizer_name: z.string().min(2, "Organizer name is required"),
-  organizer_email: z.string().email("Invalid email address"),
+  organizer_email: z.email("Invalid email address"),
   organizer_phone: z.string().min(10, "Phone number is required"),
-  linkedin_url: z.string().url("Must be a valid URL"),
+  linkedin_url: z.url("Must be a valid URL"),
   city: z.string().min(2, "City is required"),
   expectations: z.string().min(20, "Expectations must be at least 20 characters")
 });
 
 type PartnerFormData = z.infer<typeof partnerSchema>;
+
+const InputField = ({ label, name, placeholder, type = "text", required = false, register, errors }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <input
+      type={type}
+      placeholder={placeholder}
+      {...register(name)}
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-400/50 transition-colors font-sans text-sm"
+    />
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
+
+const SelectField = ({ label, name, options, required = false, register, errors }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <select
+      {...register(name)}
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white focus:outline-none focus:border-blue-400/50 transition-colors font-sans text-sm appearance-none"
+    >
+      <option value="">Select {label.replace(' *', '')}</option>
+      {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+    </select>
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
+
+const TextAreaField = ({ label, name, placeholder, required = false, register, errors }: any) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <textarea
+      placeholder={placeholder}
+      rows={4}
+      {...register(name)}
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-400/50 transition-colors font-sans text-sm resize-y"
+    />
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
 
 export const PartnerForm = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -58,52 +98,12 @@ export const PartnerForm = () => {
         </div>
         <h3 className="text-2xl font-black italic uppercase text-white mb-2">Partnership Application Received</h3>
         <p className="text-white/60 mb-6">Thank you for your interest in partnering with AWS Student Community Day. We will review your application and reach out shortly.</p>
-        <button onClick={() => window.location.reload()} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white font-mono text-xs uppercase tracking-widest transition-colors">
+        <button type="button" onClick={() => window.location.reload()} className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white font-mono text-xs uppercase tracking-widest transition-colors">
           Submit Another
         </button>
       </div>
     );
   }
-
-  const InputField = ({ label, name, placeholder, type = "text", required = false }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        {...register(name)}
-        className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-400/50 transition-colors font-sans text-sm"
-      />
-      {errors[name as keyof PartnerFormData] && <span className="text-[#E10600] text-xs font-mono">{errors[name as keyof PartnerFormData]?.message as string}</span>}
-    </div>
-  );
-
-  const SelectField = ({ label, name, options, required = false }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-      <select
-        {...register(name)}
-        className="bg-[#0a0a0a] border border-white/10 p-3 text-white focus:outline-none focus:border-blue-400/50 transition-colors font-sans text-sm appearance-none"
-      >
-        <option value="">Select {label.replace(' *', '')}</option>
-        {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-      </select>
-      {errors[name as keyof PartnerFormData] && <span className="text-[#E10600] text-xs font-mono">{errors[name as keyof PartnerFormData]?.message as string}</span>}
-    </div>
-  );
-
-  const TextAreaField = ({ label, name, placeholder, required = false }: any) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-      <textarea
-        placeholder={placeholder}
-        rows={4}
-        {...register(name)}
-        className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-blue-400/50 transition-colors font-sans text-sm resize-y"
-      />
-      {errors[name as keyof PartnerFormData] && <span className="text-[#E10600] text-xs font-mono">{errors[name as keyof PartnerFormData]?.message as string}</span>}
-    </div>
-  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8 bg-[#111] p-6 sm:p-10 border border-white/5">
@@ -112,10 +112,10 @@ export const PartnerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-blue-400 border-b border-white/10 pb-2 mb-6">Community Details</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField label="Community Name" name="community_name" placeholder="e.g. AWS Users Dhule" required />
-          <SelectField label="Community Type" name="community_type" required options={['AWS User Group', 'AWS Cloud Club (Student)', 'Developer Circle', 'College Club', 'Non-Profit Organization', 'Other']} />
-          <InputField label="Community Website / Social URL" name="website_url" placeholder="https://mycommunity.org" required />
-          <InputField label="Approximate Member Size" name="member_size" placeholder="e.g. 250" required />
+          <InputField label="Community Name" name="community_name" placeholder="e.g. AWS Users Dhule" required register={register} errors={errors} />
+          <SelectField label="Community Type" name="community_type" required options={['AWS User Group', 'AWS Cloud Club (Student)', 'Developer Circle', 'College Club', 'Non-Profit Organization', 'Other']} register={register} errors={errors} />
+          <InputField label="Community Website / Social URL" name="website_url" placeholder="https://mycommunity.org" required register={register} errors={errors} />
+          <InputField label="Approximate Member Size" name="member_size" placeholder="e.g. 250" required register={register} errors={errors} />
         </div>
       </div>
 
@@ -123,11 +123,11 @@ export const PartnerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-blue-400 border-b border-white/10 pb-2 mb-6">Organizer Contact</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField label="Organizer Full Name" name="organizer_name" placeholder="e.g. John Doe" required />
-          <InputField label="Organizer Email" name="organizer_email" type="email" placeholder="organizer@email.com" required />
-          <InputField label="Organizer Phone" name="organizer_phone" placeholder="+91 99999 99999" required />
-          <InputField label="LinkedIn Profile URL" name="linkedin_url" placeholder="https://linkedin.com/in/username" required />
-          <InputField label="City / Operations Base" name="city" placeholder="e.g. Dhule, Nashik, Jalgaon" required />
+          <InputField label="Organizer Full Name" name="organizer_name" placeholder="e.g. John Doe" required register={register} errors={errors} />
+          <InputField label="Organizer Email" name="organizer_email" type="email" placeholder="organizer@email.com" required register={register} errors={errors} />
+          <InputField label="Organizer Phone" name="organizer_phone" placeholder="+91 99999 99999" required register={register} errors={errors} />
+          <InputField label="LinkedIn Profile URL" name="linkedin_url" placeholder="https://linkedin.com/in/username" required register={register} errors={errors} />
+          <InputField label="City / Operations Base" name="city" placeholder="e.g. Dhule, Nashik, Jalgaon" required register={register} errors={errors} />
         </div>
       </div>
 
@@ -135,7 +135,7 @@ export const PartnerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-blue-400 border-b border-white/10 pb-2 mb-6">Partnership Details</h4>
         <div className="flex flex-col gap-6">
-          <TextAreaField label="Expectations & Contribution Plans" name="expectations" placeholder="Briefly share how your community will support co-marketing, handle ticket promo codes, or suggest student volunteers..." required />
+          <TextAreaField label="Expectations & Contribution Plans" name="expectations" placeholder="Briefly share how your community will support co-marketing, handle ticket promo codes, or suggest student volunteers..." required register={register} errors={errors} />
         </div>
       </div>
 

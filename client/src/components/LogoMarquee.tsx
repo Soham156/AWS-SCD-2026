@@ -65,7 +65,6 @@ export const LogoMarquee = () => {
             <img
               src="/AWS_logo1.avif"
               alt="AWS Logo"
-              tabIndex={0}
               width={120}
               height={48}
               loading="lazy"
@@ -76,7 +75,6 @@ export const LogoMarquee = () => {
             <img
               src="/ARIF-white.png"
               alt="ARIF Logo"
-              tabIndex={0}
               width={120}
               height={64}
               loading="lazy"
@@ -87,7 +85,6 @@ export const LogoMarquee = () => {
             <img
               src="/AWS_Builder.png"
               alt="AWS Builder Logo"
-              tabIndex={0}
               width={120}
               height={48}
               loading="lazy"

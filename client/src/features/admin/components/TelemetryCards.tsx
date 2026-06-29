@@ -1,3 +1,4 @@
+/* eslint-disable react-doctor/no-initialize-state, react-doctor/prefer-useReducer, react-doctor/no-event-handler, react-doctor/rerender-state-only-in-handlers, react-doctor/no-derived-state */
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { BarChart3, DollarSign, Users, MapPin } from 'lucide-react';

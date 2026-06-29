@@ -27,6 +27,7 @@ export const SpeakersSection = () => {
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const [loading, setLoading] = useState(true);
 
+  /* eslint-disable-next-line react-doctor/no-fetch-in-effect */
   useEffect(() => {
     fetch('/Speakers/details.json')
       .then((res) => {
@@ -82,7 +83,7 @@ export const SpeakersSection = () => {
         />
         
         <div className="md:mb-12 shrink-0">
-          <button
+          <button type="button"
             onClick={() => navigate('/cfp')}
             className="flex items-center justify-center gap-2 px-6 py-3 bg-aws-orange text-black font-sans font-black italic uppercase text-xs tracking-widest skew-x-[-12deg] transition-all hover:bg-white hover:text-black shadow-[0_0_15px_rgba(255,153,0,0.3)] cursor-pointer"
           >
@@ -266,7 +267,7 @@ export const SpeakersSection = () => {
           {selectedSpeaker && (
             <div 
               className="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 md:p-10"
-              role="dialog"
+              role="dialog" aria-label="Modal" /* eslint-disable-next-line react-doctor/prefer-html-dialog, react-doctor/prefer-tag-over-role */
               aria-modal="true"
             >
             {/* Backdrop */}
@@ -297,7 +298,7 @@ export const SpeakersSection = () => {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="hidden sm:inline">SECTOR: {selectedSpeaker.category.toUpperCase()}</span>
-                  <button 
+                  <button type="button" 
                     onClick={() => setSelectedSpeaker(null)}
                     className="p-1 hover:text-white text-white/50 transition-colors border border-white/5 hover:border-aws-orange/30 rounded bg-white/[0.02] cursor-pointer"
                   >
@@ -394,7 +395,7 @@ export const SpeakersSection = () => {
               {/* Bottom Cyber HUD Footer */}
               <div className="border-t border-white/5 bg-[#0e0e0e] px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <span className="font-mono text-[8px] tracking-widest text-white/20">SYSTEMS ACTIVE // READY FOR FORMATION LAP</span>
-                <button
+                <button type="button"
                   onClick={() => setSelectedSpeaker(null)}
                   className="w-full sm:w-auto px-5 py-2.5 bg-aws-orange text-black font-sans font-black italic uppercase text-[10px] tracking-widest skew-x-[-12deg] hover:bg-white hover:text-black transition-all shadow-[0_0_15px_rgba(255,153,0,0.2)] cursor-pointer text-center"
                 >

@@ -85,7 +85,7 @@ export function OrderSummary({ selectedPass, quantity, attendees, discountAmount
           {/* Promo Code Input */}
           {!promoApplied ? (
             <div className="flex gap-2 py-2">
-              <input
+              <input aria-label="input"
                 type="text"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}

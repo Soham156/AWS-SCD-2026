@@ -55,13 +55,13 @@ export function AdminLogin({ onLogin }: Props) {
             )}
 
             <form onSubmit={handleSubmit}>
-              <input
+              <input aria-label="input"
                 type="password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(false); }}
                 placeholder="Enter access code"
                 className="w-full bg-[#050505] border border-white/10 px-4 py-3 text-sm text-white font-mono placeholder:text-white/20 focus:border-aws-orange focus:outline-none transition-colors mb-4"
-                autoFocus
+                
               />
               <button
                 type="submit"

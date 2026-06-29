@@ -100,14 +100,14 @@ export const FAQSection = () => {
           
           return (
             <motion.div
-              key={i}
+              key={faq.question}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05, duration: 0.4 }}
               className="group"
             >
-              <button
+              <button type="button"
                 onClick={() => setOpenIndex(isOpen ? null : i)}
                 className={`w-full flex items-center justify-between p-5 sm:p-6 border text-left transition-colors duration-300 ${
                   isOpen 
@@ -150,7 +150,7 @@ export const FAQSection = () => {
         {!showAll && faqs.length > 5 && (
           <div className="flex flex-col items-center mt-8 gap-3">
             <p className="text-white/50 font-sans italic text-sm">Still some questions?</p>
-            <button 
+            <button type="button" 
               onClick={() => setShowAll(true)}
               className="px-8 py-3 bg-[#0a0a0a] hover:bg-aws-orange text-white text-sm font-black font-sans uppercase italic tracking-wider transition-all duration-300 border border-white/10 hover:border-aws-orange shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,153,0,0.4)]"
             >

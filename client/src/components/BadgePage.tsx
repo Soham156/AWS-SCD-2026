@@ -202,14 +202,14 @@ export const BadgePage = () => {
                 <h3 className="text-lg font-bold text-white mb-0.5">Select your photo</h3>
                 <p className="text-sm text-white/50 mb-3">A clear, face-forward photo works best.</p>
                 <div className="relative">
-                  <input 
+                  <input aria-label="input" 
                     type="file" 
                     accept="image/*" 
                     onChange={handleImageUpload}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     title="Choose photo"
                   />
-                  <button className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 rounded-lg text-white font-medium transition-all focus:outline-none focus:ring-2 focus:ring-aws-orange w-max">
+                  <button type="button" className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 rounded-lg text-white font-medium transition-all focus:outline-none focus:ring-2 focus:ring-aws-orange w-max">
                     <Upload className="w-4 h-4" />
                     {image ? 'Change photo' : 'Choose photo'}
                   </button>
@@ -225,7 +225,7 @@ export const BadgePage = () => {
               <div className="flex flex-col flex-grow w-full max-w-md">
                 <h3 className="text-lg font-bold text-white mb-0.5">Add your name</h3>
                 <p className="text-sm text-white/50 mb-3">It'll appear prominently on your badge.</p>
-                <input 
+                <input aria-label="input" 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -244,7 +244,7 @@ export const BadgePage = () => {
               <div className="flex flex-col flex-grow w-full max-w-md">
                 <h3 className="text-lg font-bold text-white mb-0.5">Select your role</h3>
                 <p className="text-sm text-white/50 mb-3">Attendee, VIP, Speaker, etc.</p>
-                <input 
+                <input aria-label="input" 
                   type="text" 
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
@@ -264,7 +264,7 @@ export const BadgePage = () => {
                 <h3 className="text-lg font-bold text-white mb-0.5">Download & share</h3>
                 <p className="text-sm text-white/50 mb-3">Post it on LinkedIn and tag <strong className="text-white">#SCDDhule2026</strong>.</p>
                 
-                <button 
+                <button type="button" 
                   onClick={handleDownload}
                   disabled={!image || !name || isGenerating}
                   className={`flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold uppercase tracking-wider text-sm transition-all w-full sm:w-auto max-w-md ${

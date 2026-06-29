@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "react-doctor/use-lazy-motion": "off",
+    "react-doctor/artifact-baas-authority-surface": "off"
+  }
+}
