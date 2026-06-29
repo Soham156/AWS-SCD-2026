@@ -21,7 +21,7 @@ export const TicketsSection = () => {
       {loading ? (
         <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
           {[1,2,3]/* eslint-disable-next-line react-doctor/js-combine-iterations */
-                  .map(i => <div key={i} className="w-full sm:w-[320px]"><SkeletonCard /></div>)}
+                  .map(i => <div key={i} className="w-full sm:w-[320px] max-w-[340px]"><SkeletonCard /></div>)}
         </div>
       ) : (
         <>
@@ -46,7 +46,7 @@ export const TicketsSection = () => {
                   borderColor: `${hex}66`, 
                   boxShadow: isDisabled ? 'none' : `0 0 40px ${hex}26` 
                 }}
-                className={`relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[580px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
+                className={`relative text-left w-full sm:w-[320px] max-w-[340px] mx-auto rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[580px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
               >
                 {/* Event Badge Top Bar */}
                 <div className="h-10 flex justify-between items-center px-5 z-20" style={{ backgroundColor: `${hex}1A`, color: hex }}>
@@ -61,12 +61,12 @@ export const TicketsSection = () => {
                   {/* Header Area (symmetric height for title & price) */}
                   <div className="min-h-[160px] flex flex-col justify-between mb-4">
                     {/* Status & Name */}
-                    <div className="flex justify-between items-start gap-2">
+                    <div className="flex justify-between items-start ">
                       <div>
-                        <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
+                        <p className="font-mono text-[10px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
                           {tier.slug}
                         </p>
-                        <h3 className="font-sans font-black italic text-2xl uppercase tracking-tight text-white leading-none">
+                        <h3 className="font-sans font-black italic text-xl sm:text-2xl uppercase tracking-tight text-white leading-none mt-6 sm:mt-8">
                           {tier.name}
                         </h3>
                       </div>
@@ -94,7 +94,7 @@ export const TicketsSection = () => {
                     </div>
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-1">
+                    <div className="flex items-baseline gap-1 mt-0">
                       <span className="font-sans font-bold text-lg text-white/40">₹</span>
                       <span className="font-sans font-black italic text-4xl tracking-tighter text-white">
                         {tier.price}
