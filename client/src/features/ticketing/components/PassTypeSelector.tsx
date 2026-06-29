@@ -11,7 +11,7 @@ interface Props {
 
 export function SkeletonCard() {
   return (
-    <div className="border border-white/5 bg-[#111] p-6 animate-pulse rounded-[1.5rem] min-h-[580px] w-full max-w-[340px] mx-auto">
+    <div className="border border-white/5 bg-[#111] p-6 animate-pulse rounded-[1.5rem] min-h-[440px] w-full sm:w-[320px] max-w-[340px]">
       <div className="h-4 w-20 bg-white/10 rounded mb-6" />
       <div className="h-6 w-32 bg-white/10 rounded mb-2" />
       <div className="h-3 w-24 bg-white/10 rounded mb-4" />
@@ -61,7 +61,7 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
               borderColor: disabled ? '#ffffff0D' : `${hex}66`, 
               boxShadow: disabled ? 'none' : `0 0 40px ${hex}26` 
             }}
-            className={`relative text-left w-full sm:w-[320px] max-w-[340px] mx-auto rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[580px] group transition-all duration-300 ${
+            className={`relative text-left w-full sm:w-[320px] max-w-[340px] mx-auto rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[440px] group transition-all duration-300 ${
               disabled
                 ? locked ? 'opacity-70' : 'opacity-50 grayscale'
                 : `hover:-translate-y-1`
@@ -75,7 +75,7 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
 
             <div className="p-5 flex-1 flex flex-col relative z-20">
               {/* Header Area (symmetric height for title, description & price) */}
-              <div className="min-h-[160px] flex flex-col justify-between mb-4">
+              <div className="min-h-[110px] flex flex-col justify-between mb-4">
                 <div>
                   {/* Status & Name */}
                   <div className="flex justify-between items-start gap-2">
@@ -83,7 +83,7 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
                       <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
                         {pass.slug}
                       </p>
-                      <h3 className="font-sans font-black italic text-xl uppercase tracking-tighter text-white leading-none">
+                      <h3 className="font-sans font-black italic text-xl uppercase tracking-tighter text-white leading-none mt-">
                         {pass.name}
                       </h3>
                     </div>
@@ -105,7 +105,6 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
                     )}
                   </div>
 
-                  <p className="font-mono text-[9px] text-white/40 mt-3 line-clamp-2">{pass.description}</p>
                 </div>
 
                 {/* Price */}

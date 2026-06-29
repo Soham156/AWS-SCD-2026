@@ -46,7 +46,7 @@ export const TicketsSection = () => {
                   borderColor: `${hex}66`, 
                   boxShadow: isDisabled ? 'none' : `0 0 40px ${hex}26` 
                 }}
-                className={`relative text-left w-full sm:w-[320px] max-w-[340px] mx-auto rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[580px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
+                className={`relative text-left w-full sm:w-[320px] max-w-[340px]  rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[440px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
               >
                 {/* Event Badge Top Bar */}
                 <div className="h-10 flex justify-between items-center px-5 z-20" style={{ backgroundColor: `${hex}1A`, color: hex }}>
@@ -59,7 +59,7 @@ export const TicketsSection = () => {
 
                 <div className="p-5 flex-1 flex flex-col relative z-20">
                   {/* Header Area (symmetric height for title & price) */}
-                  <div className="min-h-[160px] flex flex-col justify-between mb-4">
+                  <div className="h-[150px] flex flex-col justify-between mb-4">
                     {/* Status & Name */}
                     <div className="flex justify-between items-start ">
                       <div>
@@ -94,7 +94,7 @@ export const TicketsSection = () => {
                     </div>
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-1 mt-0">
+                    <div className="flex items-baseline gap-1 mt-5">
                       <span className="font-sans font-bold text-lg text-white/40">₹</span>
                       <span className="font-sans font-black italic text-4xl tracking-tighter text-white">
                         {tier.price}
