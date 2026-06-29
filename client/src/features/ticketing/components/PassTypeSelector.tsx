@@ -74,42 +74,47 @@ export function PassTypeSelector({ passes, loading, onSelect }: Props) {
             </div>
 
             <div className="p-5 flex-1 flex flex-col relative z-20">
-              {/* Status & Name */}
-              <div className="flex justify-between items-start mb-3 gap-2">
+              {/* Header Area (symmetric height for title, description & price) */}
+              <div className="min-h-[160px] flex flex-col justify-between mb-4">
                 <div>
-                  <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
-                    {pass.slug}
-                  </p>
-                  <h3 className="font-sans font-black italic text-xl uppercase tracking-tighter text-white leading-none">
-                    {pass.name}
-                  </h3>
+                  {/* Status & Name */}
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
+                        {pass.slug}
+                      </p>
+                      <h3 className="font-sans font-black italic text-xl uppercase tracking-tighter text-white leading-none">
+                        {pass.name}
+                      </h3>
+                    </div>
+                    
+                    {locked ? (
+                      <div 
+                        className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
+                        style={{ color: '#f59e0b', borderColor: '#f59e0b4D', backgroundColor: '#f59e0b1A' }}
+                      >
+                        Opening Soon
+                      </div>
+                    ) : label && (
+                      <div 
+                        className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
+                        style={{ color: hex, borderColor: `${hex}4D`, backgroundColor: `${hex}1A` }}
+                      >
+                        {label}
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="font-mono text-[9px] text-white/40 mt-3 line-clamp-2">{pass.description}</p>
                 </div>
-                
-                {locked ? (
-                  <div 
-                    className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
-                    style={{ color: '#f59e0b', borderColor: '#f59e0b4D', backgroundColor: '#f59e0b1A' }}
-                  >
-                    Opening Soon
-                  </div>
-                ) : label && (
-                  <div 
-                    className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
-                    style={{ color: hex, borderColor: `${hex}4D`, backgroundColor: `${hex}1A` }}
-                  >
-                    {label}
-                  </div>
-                )}
-              </div>
 
-              <p className="font-mono text-[9px] text-white/40 mb-4 line-clamp-2">{pass.description}</p>
-
-              {/* Price */}
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="font-sans font-bold text-base text-white/50">₹</span>
-                <span className="font-sans font-black italic text-3xl tracking-tighter text-white">
-                  {pass.price}
-                </span>
+                {/* Price */}
+                <div className="flex items-baseline gap-1">
+                  <span className="font-sans font-bold text-base text-white/50">₹</span>
+                  <span className="font-sans font-black italic text-3xl tracking-tighter text-white">
+                    {pass.price}
+                  </span>
+                </div>
               </div>
 
               {/* Perks */}

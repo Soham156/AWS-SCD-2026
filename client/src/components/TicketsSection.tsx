@@ -46,7 +46,7 @@ export const TicketsSection = () => {
                   borderColor: `${hex}66`, 
                   boxShadow: isDisabled ? 'none' : `0 0 40px ${hex}26` 
                 }}
-                className={`relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col h-full group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
+                className={`relative text-left w-full sm:w-[320px] max-w-full rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[580px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
               >
                 {/* Event Badge Top Bar */}
                 <div className="h-10 flex justify-between items-center px-5 z-20" style={{ backgroundColor: `${hex}1A`, color: hex }}>
@@ -58,45 +58,48 @@ export const TicketsSection = () => {
                 <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-2.5 rounded-full bg-[#050505] shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] z-30" />
 
                 <div className="p-5 flex-1 flex flex-col relative z-20">
-                  {/* Status & Name */}
-                  <div className="flex justify-between items-start mb-4 gap-2">
-                    <div>
-                      <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
-                        {tier.slug}
-                      </p>
-                      <h3 className="font-sans font-black italic text-2xl uppercase tracking-tight text-white leading-none">
-                        {tier.name}
-                      </h3>
-                    </div>
-                    
-                    {(!registrationEnabled || isLocked || label) && (
-                      <div 
-                        className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
-                        style={!registrationEnabled ? { 
-                          color: '#00ffff', 
-                          borderColor: '#00ffff4D', 
-                          backgroundColor: '#00ffff1A' 
-                        } : isLocked ? {
-                          color: '#f59e0b',
-                          borderColor: '#f59e0b4D',
-                          backgroundColor: '#f59e0b1A'
-                        } : {
-                          color: hex, 
-                          borderColor: `${hex}4D`, 
-                          backgroundColor: `${hex}1A` 
-                        }}
-                      >
-                        {!registrationEnabled ? "UPCOMING" : isLocked ? "Opening Soon" : label}
+                  {/* Header Area (symmetric height for title & price) */}
+                  <div className="min-h-[160px] flex flex-col justify-between mb-4">
+                    {/* Status & Name */}
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="font-mono text-[9px] tracking-widest uppercase mb-1 font-bold" style={{ color: hex }}>
+                          {tier.slug}
+                        </p>
+                        <h3 className="font-sans font-black italic text-2xl uppercase tracking-tight text-white leading-none">
+                          {tier.name}
+                        </h3>
                       </div>
-                    )}
-                  </div>
+                      
+                      {(!registrationEnabled || isLocked || label) && (
+                        <div 
+                          className="font-mono text-[8px] tracking-widest uppercase px-2 py-1 border rounded-sm text-center shrink-0"
+                          style={!registrationEnabled ? { 
+                            color: '#00ffff', 
+                            borderColor: '#00ffff4D', 
+                            backgroundColor: '#00ffff1A' 
+                          } : isLocked ? {
+                            color: '#f59e0b',
+                            borderColor: '#f59e0b4D',
+                            backgroundColor: '#f59e0b1A'
+                          } : {
+                            color: hex, 
+                            borderColor: `${hex}4D`, 
+                            backgroundColor: `${hex}1A` 
+                          }}
+                        >
+                          {!registrationEnabled ? "UPCOMING" : isLocked ? "Opening Soon" : label}
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Price */}
-                  <div className="flex items-baseline gap-1 mb-5">
-                    <span className="font-sans font-bold text-lg text-white/40">₹</span>
-                    <span className="font-sans font-black italic text-4xl tracking-tighter text-white">
-                      {tier.price}
-                    </span>
+                    {/* Price */}
+                    <div className="flex items-baseline gap-1">
+                      <span className="font-sans font-bold text-lg text-white/40">₹</span>
+                      <span className="font-sans font-black italic text-4xl tracking-tighter text-white">
+                        {tier.price}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Dashed Separator */}
