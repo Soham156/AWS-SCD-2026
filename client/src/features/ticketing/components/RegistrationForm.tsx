@@ -142,7 +142,7 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
   };
 
   const removeMember = (indexToRemove: number) => {
-    if (indexToRemove === 0) return; // Cannot remove primary buyer
+    if (indexToRemove === 0) return; // Cannot remove primary registrant
     setAttendees(prev => prev.filter((_, i) => i !== indexToRemove));
     // Clear errors for this member and shift subsequent errors
     setFieldErrors(e => {
@@ -247,7 +247,7 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
             <p className="font-sans font-black italic text-sm uppercase tracking-tight text-white">
               {selectedPass.name}
             </p>
-            <p className="font-mono text-xs text-white/40">Total Attendees: {attendees.length}</p>
+            <p className="font-mono text-xs text-white/40">Selected Passes: {attendees.length}</p>
           </div>
         </div>
       </div>
@@ -264,7 +264,7 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
           <div key={index} className="space-y-4 border border-white/10 p-3 sm:p-5 bg-[#0a0a0a] relative">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-sans font-bold text-aws-orange uppercase text-sm">
-                {index === 0 ? 'Primary Buyer (Attendee 1)' : `Attendee ${index + 1}`}
+                {index === 0 ? 'Primary Registrant (Attendee 1)' : `Attendee ${index + 1}`}
               </h3>
               {index > 0 && (
                 <button

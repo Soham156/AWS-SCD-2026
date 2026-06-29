@@ -17,7 +17,7 @@ const contentMap: Record<string, ReactNode> = {
         SVKM's Institute of Technology,<br />
         Survey No. 499, Plot No. 2, Behind Gurudwara,<br />
         Mumbai - Agra National Highway,<br />
-        Dhule, Maharashtra 424311
+        Dhule, Maharashtra 424001
       </p>
       <a 
         href="https://maps.google.com/?q=SVKM's+Institute+of+Technology,+Dhule" 
@@ -52,14 +52,14 @@ const contentMap: Record<string, ReactNode> = {
   road: (
     <div className="flex flex-col gap-4">
       <p className="font-sans text-sm sm:text-base text-white/70 leading-relaxed">
-        The campus is conveniently located right on the <strong className="text-white">Mumbai-Agra National Highway (NH 52)</strong>. It is easily accessible by state transport buses and private vehicles.
+        Dhule is a major highway hub. The campus is located directly on the <strong className="text-white">Mumbai-Agra National Highway (NH 3)</strong> and connects seamlessly to other major routes including the <strong className="text-white">Surat-Nagpur National Highway (NH 6)</strong> and the <strong className="text-white">Dhule-Solapur National Highway (NH 52)</strong>.
       </p>
       <div className="grid grid-cols-2 gap-2 mt-2">
         {[
           { city: "Mumbai", time: "~ 6 hours" },
           { city: "Pune", time: "~ 5.5 hours" },
           { city: "Nashik", time: "~ 3 hours" },
-          { city: "Aurangabad", time: "~ 3.5 hours" },
+          { city: "Chhatrapati Sambhajinagar", time: "~ 3.5 hours" },
         ].map(route => (
           <div key={route.city} className="bg-[#0a0a0a] border border-white/5 p-3 flex flex-col">
             <span className="font-sans font-bold text-white text-sm">{route.city}</span>
@@ -76,12 +76,12 @@ const contentMap: Record<string, ReactNode> = {
       </p>
       <ul className="flex flex-col gap-3 mt-2">
         <li className="flex flex-col bg-[#0a0a0a] p-3 border border-white/5">
-          <span className="font-sans font-bold text-white">Nashik Airport (ISK)</span>
-          <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mt-1">Approx. 150km • 3 hr drive</span>
+          <span className="font-sans font-bold text-white">Jalgaon Airport (JLG)</span>
+          <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mt-1">Approx. 90km • 2 hr drive</span>
         </li>
         <li className="flex flex-col bg-[#0a0a0a] p-3 border border-white/5">
-          <span className="font-sans font-bold text-white">Aurangabad Airport (IXU)</span>
-          <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mt-1">Approx. 150km • 3.5 hr drive</span>
+          <span className="font-sans font-bold text-white">Nashik Airport (ISK)</span>
+          <span className="font-mono text-[10px] text-blue-400 uppercase tracking-widest mt-1">Approx. 150km • 3 hr drive</span>
         </li>
       </ul>
       <p className="font-sans text-xs text-white/50 mt-2">
