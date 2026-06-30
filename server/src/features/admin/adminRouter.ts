@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { adminKeyGuard } from '../../shared/middleware/adminKeyGuard.js';
-import { authLimiter } from '../../shared/middleware/rateLimiter.js';
+import { authLimiter, adminLimiter } from '../../shared/middleware/rateLimiter.js';
 
 const router = Router();
+
+// Apply rate limiting to all admin routes
+router.use(adminLimiter);
 
 // GET /api/admin/verify
 router.get('/verify', authLimiter, adminKeyGuard, (_req, res) => {

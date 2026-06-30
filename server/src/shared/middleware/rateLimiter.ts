@@ -37,3 +37,12 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many login attempts. Please try again later.' },
 });
+
+export const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many admin operations from this IP. Please try again later.' },
+});
+

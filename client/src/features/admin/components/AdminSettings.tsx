@@ -56,8 +56,8 @@ export const AdminSettings = () => {
         Manage global application state such as enabling or pausing ticket registrations.
       </p>
 
-      <div className="flex items-center justify-between border-t border-white/5 pt-6">
-        <div>
+      <div className="flex items-start md:items-center justify-between gap-4 border-t border-white/5 pt-6">
+        <div className="flex-1">
           <h4 className="text-sm text-white font-medium">Ticket Registrations</h4>
           <p className="text-xs text-white/40 mt-1">
             When disabled, the site will show "OPENING SOON" instead of allowing users to purchase tickets.
@@ -66,7 +66,7 @@ export const AdminSettings = () => {
         <button aria-label="button" type="button"
           onClick={toggleRegistration}
           disabled={saving}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none shrink-0 ${
             registrationEnabled ? 'bg-aws-orange' : 'bg-white/10'
           }`}
         >

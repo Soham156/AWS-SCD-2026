@@ -334,38 +334,40 @@ export function PromoCodesManager() {
                     No orders have used this promo code yet.
                   </div>
                 ) : (
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-white/5 font-mono text-[10px] uppercase tracking-widest text-white/40">
-                        <th className="pb-3 font-normal">Order ID</th>
-                        <th className="pb-3 font-normal">Primary Email</th>
-                        <th className="pb-3 font-normal">Date</th>
-                        <th className="pb-3 font-normal text-right">Discount</th>
-                        <th className="pb-3 font-normal text-right">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {viewingOrders.orders.map(order => (
-                        <tr key={order.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                          <td className="py-3 font-mono text-[10px] text-white/50">
-                            {order.id.split('-')[0]}...
-                          </td>
-                          <td className="py-3 font-sans text-sm text-white">
-                            {order.primary_email || 'Pending'}
-                          </td>
-                          <td className="py-3 font-mono text-xs text-white/50">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="py-3 font-mono text-sm text-aws-orange text-right">
-                            ₹{order.discount}
-                          </td>
-                          <td className="py-3 font-sans font-bold text-white text-right">
-                            ₹{order.total_amount}
-                          </td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/5 font-mono text-[10px] uppercase tracking-widest text-white/40">
+                          <th className="pb-3 font-normal">Order ID</th>
+                          <th className="pb-3 font-normal">Primary Email</th>
+                          <th className="pb-3 font-normal">Date</th>
+                          <th className="pb-3 font-normal text-right">Discount</th>
+                          <th className="pb-3 font-normal text-right">Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {viewingOrders.orders.map(order => (
+                          <tr key={order.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td className="py-3 font-mono text-[10px] text-white/50">
+                              {order.id.split('-')[0]}...
+                            </td>
+                            <td className="py-3 font-sans text-sm text-white">
+                              {order.primary_email || 'Pending'}
+                            </td>
+                            <td className="py-3 font-mono text-xs text-white/50">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="py-3 font-mono text-sm text-aws-orange text-right">
+                              ₹{order.discount}
+                            </td>
+                            <td className="py-3 font-sans font-bold text-white text-right">
+                              ₹{order.total_amount}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
             </motion.div>
