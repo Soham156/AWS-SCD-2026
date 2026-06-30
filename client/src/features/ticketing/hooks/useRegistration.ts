@@ -100,8 +100,16 @@ export function useRegistration() {
         return;
       }
 
-      // If returning from Cashfree, give the webhook up to 30 seconds to arrive
+      // Returning from Cashfree: actively confirm with the gateway instead of
+      // just waiting for the webhook. verify-payment fulfills the order server-side
+      // if Cashfree reports it paid, so this no longer depends on the webhook arriving.
       if (shouldVerify && (data.payment_status === 'PENDING' || data.payment_status === 'INITIATED') && pollAttempts < 15) {
+        try {
+          const v = await api.post(`/api/orders/${orderId}/verify-payment`);
+          if (v.data?.payment_status === 'PAID') {
+            return restoreOrder(orderId, false, 0); // reload full paid state → step 5
+          }
+        } catch { /* transient (e.g. gateway slow); fall through and retry */ }
         setTimeout(() => restoreOrder(orderId, true, pollAttempts + 1), 2000);
         return;
       }

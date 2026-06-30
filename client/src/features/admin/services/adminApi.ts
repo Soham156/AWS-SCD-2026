@@ -34,9 +34,6 @@ export const adminApi = {
   createPassType: (data: Record<string, any>) =>
     api.post('/api/admin/passes', data, { headers: getHeaders() }),
 
-  refund: (registration_id: string) =>
-    api.post('/api/admin/refund', { registration_id }, { headers: getHeaders() }),
-
   sendShoutout: (data: { mimeMessage: string }) =>
     api.post('/api/admin/shoutout', data, { headers: getHeaders() }),
 };

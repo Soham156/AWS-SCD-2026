@@ -123,12 +123,21 @@ router.post('/checkin', async (req, res, next) => {
     }
 
     const now = new Date().toISOString();
-    const { error: updateError } = await supabase
+    // Guard against a check-in race: only the update that flips checked_in
+    // false→true matches. A concurrent scan finds 0 rows and is rejected.
+    const { data: updated, error: updateError } = await supabase
       .from('registrations')
       .update({ checked_in: true, checked_in_at: now })
-      .eq('id', registration.id);
+      .eq('id', registration.id)
+      .eq('checked_in', false)
+      .select('id');
 
     if (updateError) throw updateError;
+
+    if (!updated || updated.length === 0) {
+      res.status(400).json({ error: 'Attendee is already checked in' });
+      return;
+    }
 
     const passData = registration.pass_types as any;
     res.json({
@@ -153,7 +162,8 @@ router.post('/search', async (req, res, next) => {
       return;
     }
 
-    const cleanQuery = query.trim();
+    // Strip PostgREST filter metacharacters before interpolating into .or()
+    const cleanQuery = query.trim().replace(/[%_.,()\/\[\]]/g, '');
 
     const { data: registrations, error } = await supabase
       .from('registrations')

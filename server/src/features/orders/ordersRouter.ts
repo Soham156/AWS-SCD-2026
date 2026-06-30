@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../../shared/lib/supabase.js';
+import { fulfillOrder } from '../../shared/lib/fulfillOrder.js';
 
 const router = Router();
 
@@ -103,6 +104,58 @@ router.get('/:id', async (req, res, next) => {
       .eq('order_id', id);
 
     res.json({ ...order, attendees: attendees || [] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/orders/:id/verify-payment
+// Primary fulfillment path: when the payer returns from Cashfree, confirm the
+// payment with the gateway directly instead of waiting for the webhook to arrive.
+router.post('/:id/verify-payment', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Latest payment session for this order
+    const { data: payment } = await supabase
+      .from('payments')
+      .select('cashfree_order_id, status')
+      .eq('order_id', id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!payment) {
+      res.status(404).json({ error: 'NO_PAYMENT', payment_status: 'PENDING' });
+      return;
+    }
+
+    // Already settled in our DB (the webhook may have beaten us here) —
+    // short-circuit so we don't hit the Cashfree API on every poll.
+    if (payment.status === 'paid') {
+      res.json({ payment_status: 'PAID' });
+      return;
+    }
+
+    // Ask Cashfree the source of truth.
+    const isSandbox = process.env.CASHFREE_APP_ID?.startsWith('TEST');
+    const baseUrl = isSandbox ? 'https://sandbox.cashfree.com/pg' : 'https://api.cashfree.com/pg';
+    const cfRes = await fetch(`${baseUrl}/orders/${payment.cashfree_order_id}`, {
+      headers: {
+        'x-api-version': '2023-08-01',
+        'x-client-id': process.env.CASHFREE_APP_ID || '',
+        'x-client-secret': process.env.CASHFREE_SECRET_KEY || '',
+      },
+    });
+    const cfData = await cfRes.json();
+
+    if (cfRes.ok && cfData?.order_status === 'PAID') {
+      await fulfillOrder(payment.cashfree_order_id, { gatewayResponse: cfData });
+      res.json({ payment_status: 'PAID' });
+      return;
+    }
+
+    res.json({ payment_status: 'PENDING' });
   } catch (err) {
     next(err);
   }

@@ -17,7 +17,6 @@ export function RegistrationsTable() {
     checked_in: '',
     email_status: '',
   });
-  const [refunding, setRefunding] = useState<string | null>(null);
   const [passTypes, setPassTypes] = useState<{slug: string; name: string}[]>([]);
   const limit = 50;
 
@@ -52,19 +51,6 @@ export function RegistrationsTable() {
       supabase.removeChannel(channel);
     };
   }, [fetchData]);
-
-  const handleRefund = async (registrationId: string) => {
-    if (!confirm('Are you sure you want to refund this registration?')) return;
-    setRefunding(registrationId);
-    try {
-      await adminApi.refund(registrationId);
-      fetchData();
-    } catch (err) {
-      alert('Refund failed');
-    } finally {
-      setRefunding(null);
-    }
-  };
 
   const totalPages = Math.ceil(total / limit);
 
@@ -169,7 +155,30 @@ export function RegistrationsTable() {
                       {r.pass_slug}
                     </span>
                   </td>
-                  <td className="py-2 px-3 font-sans text-white">{r.full_name}</td>
+                  <td className="py-2 px-3 font-sans text-white">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span>{r.full_name}</span>
+                        {r.orders?.quantity > 1 && (
+                          <span className={`inline-block px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-sm border ${
+                            r.orders.primary_email === r.email 
+                              ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
+                              : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                          }`}>
+                            {r.orders.primary_email === r.email ? 'Primary Buyer' : 'Group Member'}
+                          </span>
+                        )}
+                      </div>
+                      {r.orders?.quantity > 1 && (
+                        <span className="text-[10px] text-white/40 font-mono">
+                          {r.orders.primary_email === r.email 
+                            ? `Bought ${r.orders.quantity} tickets`
+                            : `Bought by: ${r.orders.primary_email}`
+                          }
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="py-2 px-3 font-mono text-white/50">{r.email}</td>
                   <td className="py-2 px-3 font-mono text-white/50">{r.phone || '-'}</td>
                   <td className="py-2 px-3 font-mono text-white/30 uppercase text-[10px]">{r.role}</td>

@@ -166,6 +166,31 @@ setInterval(async () => {
       }
       console.log(`[Session Cleanup] Released tickets for ${expiredPayments.length} expired sessions.`);
     }
+
+    // Clear orphan orders unused for 30 min: created but never reached /attendees
+    // (no email). These hold no inventory. PAID orders are kept safe regardless.
+    const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const { data: orphanOrders, error: orphanErr } = await supabase
+      .from('orders')
+      .select('id')
+      .is('primary_email', null)
+      .neq('payment_status', 'PAID')
+      .lt('created_at', thirtyMinsAgo);
+
+    if (orphanErr) {
+      console.error('[Session Cleanup] Failed to fetch orphan orders:', orphanErr);
+    } else if (orphanOrders && orphanOrders.length > 0) {
+      const orphanIds = orphanOrders.map(o => o.id);
+      // Remove any dependents first to satisfy FK constraints, then the orders.
+      await supabase.from('payments').delete().in('order_id', orphanIds);
+      await supabase.from('registrations').delete().in('order_id', orphanIds);
+      const { error: deleteOrdersErr } = await supabase.from('orders').delete().in('id', orphanIds);
+      if (deleteOrdersErr) {
+        console.error('[Session Cleanup] Failed to delete orphan orders:', deleteOrdersErr);
+      } else {
+        console.log(`[Session Cleanup] Deleted ${orphanIds.length} orphan order(s) unused for 30 min.`);
+      }
+    }
   } catch (err) {
     console.error('[Session Cleanup] Unexpected error:', err);
   }

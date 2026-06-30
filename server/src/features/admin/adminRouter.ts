@@ -5,6 +5,24 @@ import { authLimiter, adminLimiter } from '../../shared/middleware/rateLimiter.j
 
 const router = Router();
 
+// PostgREST caps a plain select at 1000 rows. For aggregates (sold/revenue
+// counts) we must page through everything, or the numbers silently freeze
+// once an event crosses 1000 paid registrations / email jobs.
+async function fetchAll<T = any>(
+  buildRange: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>
+): Promise<T[]> {
+  const PAGE = 1000;
+  const all: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await buildRange(from, from + PAGE - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < PAGE) break; // short page = last page
+  }
+  return all;
+}
+
 // Apply rate limiting to all admin routes
 router.use(adminLimiter);
 
@@ -164,10 +182,13 @@ router.get('/stats', async (_req, res, next) => {
       .order('sort_order', { ascending: true });
 
     // Get checked-in counts per pass type
-    const { data: paidRegs } = await supabase
-      .from('registrations')
-      .select('pass_type_id, checked_in')
-      .eq('payment_status', 'PAID');
+    const paidRegs = await fetchAll((from, to) =>
+      supabase
+        .from('registrations')
+        .select('pass_type_id, checked_in')
+        .eq('payment_status', 'PAID')
+        .range(from, to)
+    );
 
     const checkedInMap: Record<string, number> = {};
     const actualSoldMap: Record<string, number> = {};
@@ -180,10 +201,13 @@ router.get('/stats', async (_req, res, next) => {
     });
 
     // Get true revenue from paid payments
-    const { data: paymentsData } = await supabase
-      .from('payments')
-      .select('amount, orders(pass_type_id)')
-      .eq('status', 'paid');
+    const paymentsData = await fetchAll((from, to) =>
+      supabase
+        .from('payments')
+        .select('amount, orders(pass_type_id)')
+        .eq('status', 'paid')
+        .range(from, to)
+    );
 
     const revenueMap: Record<string, number> = {};
     (paymentsData || []).forEach((p) => {
@@ -232,13 +256,16 @@ router.get('/passes', async (_req, res, next) => {
 
     if (error) throw error;
 
-    const { data: paidRegs } = await supabase
-      .from('registrations')
-      .select('pass_type_id')
-      .eq('payment_status', 'PAID');
+    const paidRegs = await fetchAll((from, to) =>
+      supabase
+        .from('registrations')
+        .select('pass_type_id')
+        .eq('payment_status', 'PAID')
+        .range(from, to)
+    );
 
     const actualSoldMap: Record<string, number> = {};
-    (paidRegs || []).forEach((r) => {
+    paidRegs.forEach((r) => {
       actualSoldMap[r.pass_type_id] = (actualSoldMap[r.pass_type_id] || 0) + 1;
     });
 
@@ -277,7 +304,7 @@ router.get('/registrations', async (req, res, next) => {
 
     let query = supabase
       .from('registrations')
-      .select('*, pass_types(name, badge_color)', { count: 'exact' })
+      .select('*, pass_types(name, badge_color), orders(primary_email, quantity)', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(from, to);
 
@@ -423,65 +450,9 @@ router.post('/passes', async (req, res, next) => {
   }
 });
 
-// POST /api/admin/refund
-router.post('/refund', async (req, res, next) => {
-  try {
-    const { registration_id } = req.body;
-    if (!registration_id) {
-      res.status(400).json({ error: 'registration_id is required' });
-      return;
-    }
-
-    const { data: payment, error: pErr } = await supabase
-      .from('payments')
-      .select('*')
-      .eq('registration_id', registration_id)
-      .eq('status', 'paid')
-      .single();
-
-    if (pErr || !payment) {
-      res.status(404).json({ error: 'No paid payment found for this registration' });
-      return;
-    }
-
-    // Call Cashfree refund API
-    const refundRes = await fetch(`https://api.cashfree.com/pg/orders/${payment.cashfree_order_id}/refunds`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-version': '2023-08-01',
-        'x-client-id': process.env.CASHFREE_APP_ID!,
-        'x-client-secret': process.env.CASHFREE_SECRET_KEY!,
-      },
-      body: JSON.stringify({
-        refund_amount: Number(payment.amount),
-        refund_id: `refund-${payment.cashfree_order_id}`,
-      }),
-    });
-
-    if (!refundRes.ok) {
-      const errData = await refundRes.json();
-      console.error('[Refund Error]', errData);
-      res.status(502).json({ error: 'Refund failed at payment gateway' });
-      return;
-    }
-
-    // Update statuses
-    await supabase
-      .from('payments')
-      .update({ status: 'refunded' })
-      .eq('id', payment.id);
-
-    await supabase
-      .from('registrations')
-      .update({ payment_status: 'REFUNDED' })
-      .eq('id', registration_id);
-
-    res.json({ message: 'Refund initiated' });
-  } catch (err) {
-    next(err);
-  }
-});
+// Refunds are intentionally not offered — tickets are non-refundable (see FAQ).
+// The previous /refund endpoint was also broken: it looked up payments by
+// registration_id, but payments are created order-scoped (no registration_id).
 
 // POST /api/admin/shoutout
 router.post('/shoutout', async (req, res, next) => {
@@ -594,14 +565,12 @@ router.put('/applications/:type/:id/status', async (req, res, next) => {
 // GET /api/admin/email-stats — email delivery dashboard
 router.get('/email-stats', async (_req, res, next) => {
   try {
-    const { data: jobs, error } = await supabase
-      .from('email_jobs')
-      .select('status');
-
-    if (error) throw error;
+    const jobs = await fetchAll((from, to) =>
+      supabase.from('email_jobs').select('status').range(from, to)
+    );
 
     const counts = { pending: 0, processing: 0, sent: 0, failed: 0, cancelled: 0, total: 0 };
-    (jobs || []).forEach((j) => {
+    jobs.forEach((j) => {
       counts[j.status as keyof typeof counts] = (counts[j.status as keyof typeof counts] || 0) + 1;
       counts.total++;
     });

@@ -123,6 +123,27 @@ async function processEmailBatch(): Promise<void> {
           } catch (pdfErr) {
             console.error('[Email Processor] Failed to generate PDF attachment:', pdfErr);
           }
+        } else if (job.email_type === 'group_registration_confirmation' && metadata.group_tickets) {
+          try {
+            sendOptions.attachments = [];
+            for (const ticket of metadata.group_tickets) {
+              const pdfBuffer = await generateTicketPdf({
+                ticket_number: ticket.ticket_number,
+                full_name: ticket.name,
+                pass_name: ticket.pass_name || 'General Pass',
+                role: ticket.role || 'Attendee',
+                organization: ticket.organization || '-',
+                qr_token: ticket.qr_token || ticket.ticket_number,
+                badge_color: ticket.badge_color || '#6B7280',
+              });
+              sendOptions.attachments.push({
+                filename: `Ticket-${ticket.ticket_number}.pdf`,
+                content: pdfBuffer,
+              });
+            }
+          } catch (pdfErr) {
+            console.error('[Email Processor] Failed to generate group PDF attachments:', pdfErr);
+          }
         }
         
         const result = await provider.send(sendOptions);
@@ -154,6 +175,14 @@ async function processEmailBatch(): Promise<void> {
             .from('registrations')
             .update({ email_sent: true, email_status: 'sent' })
             .eq('id', metadata.registration_id);
+        } else if (metadata?.order_id && metadata?.group_tickets) {
+          const regIds = metadata.group_tickets.map((t: any) => t.regId);
+          if (regIds.length > 0) {
+            await supabase
+              .from('registrations')
+              .update({ email_sent: true, email_status: 'sent' })
+              .in('id', regIds);
+          }
         }
 
         console.log(`[Email Processor] Sent: ${job.email_type} → ${job.recipient_email} (${result.messageId})`);

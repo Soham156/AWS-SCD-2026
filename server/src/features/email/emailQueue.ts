@@ -1,5 +1,5 @@
 import { supabase } from '../../shared/lib/supabase.js';
-import { buildRegistrationConfirmationEmail } from './emailTemplates.js';
+import { buildRegistrationConfirmationEmail, buildGroupRegistrationConfirmationEmail } from './emailTemplates.js';
 
 /**
  * Enqueues an email job with idempotency protection.
@@ -81,77 +81,154 @@ export async function enqueueEmail(params: {
   return { enqueued: true, job_id: data.id };
 }
 
+
 /**
- * High-level helper: enqueue a registration confirmation email.
+ * High-level helper: enqueue registration confirmation emails for an entire order.
  * Called from webhookRouter after payment success + ticket generation.
  */
-export async function enqueueRegistrationConfirmation(
-  registration_id: string,
-  ticket_number: string,
-  qr_token: string,
-  primary_email?: string
-): Promise<void> {
-  // Fetch registration + pass type details
-  const { data: reg, error } = await supabase
+export async function enqueueOrderEmails(order_id: string, primary_email?: string): Promise<void> {
+  // Fetch all registrations for this order
+  const { data: regs, error } = await supabase
     .from('registrations')
-    .select('id, full_name, email, role, organization, pass_slug, pass_types(name, badge_color)')
-    .eq('id', registration_id)
-    .single();
+    .select('id, full_name, email, role, organization, pass_slug, ticket_number, qr_token, pass_types(name, badge_color)')
+    .eq('order_id', order_id);
 
-  if (error || !reg) {
-    console.error('[Email Queue] Registration not found for email:', registration_id, error);
+  if (error || !regs || regs.length === 0) {
+    console.error('[Email Queue] No registrations found for order:', order_id, error);
     return;
   }
 
-  const passType = reg.pass_types as any;
   const frontendUrl = (process.env.FRONTEND_URL || 'https://aws-scd-dhule.tech').replace(/\/+$/, '');
   const serverUrl = (process.env.SERVER_URL || 'https://api.aws-scd-dhule.tech/').replace(/\/+$/, '');
 
-  const ticket_page_url = `${frontendUrl}/ticket/${registration_id}`;
-  const download_url = `${serverUrl}/api/email/ticket/${registration_id}/download?token=${encodeURIComponent(qr_token)}`;
+  // If there's only 1 ticket, process as a single registration email
+  if (regs.length === 1) {
+    const reg = regs[0];
+    const passType = reg.pass_types as any;
+    const ticket_page_url = `${frontendUrl}/ticket/${reg.id}`;
+    const download_url = `${serverUrl}/api/email/ticket/${reg.id}/download?token=${encodeURIComponent(reg.qr_token)}`;
+    const { subject, html, text } = buildRegistrationConfirmationEmail({
+      full_name: reg.full_name,
+      email: reg.email,
+      ticket_number: reg.ticket_number,
+      pass_name: passType?.name || reg.pass_slug,
+      download_url,
+      ticket_page_url,
+    });
+    
+    await enqueueEmail({
+      idempotency_key: `${reg.id}:registration_confirmation`,
+      email_type: 'registration_confirmation',
+      recipient_email: reg.email,
+      recipient_name: reg.full_name,
+      subject,
+      html_body: html,
+      metadata: {
+        registration_id: reg.id,
+        ticket_number: reg.ticket_number,
+        full_name: reg.full_name,
+        role: reg.role,
+        organization: reg.organization,
+        pass_name: passType?.name || reg.pass_slug,
+        badge_color: passType?.badge_color || '#6B7280',
+        qr_token: reg.qr_token,
+        text_body: text,
+      }
+    });
+    return;
+  }
 
-  const { subject, html, text } = buildRegistrationConfirmationEmail({
-    full_name: reg.full_name,
-    email: reg.email,
-    ticket_number,
-    pass_name: passType?.name || reg.pass_slug,
-    download_url,
-    ticket_page_url,
+  // Count > 1, process group tickets
+  const groupTickets = regs.map(reg => {
+    const ticket_page_url = `${frontendUrl}/ticket/${reg.id}`;
+    return {
+      name: reg.full_name,
+      ticket_number: reg.ticket_number,
+      ticket_page_url,
+      regId: reg.id,
+      qr_token: reg.qr_token,
+      pass_name: (reg.pass_types as any)?.name || reg.pass_slug,
+      role: reg.role,
+      organization: reg.organization,
+      badge_color: (reg.pass_types as any)?.badge_color || '#6B7280'
+    };
   });
 
-  const metadata = {
-    registration_id,
-    ticket_number,
-    full_name: reg.full_name,
-    role: reg.role,
-    organization: reg.organization,
-    pass_name: passType?.name || reg.pass_slug,
-    badge_color: passType?.badge_color || '#6B7280',
-    qr_token,
-    text_body: text,
-  };
+  // Find the primary registration to get details for the group email
+  let primaryReg = regs.find(r => r.email === primary_email);
+  if (!primaryReg) {
+    // If primary buyer didn't buy a ticket for themselves but provided an email, fallback
+    primaryReg = {
+      ...regs[0], // steal the pass details for the ticket card, they still need to see something
+      full_name: "Primary Registrant",
+      email: primary_email || regs[0].email,
+    };
+  }
 
-  // 1. Send to the actual attendee
+  const passType = primaryReg.pass_types as any;
+  const primaryTicketPageUrl = `${frontendUrl}/ticket/${primaryReg.id}`;
+  const primaryDownloadUrl = `${serverUrl}/api/email/ticket/${primaryReg.id}/download?token=${encodeURIComponent(primaryReg.qr_token)}`;
+
+  const { subject, html, text } = buildGroupRegistrationConfirmationEmail({
+    full_name: primaryReg.full_name,
+    email: primaryReg.email,
+    ticket_number: primaryReg.ticket_number,
+    pass_name: passType?.name || primaryReg.pass_slug,
+    download_url: primaryDownloadUrl,
+    ticket_page_url: primaryTicketPageUrl,
+    tickets: groupTickets
+  });
+
+  // Enqueue the consolidated group email for the primary buyer
   await enqueueEmail({
-    idempotency_key: `${registration_id}:registration_confirmation`,
-    email_type: 'registration_confirmation',
-    recipient_email: reg.email,
-    recipient_name: reg.full_name,
+    idempotency_key: `${order_id}:group_registration_confirmation`,
+    email_type: 'group_registration_confirmation',
+    recipient_email: primaryReg.email,
+    recipient_name: primaryReg.full_name,
     subject,
     html_body: html,
-    metadata,
+    metadata: {
+      order_id,
+      group_tickets: groupTickets,
+      text_body: text,
+    }
   });
 
-  // 2. If part of a group registration, send a copy to the primary registrant
-  if (primary_email && primary_email !== reg.email) {
+  // Now, for everyone else (non-primary), send them standard individual emails
+  for (const reg of regs) {
+    if (reg.email === primaryReg.email) continue; // Skip primary buyer
+
+    const regPassType = reg.pass_types as any;
+    const ticket_page_url = `${frontendUrl}/ticket/${reg.id}`;
+    const download_url = `${serverUrl}/api/email/ticket/${reg.id}/download?token=${encodeURIComponent(reg.qr_token)}`;
+
+    const { subject: stdSubject, html: stdHtml, text: stdText } = buildRegistrationConfirmationEmail({
+      full_name: reg.full_name,
+      email: reg.email,
+      ticket_number: reg.ticket_number,
+      pass_name: regPassType?.name || reg.pass_slug,
+      download_url,
+      ticket_page_url,
+    });
+
     await enqueueEmail({
-      idempotency_key: `${registration_id}:registration_confirmation_group_copy`,
+      idempotency_key: `${reg.id}:registration_confirmation`,
       email_type: 'registration_confirmation',
-      recipient_email: primary_email,
-      recipient_name: "Primary Registrant",
-      subject: `[Group Copy] ${subject}`,
-      html_body: html,
-      metadata,
+      recipient_email: reg.email,
+      recipient_name: reg.full_name,
+      subject: stdSubject,
+      html_body: stdHtml,
+      metadata: {
+        registration_id: reg.id,
+        ticket_number: reg.ticket_number,
+        full_name: reg.full_name,
+        role: reg.role,
+        organization: reg.organization,
+        pass_name: regPassType?.name || reg.pass_slug,
+        badge_color: regPassType?.badge_color || '#6B7280',
+        qr_token: reg.qr_token,
+        text_body: stdText,
+      }
     });
   }
 }

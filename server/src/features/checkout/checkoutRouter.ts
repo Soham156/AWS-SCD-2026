@@ -16,7 +16,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     // Look up order
     const { data: order, error: orderErr } = await supabase
       .from('orders')
-      .select('*, pass_types(*), registrations(phone)')
+      .select('*, pass_types(*), registrations(phone, full_name)')
       .eq('id', order_id)
       .single();
 
@@ -96,6 +96,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const gatewayFee = (basePrice * gatewayFeePercent) / 100;
     const finalAmount = Math.round((basePrice + platformFee + gatewayFee) * 100) / 100;
     const primaryPhone = order.registrations?.[0]?.phone || "0000000000";
+    const primaryName = order.registrations?.[0]?.full_name || "Group Buyer";
 
     // Create Cashfree order via API
     const cashfreeRes = await fetch(`${cashfreeBaseUrl}/orders`, {
@@ -112,7 +113,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
         order_currency: 'INR',
         customer_details: {
           customer_id: order.id.slice(0, 50), // Cashfree limit is 50 chars
-          customer_name: "Group Buyer",
+          customer_name: primaryName,
           customer_email: order.primary_email || "test@example.com",
           customer_phone: primaryPhone,
         },
@@ -136,13 +137,21 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
       return;
     }
 
-    // Insert payment row
-    await supabase.from('payments').insert({
+    // Insert payment row. If this fails, the tickets we reserved would be
+    // orphaned (no 'initiated' row for the expiry cron to release), so roll back.
+    const { error: paymentInsertError } = await supabase.from('payments').insert({
       order_id: order.id,
       cashfree_order_id: cashfreeOrderId,
       amount: finalAmount,
       status: 'initiated',
     });
+
+    if (paymentInsertError) {
+      console.error('[Checkout] Failed to record payment session:', paymentInsertError);
+      await supabase.rpc('release_tickets', { p_pass_id: order.pass_type_id, p_amount: order.quantity });
+      res.status(500).json({ error: 'Failed to start payment session. Please try again.' });
+      return;
+    }
 
     res.json({
       payment_session_id: cashfreeData.payment_session_id,
