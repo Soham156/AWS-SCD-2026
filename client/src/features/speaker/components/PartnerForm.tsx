@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { api } from '../../../lib/api';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -72,21 +73,12 @@ export const PartnerForm = () => {
     setErrorMessage('');
     
     try {
-      const response = await fetch('http://localhost:3001/api/applications/partner', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) throw new Error(result.message || 'Failed to submit application');
-      
+      await api.post('/api/applications/partner', data);
       setStatus('success');
     } catch (error: any) {
       console.error(error);
       setStatus('error');
-      setErrorMessage(error.message || 'An unexpected error occurred');
+      setErrorMessage(error.response?.data?.message || error.message || 'An unexpected error occurred');
     }
   };
 

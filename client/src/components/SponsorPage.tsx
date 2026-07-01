@@ -1,5 +1,6 @@
 /* eslint-disable react-doctor/label-has-associated-control, react-doctor/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
+import { api } from '../lib/api';
 import { motion } from 'motion/react';
 import { ChevronRight, ArrowLeft, Send, Building2, User, Mail, MessageSquare, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -35,27 +36,19 @@ export const SponsorPage = () => {
     setErrorMessage('');
     
     try {
-      const response = await fetch('http://localhost:3001/api/applications/sponsor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        if (result.errors) {
-          throw new Error(result.errors.map((e: any) => e.message).join(', '));
-        }
-        throw new Error(result.message || 'Failed to submit application');
-      }
-      
+      await api.post('/api/applications/sponsor', formData);
       setStatus('success');
       setFormData({ company: '', contact: '', email: '', tier: '', details: '' });
     } catch (error: any) {
       console.error(error);
       setStatus('error');
-      setErrorMessage(error.message || 'An unexpected error occurred');
+      
+      const errResponse = error.response?.data;
+      if (errResponse?.errors) {
+        setErrorMessage(errResponse.errors.map((e: any) => e.message).join(', '));
+      } else {
+        setErrorMessage(errResponse?.message || error.message || 'An unexpected error occurred');
+      }
     }
   };
 
