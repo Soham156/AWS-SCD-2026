@@ -94,7 +94,14 @@ export async function fulfillOrder(
   if (wasReleased) {
     const o = payment.orders as any;
     if (o?.pass_type_id && o?.quantity) {
-      await supabase.rpc('reserve_tickets', { p_pass_id: o.pass_type_id, p_amount: o.quantity });
+      const { data: success } = await supabase.rpc('reserve_tickets', { p_pass_id: o.pass_type_id, p_amount: o.quantity });
+      if (!success) {
+        // Fallback: if capacity was exceeded, force-increment the sold count anyway
+        // since the user has already paid.
+        for (let i = 0; i < o.quantity; i++) {
+          await supabase.rpc('increment_sold', { pass_id: o.pass_type_id });
+        }
+      }
     }
   }
 

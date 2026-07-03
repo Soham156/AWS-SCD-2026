@@ -1,3 +1,4 @@
+
 import { supabase } from './supabase.js';
 
 // On-demand, request-driven cleanup for serverless (Lambda) where setInterval
@@ -12,11 +13,11 @@ let lastSessionSweep = 0;
 let lastRegistrationSweep = 0;
 
 const SESSION_THROTTLE_MS = 30 * 1000; // at most once per 30s
-const REGISTRATION_THROTTLE_MS = 60 * 60 * 1000; // at most once per 1h
+const REGISTRATION_THROTTLE_MS = 15 * 60 * 1000; // at most once per 15 min
 
 const SESSION_TTL_MS = 5 * 60 * 1000; // release tickets 5 min after checkout starts
 const ORPHAN_ORDER_TTL_MS = 10 * 60 * 1000; // delete emptied orders after 10 min
-const PENDING_REG_TTL_MS = 24 * 60 * 60 * 1000; // archive pending registrations after 24h
+const PENDING_REG_TTL_MS = 15 * 60 * 1000; // archive pending registrations after 15 min
 
 /**
  * Release reserved tickets for payment sessions initiated more than SESSION_TTL_MS
@@ -81,7 +82,7 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
   lastRegistrationSweep = Date.now();
 
   try {
-    // --- Abandoned pending registrations (> 24h) ---
+    // --- Abandoned pending registrations (> 15 min) ---
     const regCutoff = new Date(Date.now() - PENDING_REG_TTL_MS).toISOString();
     const { data: pendingRegs, error: fetchErr } = await supabase
       .from('registrations')
@@ -92,18 +93,29 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
     if (fetchErr) {
       console.error('[Cleanup] Failed to fetch pending registrations:', fetchErr);
     } else if (pendingRegs && pendingRegs.length > 0) {
-      const { error: archiveErr } = await supabase
-        .from('archived_registrations')
-        .upsert(pendingRegs, { onConflict: 'id' });
+      // Guard: do not archive registrations that have an active initiated payment session
+      const { data: activeSessions } = await supabase
+        .from('payments')
+        .select('order_id')
+        .eq('status', 'initiated');
+      const activeOrderIds = new Set(activeSessions?.map(s => s.order_id).filter(Boolean) || []);
 
-      if (archiveErr) {
-        console.error('[Cleanup] Failed to archive registrations:', archiveErr);
-      } else {
-        const ids = pendingRegs.map(r => r.id);
-        await supabase.from('payments').delete().in('registration_id', ids);
-        const { error: deleteErr } = await supabase.from('registrations').delete().in('id', ids);
-        if (deleteErr) console.error('[Cleanup] Failed to delete archived registrations:', deleteErr);
-        else console.log(`[Cleanup] Archived ${ids.length} abandoned registration(s) older than 24h.`);
+      const regsToArchive = pendingRegs.filter(r => !activeOrderIds.has(r.order_id));
+
+      if (regsToArchive.length > 0) {
+        const { error: archiveErr } = await supabase
+          .from('archived_registrations')
+          .upsert(regsToArchive, { onConflict: 'id' });
+
+        if (archiveErr) {
+          console.error('[Cleanup] Failed to archive registrations:', archiveErr);
+        } else {
+          const ids = regsToArchive.map(r => r.id);
+          await supabase.from('payments').delete().in('registration_id', ids);
+          const { error: deleteErr } = await supabase.from('registrations').delete().in('id', ids);
+          if (deleteErr) console.error('[Cleanup] Failed to delete archived registrations:', deleteErr);
+          else console.log(`[Cleanup] Archived ${ids.length} abandoned registration(s) older than 15 min.`);
+        }
       }
     }
 
