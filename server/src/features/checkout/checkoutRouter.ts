@@ -1,12 +1,15 @@
 import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { checkoutLimiter } from '../../shared/middleware/rateLimiter.js';
+import { runCleanups } from '../../shared/lib/cleanup.js';
 
 const router = Router();
 
 // POST /api/checkout/initiate
 router.post('/initiate', checkoutLimiter, async (req, res, next) => {
   try {
+    runCleanups(); // fire-and-forget, self-throttled
+
     const { order_id } = req.body;
     if (!order_id) {
       res.status(400).json({ error: 'order_id is required' });

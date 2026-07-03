@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { supabase } from '../../shared/lib/supabase.js';
 import { fulfillOrder } from '../../shared/lib/fulfillOrder.js';
+import { runCleanups } from '../../shared/lib/cleanup.js';
 
 const router = Router();
 
@@ -28,6 +29,8 @@ const attendeesSchema = z.object({
 // POST /api/orders/create
 router.post('/create', async (req, res, next) => {
   try {
+    runCleanups(); // fire-and-forget, self-throttled
+
     const parsed = createOrderSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'VALIDATION_ERROR', details: parsed.error.flatten().fieldErrors });
@@ -248,6 +251,33 @@ router.post('/:id/attendees', async (req, res, next) => {
     if (order.payment_status === 'PAID') {
       res.status(400).json({ error: 'ALREADY_PAID', message: 'Order cannot be modified after payment.' });
       return;
+    }
+
+    // If a checkout session is live, it holds the OLD quantity of tickets locked.
+    // Release them (at the old quantity) and abandon the session before we mutate
+    // the order, otherwise inventory leaks or a re-initiate releases the wrong amount.
+    const { data: activePayments } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('order_id', id)
+      .eq('status', 'initiated');
+
+    if (activePayments && activePayments.length > 0) {
+      // Atomic claim: only abandon rows STILL 'initiated'. If one just got paid,
+      // the guard skips it so we never release a ticket the customer bought.
+      const { data: abandoned } = await supabase
+        .from('payments')
+        .update({ status: 'abandoned' })
+        .in('id', activePayments.map(p => p.id))
+        .eq('status', 'initiated')
+        .select('id');
+
+      if (abandoned && abandoned.length > 0) {
+        await supabase.rpc('release_tickets', {
+          p_pass_id: order.pass_type_id,
+          p_amount: order.quantity * abandoned.length,
+        });
+      }
     }
 
     // Instead of failing on mismatch, we dynamically adjust the order quantity

@@ -28,9 +28,10 @@ export async function fulfillOrder(
   if (!payment) return 'unknown_order';
   if (payment.status === 'paid') return 'already_paid';
 
-  // Capture prior status before the claim: if the session had expired, the
-  // cron already released inventory, so a successful payment must re-reserve it.
-  const wasExpired = payment.status === 'expired';
+  // Capture prior status before the claim: any status other than 'initiated'
+  // (expired, abandoned, failed) means inventory was already released, so a
+  // successful payment must re-reserve it.
+  const wasReleased = payment.status !== 'initiated';
 
   // Atomic claim: only the first caller flips non-paid → paid and proceeds.
   // ponytail: the .neq('status','paid') is the lock — do not replace with a read-then-write.
@@ -89,8 +90,8 @@ export async function fulfillOrder(
   enqueueOrderEmails(payment.order_id, (payment.orders as any)?.primary_email)
     .catch(err => console.error('[Fulfill] Failed to enqueue order emails:', err));
 
-  // Reclaim inventory the expiry cron had released.
-  if (wasExpired) {
+  // Reclaim inventory that was released when the session left 'initiated'.
+  if (wasReleased) {
     const o = payment.orders as any;
     if (o?.pass_type_id && o?.quantity) {
       await supabase.rpc('reserve_tickets', { p_pass_id: o.pass_type_id, p_amount: o.quantity });
