@@ -1,4 +1,5 @@
 import { Mail, Linkedin, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const quickLinks = [
   { label: 'About', href: '#about' },
@@ -8,6 +9,7 @@ const quickLinks = [
   { label: 'Gallery', href: '#gallery' },
   { label: 'Sponsors', href: '#sponsors' },
   { label: 'FAQ', href: '#faq' },
+  { label: 'Volunteer', href: '/volunteer' },
 ];
 
 export const FooterSection = () => {
@@ -16,9 +18,15 @@ export const FooterSection = () => {
       {/* Quick nav links */}
       <div className="flex flex-wrap gap-4 sm:gap-6 border-b border-white/5 pb-6 sm:pb-8">
         {quickLinks.map((link) => (
-          <a key={link.label} href={link.href} className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-white/30 hover:text-aws-orange transition-colors">
-            {link.label}
-          </a>
+          link.href.startsWith('/') ? (
+            <Link key={link.label} to={link.href} className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-white/30 hover:text-aws-orange transition-colors">
+              {link.label}
+            </Link>
+          ) : (
+            <a key={link.label} href={link.href} className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-white/30 hover:text-aws-orange transition-colors">
+              {link.label}
+            </a>
+          )
         ))}
       </div>
 

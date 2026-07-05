@@ -8,6 +8,7 @@ const TicketsPurchasePage = lazy(() => import('./features/ticketing/pages/Ticket
 const ScannerPage = lazy(() => import('./features/scanner/pages/ScannerPage').then(module => ({ default: module.ScannerPage })));
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage').then(module => ({ default: module.AdminPage })));
 const SpeakerPage = lazy(() => import('./features/speaker/pages/SpeakerPage').then(module => ({ default: module.SpeakerPage })));
+const VolunteerPage = lazy(() => import('./features/volunteer/pages/VolunteerPage').then(module => ({ default: module.VolunteerPage })));
 import { Preloader } from './components/Preloader';
 import { HeaderSection } from './components/HeaderSection';
 import { HeroSection } from './components/HeroSection';
@@ -113,6 +114,7 @@ export default function App() {
         <Route path="/ticket" element={<TicketsPurchasePage />} />
         <Route path="/ticket/:id" element={<TicketPage />} />
         <Route path="/cfp" element={<SpeakerPage />} />
+        <Route path="/volunteer" element={<VolunteerPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/status" element={<StatusPage />} />

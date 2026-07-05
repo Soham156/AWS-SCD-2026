@@ -119,4 +119,70 @@ router.post('/sponsor', applicationLimiter, async (req, res, next) => {
   }
 });
 
+const volunteerSchema = z.object({
+  full_name: z.string().min(2, "Full name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+});
+
+router.post('/volunteer', applicationLimiter, async (req, res, next) => {
+  try {
+    const data = volunteerSchema.parse(req.body);
+    
+    // Check if user has a PAID registration or order (case-insensitive email matching)
+    const { data: existingRegs } = await supabase
+      .from('registrations')
+      .select('payment_status')
+      .ilike('email', data.email);
+
+    const { data: existingOrders } = await supabase
+      .from('orders')
+      .select('payment_status')
+      .ilike('primary_email', data.email);
+
+    const hasPaidReg = existingRegs?.some(r => r.payment_status === 'PAID');
+    const hasPaidOrder = existingOrders?.some(o => o.payment_status === 'PAID');
+
+    if (!hasPaidReg && !hasPaidOrder) {
+      return res.status(400).json({
+        success: false,
+        message: 'To apply as a volunteer, you must have purchased a valid event ticket. The email provided does not match any paid event passes.'
+      });
+    }
+
+    // Check for duplicate application
+    const { data: duplicate } = await supabase
+      .from('volunteer_applications')
+      .select('id')
+      .ilike('email', data.email)
+      .maybeSingle();
+
+    if (duplicate) {
+      return res.status(400).json({
+        success: false,
+        message: 'A volunteer application with this email address has already been submitted.'
+      });
+    }
+
+    // Insert into Supabase
+    const { data: inserted, error } = await supabase
+      .from('volunteer_applications')
+      .insert([data])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[Volunteer Application Error]', error);
+      return res.status(500).json({ success: false, message: 'Failed to submit application. Please try again later.' });
+    }
+
+    res.status(201).json({ success: true, data: inserted });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors });
+    }
+    next(error);
+  }
+});
+
 export default router;

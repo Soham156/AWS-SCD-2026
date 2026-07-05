@@ -11,6 +11,7 @@ const navLinks = [
   { label: 'Tickets', href: '#tickets' },
   { label: 'Gallery', href: '#gallery' },
   { label: 'Badge', href: '/badge' },
+  { label: 'Volunteer', href: '/volunteer' },
 ];
 
 function Countdown() {

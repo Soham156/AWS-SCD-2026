@@ -526,6 +526,22 @@ router.get('/sponsors', async (req, res, next) => {
   }
 });
 
+// GET /api/admin/volunteers
+router.get('/volunteers', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('volunteer_applications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // PUT /api/admin/applications/:type/:id/status
 router.put('/applications/:type/:id/status', async (req, res, next) => {
   try {
@@ -536,6 +552,7 @@ router.put('/applications/:type/:id/status', async (req, res, next) => {
     if (type === 'speaker') table = 'speaker_applications';
     else if (type === 'partner') table = 'community_partners';
     else if (type === 'sponsor') table = 'sponsor_applications';
+    else if (type === 'volunteer') table = 'volunteer_applications';
     else {
       res.status(400).json({ error: 'Invalid application type' });
       return;

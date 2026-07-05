@@ -155,6 +155,16 @@ CREATE TABLE public.sponsor_applications (
   created_at timestamptz DEFAULT now()
 );
 
+CREATE TABLE public.volunteer_applications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  phone text NOT NULL,
+  status text NOT NULL DEFAULT 'PENDING'::text CHECK (status = ANY (ARRAY['PENDING'::text, 'APPROVED'::text, 'REJECTED'::text])),
+  created_at timestamptz DEFAULT now()
+);
+
+
 
 -- Part 2: Email Tables
 
@@ -371,4 +381,5 @@ ALTER TABLE public.archived_registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.speaker_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.community_partners ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sponsor_applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.volunteer_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;

@@ -11,11 +11,12 @@ import { EmailShoutout } from '../components/EmailShoutout';
 import { SpeakersTable } from '../components/SpeakersTable';
 import { PartnersTable } from '../components/PartnersTable';
 import { SponsorsTable } from '../components/SponsorsTable';
+import { VolunteersTable } from '../components/VolunteersTable';
 import { AdminSettings } from '../components/AdminSettings';
 import { PromoCodesManager } from '../components/PromoCodesManager';
-import { Mic, Handshake, Building2, Settings, Tag } from 'lucide-react';
+import { Mic, Handshake, Building2, Settings, Tag, UserCheck } from 'lucide-react';
 
-type Tab = 'overview' | 'passes' | 'promo' | 'registrations' | 'speakers' | 'partners' | 'sponsors' | 'shoutout' | 'export' | 'settings';
+type Tab = 'overview' | 'passes' | 'promo' | 'registrations' | 'speakers' | 'partners' | 'sponsors' | 'volunteers' | 'shoutout' | 'export' | 'settings';
 
 const navItems: Array<{ key: Tab; label: string; icon: any }> = [
   { key: 'overview', label: 'Overview', icon: BarChart3 },
@@ -25,6 +26,7 @@ const navItems: Array<{ key: Tab; label: string; icon: any }> = [
   { key: 'speakers', label: 'CFP Speakers', icon: Mic },
   { key: 'partners', label: 'Partners', icon: Handshake },
   { key: 'sponsors', label: 'Sponsors', icon: Building2 },
+  { key: 'volunteers', label: 'Volunteers', icon: UserCheck },
   { key: 'shoutout', label: 'Email Shoutout', icon: Mail },
   { key: 'export', label: 'Export', icon: Download },
   { key: 'settings', label: 'Settings', icon: Settings },
@@ -149,6 +151,7 @@ export function AdminPage() {
         {activeTab === 'speakers' && <SpeakersTable />}
         {activeTab === 'partners' && <PartnersTable />}
         {activeTab === 'sponsors' && <SponsorsTable />}
+        {activeTab === 'volunteers' && <VolunteersTable />}
         {activeTab === 'shoutout' && <EmailShoutout />}
         {activeTab === 'export' && (
           <div className="bg-[#111] border border-white/5 p-8">

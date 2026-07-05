@@ -11,7 +11,8 @@ export const adminApi = {
   getSpeakers: () => api.get('/api/admin/speakers', { headers: getHeaders() }),
   getPartners: () => api.get('/api/admin/partners', { headers: getHeaders() }),
   getSponsors: () => api.get('/api/admin/sponsors', { headers: getHeaders() }),
-  updateApplicationStatus: (type: 'speaker' | 'partner' | 'sponsor', id: string, status: string) =>
+  getVolunteers: () => api.get('/api/admin/volunteers', { headers: getHeaders() }),
+  updateApplicationStatus: (type: 'speaker' | 'partner' | 'sponsor' | 'volunteer', id: string, status: string) =>
     api.put(`/api/admin/applications/${type}/${id}/status`, { status }, { headers: getHeaders() }),
 
   getRegistrations: (filters: {
