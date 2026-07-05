@@ -4,30 +4,70 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Send, AlertTriangle } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 const volunteerSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  phone: z.string().regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+  college: z.string().min(2, "College name must be at least 2 characters"),
+  degree: z.string().min(1, "Degree must be selected"),
+  other_degree: z.string().optional(),
+  year: z.string().min(1, "Year must be selected"),
+  branch: z.string().min(2, "Branch must be at least 2 characters"),
   confirm_ticket: z.boolean().refine(val => val === true, {
-    message: "You must confirm you have a ticket"
+    message: "Required *"
   }),
   agree_policy: z.boolean().refine(val => val === true, {
-    message: "You must agree to the volunteer policy"
+    message: "Required *"
   }),
+  agree_tasks_final: z.boolean().refine(val => val === true, {
+    message: "Required *"
+  }),
+}).superRefine((data, ctx) => {
+  if (data.degree === 'Other' && (!data.other_degree || data.other_degree.trim().length < 2)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please specify your degree",
+      path: ["other_degree"]
+    });
+  }
 });
 
 type VolunteerFormData = z.infer<typeof volunteerSchema>;
 
-const InputField = ({ label, name, placeholder, type = "text", required = false, register, errors }: any) => (
+const InputField = ({ label, name, placeholder, type = "text", required = false, register, errors, prefix, maxLength, onKeyPress, onChange }: any) => (
+  <div className="flex flex-col gap-1.5 font-sans">
+    <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
+    <div className="flex relative">
+      {prefix && (
+        <span className="flex items-center bg-[#111] border border-white/10 border-r-0 px-3.5 text-white/40 font-mono text-sm select-none shrink-0">
+          {prefix}
+        </span>
+      )}
+      <input
+        type={type}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        onKeyPress={onKeyPress}
+        {...register(name, { onChange })}
+        className={`bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-aws-orange/50 transition-colors text-sm w-full ${prefix ? 'border-l-0 rounded-l-none' : ''}`}
+      />
+    </div>
+    {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
+  </div>
+);
+
+const SelectField = ({ label, name, options, required = false, register, errors }: any) => (
   <div className="flex flex-col gap-1.5">
     <label className="text-xs font-mono text-white/50 uppercase tracking-widest">{label} {required && '*'}</label>
-    <input
-      type={type}
-      placeholder={placeholder}
+    <select
       {...register(name)}
-      className="bg-[#0a0a0a] border border-white/10 p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm"
-    />
+      className="bg-[#0a0a0a] border border-white/10 p-3 text-white focus:outline-none focus:border-aws-orange/50 transition-colors font-sans text-sm appearance-none"
+    >
+      <option value="">Select {label}</option>
+      {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+    </select>
     {errors[name] && <span className="text-[#E10600] text-xs font-mono">{errors[name]?.message as string}</span>}
   </div>
 );
@@ -36,25 +76,44 @@ export const VolunteerForm = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { register, handleSubmit, formState: { errors } } = useForm<VolunteerFormData>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<VolunteerFormData>({
     resolver: zodResolver(volunteerSchema),
     defaultValues: {
       confirm_ticket: false,
       agree_policy: false,
+      agree_tasks_final: false,
+      degree: '',
+      year: '',
     }
   });
+
+  const selectedDegree = watch('degree');
 
   const onSubmit = async (data: VolunteerFormData) => {
     setStatus('loading');
     setErrorMessage('');
     
+    // Normalize degree value if "Other" is chosen
+    const finalDegree = data.degree === 'Other' ? data.other_degree : data.degree;
+
     try {
       await api.post('/api/applications/volunteer', {
         full_name: data.full_name,
         email: data.email,
-        phone: data.phone
+        phone: data.phone,
+        college: data.college,
+        degree: finalDegree,
+        year: data.year,
+        branch: data.branch
       });
       setStatus('success');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#FF9900", "#FFC300", "#ffffff"]
+      });
     } catch (error: any) {
       console.error(error);
       setStatus('error');
@@ -86,10 +145,60 @@ export const VolunteerForm = () => {
       {/* Personal Info */}
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-aws-orange border-b border-white/10 pb-2 mb-6">Personal Information</h4>
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <InputField label="Full Name" name="full_name" placeholder="e.g. Jane Doe" required register={register} errors={errors} />
           <InputField label="Email Address" name="email" type="email" placeholder="name@email.com" required register={register} errors={errors} />
-          <InputField label="Mobile Number" name="phone" placeholder="+91 99999 99999" required register={register} errors={errors} />
+          <InputField 
+            label="Mobile Number" 
+            name="phone" 
+            placeholder="9876543210" 
+            required 
+            register={register} 
+            errors={errors} 
+            prefix="+91" 
+            maxLength={10}
+            onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Academic Details */}
+      <div>
+        <h4 className="text-lg font-black italic uppercase tracking-wider text-aws-orange border-b border-white/10 pb-2 mb-6">Academic Details</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InputField label="College" name="college" placeholder="e.g. SVKM's IOT, Dhule" required register={register} errors={errors} />
+          <InputField label="Branch" name="branch" placeholder="e.g. Computer Engineering" required register={register} errors={errors} />
+          
+          <SelectField 
+            label="Degree" 
+            name="degree" 
+            options={["B.E. / B.Tech", "BCA", "MCA", "B.Sc", "M.Sc", "MBA", "Diploma", "Other"]} 
+            required 
+            register={register} 
+            errors={errors} 
+          />
+
+          <SelectField 
+            label="Year of Studying" 
+            name="year" 
+            options={["First Year", "Second Year", "Third Year", "Final Year"]} 
+            required 
+            register={register} 
+            errors={errors} 
+          />
+
+          {selectedDegree === 'Other' && (
+            <div className="md:col-span-2">
+              <InputField label="Specify Degree" name="other_degree" placeholder="e.g. B.Com, BBA, PhD" required register={register} errors={errors} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -106,30 +215,48 @@ export const VolunteerForm = () => {
       <div>
         <h4 className="text-lg font-black italic uppercase tracking-wider text-aws-orange border-b border-white/10 pb-2 mb-6">Declaration</h4>
         
-        <div className="flex flex-col gap-4">
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <input 
-              type="checkbox" 
-              {...register('confirm_ticket')}
-              className="mt-1 accent-aws-orange bg-[#0a0a0a] border border-white/10 rounded w-4 h-4 focus:ring-0 focus:ring-offset-0" 
-            />
-            <span className="text-white/70 text-xs sm:text-sm font-sans select-none group-hover:text-white transition-colors leading-relaxed">
-              I confirm that I have purchased a valid event ticket.
-            </span>
-          </label>
-          {errors.confirm_ticket && <span className="text-[#E10600] text-xs font-mono -mt-2 ml-7">{errors.confirm_ticket?.message}</span>}
+        <div className="flex flex-col gap-5">
+          <div>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                {...register('confirm_ticket')}
+                className="mt-1 accent-aws-orange bg-[#0a0a0a] border border-white/10 rounded w-4 h-4 focus:ring-0 focus:ring-offset-0 shrink-0" 
+              />
+              <span className="text-white/70 text-xs sm:text-sm font-sans select-none group-hover:text-white transition-colors leading-relaxed">
+                I confirm that I have purchased a valid event ticket. <span className="text-[#E10600] font-bold">*</span>
+              </span>
+            </label>
+            {errors.confirm_ticket && <span className="text-[#E10600] text-xs font-mono block mt-1 ml-7">{errors.confirm_ticket?.message}</span>}
+          </div>
 
-          <label className="flex items-start gap-3 cursor-pointer group">
-            <input 
-              type="checkbox" 
-              {...register('agree_policy')}
-              className="mt-1 accent-aws-orange bg-[#0a0a0a] border border-white/10 rounded w-4 h-4 focus:ring-0 focus:ring-offset-0" 
-            />
-            <span className="text-white/70 text-xs sm:text-sm font-sans select-none group-hover:text-white transition-colors leading-relaxed">
-              I understand that volunteers are <strong>not provided complimentary passes</strong>, and I have read and agree to the volunteer policy.
-            </span>
-          </label>
-          {errors.agree_policy && <span className="text-[#E10600] text-xs font-mono -mt-2 ml-7">{errors.agree_policy?.message}</span>}
+          <div>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                {...register('agree_policy')}
+                className="mt-1 accent-aws-orange bg-[#0a0a0a] border border-white/10 rounded w-4 h-4 focus:ring-0 focus:ring-offset-0 shrink-0" 
+              />
+              <span className="text-white/70 text-xs sm:text-sm font-sans select-none group-hover:text-white transition-colors leading-relaxed">
+                I understand that volunteers are <strong>not provided complimentary passes</strong>, and I have read and agree to the volunteer policy. <span className="text-[#E10600] font-bold">*</span>
+              </span>
+            </label>
+            {errors.agree_policy && <span className="text-[#E10600] text-xs font-mono block mt-1 ml-7">{errors.agree_policy?.message}</span>}
+          </div>
+
+          <div>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                {...register('agree_tasks_final')}
+                className="mt-1 accent-aws-orange bg-[#0a0a0a] border border-white/10 rounded w-4 h-4 focus:ring-0 focus:ring-offset-0 shrink-0" 
+              />
+              <span className="text-white/70 text-xs sm:text-sm font-sans select-none group-hover:text-white transition-colors leading-relaxed">
+                I understand and agree that the task assigned to me as a volunteer will be final and will not be changed or interchanged. <span className="text-[#E10600] font-bold">*</span>
+              </span>
+            </label>
+            {errors.agree_tasks_final && <span className="text-[#E10600] text-xs font-mono block mt-1 ml-7">{errors.agree_tasks_final?.message}</span>}
+          </div>
         </div>
       </div>
 

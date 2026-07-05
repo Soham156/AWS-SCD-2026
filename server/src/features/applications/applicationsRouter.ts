@@ -123,6 +123,10 @@ const volunteerSchema = z.object({
   full_name: z.string().min(2, "Full name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  college: z.string().min(2, "College name must be at least 2 characters"),
+  degree: z.string().min(2, "Degree must be selected or specified"),
+  year: z.string().min(1, "Year of studying must be selected"),
+  branch: z.string().min(2, "Branch name must be at least 2 characters"),
 });
 
 router.post('/volunteer', applicationLimiter, async (req, res, next) => {

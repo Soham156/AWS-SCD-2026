@@ -160,6 +160,10 @@ CREATE TABLE public.volunteer_applications (
   full_name text NOT NULL,
   email text NOT NULL UNIQUE,
   phone text NOT NULL,
+  college text NOT NULL,
+  degree text NOT NULL,
+  year text NOT NULL,
+  branch text NOT NULL,
   status text NOT NULL DEFAULT 'PENDING'::text CHECK (status = ANY (ARRAY['PENDING'::text, 'APPROVED'::text, 'REJECTED'::text])),
   created_at timestamptz DEFAULT now()
 );

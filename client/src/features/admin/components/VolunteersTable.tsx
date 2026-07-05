@@ -135,35 +135,57 @@ export const VolunteersTable = () => {
             </h3>
 
             <div className="space-y-4 text-sm font-sans">
-              <div>
-                <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Full Name</label>
-                <div className="text-white font-bold text-base">{selectedVolunteer.full_name}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Full Name</label>
+                  <div className="text-white font-bold">{selectedVolunteer.full_name}</div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Current Status</label>
+                  <span className={`inline-block px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest rounded-sm ${
+                    selectedVolunteer.status === 'APPROVED' ? 'bg-[#00ff00]/10 text-[#00ff00]' :
+                    selectedVolunteer.status === 'REJECTED' ? 'bg-[#E10600]/10 text-[#E10600]' :
+                    'bg-white/10 text-white/70'
+                  }`}>
+                    {selectedVolunteer.status}
+                  </span>
+                </div>
               </div>
 
-              <div>
-                <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Email Address</label>
-                <div className="text-white">{selectedVolunteer.email}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Email Address</label>
+                  <div className="text-white text-xs break-all">{selectedVolunteer.email}</div>
+                </div>
+                <div>
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Phone Number</label>
+                  <div className="text-white text-xs">{selectedVolunteer.phone}</div>
+                </div>
               </div>
 
-              <div>
-                <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Phone Number</label>
-                <div className="text-white">{selectedVolunteer.phone}</div>
+              <div className="border-t border-white/5 pt-3">
+                <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">College</label>
+                <div className="text-white">{selectedVolunteer.college}</div>
               </div>
 
-              <div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-1">
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Degree</label>
+                  <div className="text-white">{selectedVolunteer.degree}</div>
+                </div>
+                <div className="col-span-1">
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Year</label>
+                  <div className="text-white">{selectedVolunteer.year}</div>
+                </div>
+                <div className="col-span-1">
+                  <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Branch</label>
+                  <div className="text-white">{selectedVolunteer.branch}</div>
+                </div>
+              </div>
+
+              <div className="border-t border-white/5 pt-3">
                 <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Submission Date</label>
-                <div className="text-white">{new Date(selectedVolunteer.created_at).toLocaleString()}</div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Current Status</label>
-                <span className={`inline-block mt-1 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest rounded-sm ${
-                  selectedVolunteer.status === 'APPROVED' ? 'bg-[#00ff00]/10 text-[#00ff00]' :
-                  selectedVolunteer.status === 'REJECTED' ? 'bg-[#E10600]/10 text-[#E10600]' :
-                  'bg-white/10 text-white/70'
-                }`}>
-                  {selectedVolunteer.status}
-                </span>
+                <div className="text-white text-xs">{new Date(selectedVolunteer.created_at).toLocaleString()}</div>
               </div>
             </div>
 
