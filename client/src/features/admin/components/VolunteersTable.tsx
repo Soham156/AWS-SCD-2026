@@ -46,6 +46,8 @@ export const VolunteersTable = () => {
             <tr className="border-b border-white/10 text-xs font-mono uppercase tracking-widest text-white/50">
               <th className="p-4 font-normal">Volunteer Name</th>
               <th className="p-4 font-normal">Contact Info</th>
+              <th className="p-4 font-normal">College & Branch</th>
+              <th className="p-4 font-normal">Degree & Year</th>
               <th className="p-4 font-normal">Submission Date</th>
               <th className="p-4 font-normal">Status</th>
               <th className="p-4 font-normal">Actions</th>
@@ -54,13 +56,13 @@ export const VolunteersTable = () => {
           <tbody className="text-sm font-sans divide-y divide-white/5">
             {volunteers.map(v => (
               <tr key={v.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="p-4 align-top w-1/4">
+                <td className="p-4 align-top w-1/5">
                   <div className="font-bold text-white mb-1 flex items-center gap-1.5">
                     <User size={14} className="text-aws-orange" />
                     {v.full_name}
                   </div>
                 </td>
-                <td className="p-4 align-top w-1/4">
+                <td className="p-4 align-top w-1/5">
                   <div className="text-white/60 text-xs flex items-center gap-1.5 mb-1.5">
                     <Mail size={12} className="text-white/30" />
                     {v.email}
@@ -70,10 +72,18 @@ export const VolunteersTable = () => {
                     {v.phone}
                   </div>
                 </td>
-                <td className="p-4 align-top w-1/4">
+                <td className="p-4 align-top w-1/5">
+                  <div className="text-white font-semibold mb-1 text-xs">{v.college}</div>
+                  <div className="text-white/50 text-[11px]">{v.branch}</div>
+                </td>
+                <td className="p-4 align-top w-1/6">
+                  <div className="text-white text-xs mb-1">{v.degree}</div>
+                  <div className="text-white/50 text-[11px]">{v.year}</div>
+                </td>
+                <td className="p-4 align-top w-1/6">
                   <div className="text-white/60 text-xs flex items-center gap-1.5">
                     <Calendar size={12} className="text-white/30" />
-                    {new Date(v.created_at).toLocaleString()}
+                    {new Date(v.created_at).toLocaleDateString()}
                   </div>
                 </td>
                 <td className="p-4 align-top w-1/8">
@@ -109,7 +119,7 @@ export const VolunteersTable = () => {
             ))}
             {volunteers.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-white/30 font-mono text-xs">
+                <td colSpan={7} className="p-8 text-center text-white/30 font-mono text-xs">
                   No volunteer applications found.
                 </td>
               </tr>
