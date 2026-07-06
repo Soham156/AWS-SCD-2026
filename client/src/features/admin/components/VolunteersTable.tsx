@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
-import { X, Mail, Phone, User, Calendar } from 'lucide-react';
+import { X, Mail, Phone, User, Calendar, Search, Users, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { motion } from 'motion/react';
 import { adminApi } from '../services/adminApi';
 
 export const VolunteersTable = () => {
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVolunteer, setSelectedVolunteer] = useState<any | null>(null);
+
+  // Filter and Sort states
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [sortBy, setSortBy] = useState('date_desc');
 
   useEffect(() => {
     fetchVolunteers();
@@ -36,10 +42,126 @@ export const VolunteersTable = () => {
     }
   };
 
+  // Stats derived from the original unfiltered volunteers list
+  const totalCount = volunteers.length;
+  const approvedCount = volunteers.filter(v => v.status === 'APPROVED').length;
+  const pendingCount = volunteers.filter(v => v.status === 'PENDING').length;
+  const rejectedCount = volunteers.filter(v => v.status === 'REJECTED').length;
+
+  // Stats structure
+  const stats = [
+    { label: 'Total Applications', value: totalCount, icon: Users, color: 'text-aws-orange', bg: 'bg-[#FF9900]/5' },
+    { label: 'Accepted', value: approvedCount, icon: CheckCircle2, color: 'text-[#00ff00]', bg: 'bg-[#00ff00]/5' },
+    { label: 'Pending', value: pendingCount, icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-400/5' },
+    { label: 'Rejected', value: rejectedCount, icon: AlertTriangle, color: 'text-[#E10600]', bg: 'bg-[#E10600]/5' }
+  ];
+
+  // Processed volunteers list (filtered & sorted)
+  const processedVolunteers = volunteers
+    .filter(v => {
+      // Status Filter
+      if (statusFilter !== 'ALL' && v.status !== statusFilter) return false;
+
+      // Search Filter (checks name, email, phone, college, branch, degree)
+      if (search.trim()) {
+        const query = search.toLowerCase();
+        return (
+          (v.full_name || '').toLowerCase().includes(query) ||
+          (v.email || '').toLowerCase().includes(query) ||
+          (v.phone || '').toLowerCase().includes(query) ||
+          (v.college || '').toLowerCase().includes(query) ||
+          (v.branch || '').toLowerCase().includes(query) ||
+          (v.degree || '').toLowerCase().includes(query)
+        );
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'date_desc') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      if (sortBy === 'date_asc') {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      if (sortBy === 'name_asc') {
+        return (a.full_name || '').localeCompare(b.full_name || '');
+      }
+      if (sortBy === 'name_desc') {
+        return (b.full_name || '').localeCompare(a.full_name || '');
+      }
+      if (sortBy === 'college_asc') {
+        return (a.college || '').localeCompare(b.college || '');
+      }
+      return 0;
+    });
+
   if (loading) return <div className="text-white/50 font-mono text-sm">Loading...</div>;
 
   return (
     <>
+      {/* Overview Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className={`border border-white/5 p-5 ${stat.bg}`}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <stat.icon size={14} className={stat.color} />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">
+                {stat.label}
+              </span>
+            </div>
+            <p className={`font-sans font-black italic text-2xl ${stat.color}`}>
+              {stat.value}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Filter and Sort Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[200px]">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search name, email, college, degree..."
+            className="w-full bg-[#0a0a0a] border border-white/10 pl-9 pr-3 py-2 text-xs text-white font-mono placeholder:text-white/20 focus:border-aws-orange focus:outline-none"
+          />
+        </div>
+        
+        {/* Filter by Status */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+
+        {/* Sort By */}
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+        >
+          <option value="date_desc">Submission: Newest First</option>
+          <option value="date_asc">Submission: Oldest First</option>
+          <option value="name_asc">Name: A-Z</option>
+          <option value="name_desc">Name: Z-A</option>
+          <option value="college_asc">College: A-Z</option>
+        </select>
+      </div>
+
+      {/* Volunteers List Table */}
       <div className="bg-[#111] border border-white/5 overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -54,7 +176,7 @@ export const VolunteersTable = () => {
             </tr>
           </thead>
           <tbody className="text-sm font-sans divide-y divide-white/5">
-            {volunteers.map(v => (
+            {processedVolunteers.map(v => (
               <tr key={v.id} className="hover:bg-white/[0.02] transition-colors">
                 <td className="p-4 align-top w-1/5">
                   <div className="font-bold text-white mb-1 flex items-center gap-1.5">
@@ -117,7 +239,7 @@ export const VolunteersTable = () => {
                 </td>
               </tr>
             ))}
-            {volunteers.length === 0 && (
+            {processedVolunteers.length === 0 && (
               <tr>
                 <td colSpan={7} className="p-8 text-center text-white/30 font-mono text-xs">
                   No volunteer applications found.

@@ -29,6 +29,26 @@ export const adminApi = {
     responseType: 'blob',
   }),
 
+  exportVolunteers: () => api.get('/api/admin/export-volunteers', {
+    headers: getHeaders(),
+    responseType: 'blob',
+  }),
+
+  exportSpeakers: () => api.get('/api/admin/export-speakers', {
+    headers: getHeaders(),
+    responseType: 'blob',
+  }),
+
+  exportSponsors: () => api.get('/api/admin/export-sponsors', {
+    headers: getHeaders(),
+    responseType: 'blob',
+  }),
+
+  exportPartners: () => api.get('/api/admin/export-partners', {
+    headers: getHeaders(),
+    responseType: 'blob',
+  }),
+
   updatePassType: (id: string, data: Record<string, any>) =>
     api.put(`/api/admin/passes/${id}`, data, { headers: getHeaders() }),
 

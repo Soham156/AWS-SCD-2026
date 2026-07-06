@@ -360,6 +360,123 @@ router.get('/export-csv', async (_req, res, next) => {
   }
 });
 
+// GET /api/admin/export-volunteers
+router.get('/export-volunteers', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('volunteer_applications')
+      .select('full_name, email, phone, college, degree, year, branch, status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const headers = 'full_name,email,phone,college,degree,year,branch,status,created_at';
+    const rows = (data || []).map((r) =>
+      [r.full_name, r.email, r.phone || '', r.college, r.degree, r.year, r.branch, r.status, r.created_at]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+
+    const csv = [headers, ...rows].join('\n');
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=scd-volunteers-${date}.csv`);
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/export-speakers
+router.get('/export-speakers', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('speaker_applications')
+      .select('full_name, email, phone, city, designation, organization, linkedin_url, portfolio_url, bio, session_title, session_abstract, session_level, duration, previous_experience, notes, status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const headers = 'full_name,email,phone,city,designation,organization,linkedin_url,portfolio_url,bio,session_title,session_abstract,session_level,duration,previous_experience,notes,status,created_at';
+    const rows = (data || []).map((r) =>
+      [
+        r.full_name, r.email, r.phone || '', r.city, r.designation, r.organization, 
+        r.linkedin_url || '', r.portfolio_url || '', r.bio, r.session_title, 
+        r.session_abstract, r.session_level, r.duration, r.previous_experience || '', 
+        r.notes || '', r.status, r.created_at
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+
+    const csv = [headers, ...rows].join('\n');
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=scd-speakers-${date}.csv`);
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/export-sponsors
+router.get('/export-sponsors', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('sponsor_applications')
+      .select('company, tier, contact, email, details, status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const headers = 'company,tier,contact,email,details,status,created_at';
+    const rows = (data || []).map((r) =>
+      [r.company, r.tier, r.contact, r.email, r.details || '', r.status, r.created_at]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+
+    const csv = [headers, ...rows].join('\n');
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=scd-sponsors-${date}.csv`);
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/export-partners
+router.get('/export-partners', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('community_partners')
+      .select('community_name, community_type, organizer_name, organizer_email, organizer_phone, city, member_size, expectations, website_url, linkedin_url, status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const headers = 'community_name,community_type,organizer_name,organizer_email,organizer_phone,city,member_size,expectations,website_url,linkedin_url,status,created_at';
+    const rows = (data || []).map((r) =>
+      [
+        r.community_name, r.community_type, r.organizer_name, r.organizer_email, 
+        r.organizer_phone || '', r.city, r.member_size, r.expectations || '', 
+        r.website_url || '', r.linkedin_url || '', r.status, r.created_at
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+
+    const csv = [headers, ...rows].join('\n');
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=scd-partners-${date}.csv`);
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // PUT /api/admin/passes/:id
 router.put('/passes/:id', async (req, res, next) => {
   try {

@@ -154,12 +154,71 @@ export function AdminPage() {
         {activeTab === 'volunteers' && <VolunteersTable />}
         {activeTab === 'shoutout' && <EmailShoutout />}
         {activeTab === 'export' && (
-          <div className="bg-[#111] border border-white/5 p-8">
-            <h3 className="font-sans font-bold text-sm text-white mb-2">Download Registrations</h3>
-            <p className="font-mono text-xs text-white/40 mb-6">
-              Export all registration data as a CSV file for offline analysis.
-            </p>
-            <ExportCSVButton />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Registrations Export */}
+            <div className="bg-[#111] border border-white/5 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="font-sans font-black italic uppercase tracking-tight text-white mb-2">Export Registrations</h3>
+                <p className="font-sans text-xs text-white/40 mb-6">
+                  Download all attendee registration data including ticket details, payment status, and check-in logs.
+                </p>
+              </div>
+              <div>
+                <ExportCSVButton type="registrations" />
+              </div>
+            </div>
+
+            {/* Volunteers Export */}
+            <div className="bg-[#111] border border-white/5 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="font-sans font-black italic uppercase tracking-tight text-white mb-2">Export Volunteers</h3>
+                <p className="font-sans text-xs text-white/40 mb-6">
+                  Download volunteer registration lists including personal details, academic details (college, branch, degree, year), and selection status.
+                </p>
+              </div>
+              <div>
+                <ExportCSVButton type="volunteers" />
+              </div>
+            </div>
+
+            {/* Speakers / CFP Export */}
+            <div className="bg-[#111] border border-white/5 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="font-sans font-black italic uppercase tracking-tight text-white mb-2">Export Speakers (CFP)</h3>
+                <p className="font-sans text-xs text-white/40 mb-6">
+                  Download call-for-proposal submissions containing speaker bios, session titles, duration, abstract details, and review status.
+                </p>
+              </div>
+              <div>
+                <ExportCSVButton type="speakers" />
+              </div>
+            </div>
+
+            {/* Sponsors Export */}
+            <div className="bg-[#111] border border-white/5 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="font-sans font-black italic uppercase tracking-tight text-white mb-2">Export Sponsors</h3>
+                <p className="font-sans text-xs text-white/40 mb-6">
+                  Download corporate sponsor enquiries including contact details, desired tiers, proposals, and status.
+                </p>
+              </div>
+              <div>
+                <ExportCSVButton type="sponsors" />
+              </div>
+            </div>
+
+            {/* Partners Export */}
+            <div className="bg-[#111] border border-white/5 p-6 flex flex-col justify-between text-left">
+              <div>
+                <h3 className="font-sans font-black italic uppercase tracking-tight text-white mb-2">Export Partners</h3>
+                <p className="font-sans text-xs text-white/40 mb-6">
+                  Download community partnership registration details, member sizes, websites, and validation status.
+                </p>
+              </div>
+              <div>
+                <ExportCSVButton type="partners" />
+              </div>
+            </div>
           </div>
         )}
         {activeTab === 'settings' && <AdminSettings />}
