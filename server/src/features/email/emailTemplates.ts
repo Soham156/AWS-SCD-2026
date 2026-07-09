@@ -271,13 +271,15 @@ export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData):
                         </td>
                       </tr>
                     </table>
-                    <a href="${esc(referral_url)}"
-                       style="background:#FF9900;color:#111827;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;letter-spacing:0.3px;">
-                      📋 Copy Referral Link
-                    </a>
-                    <p style="margin:12px 0 0;font-size:11px;color:#9ca3af;word-break:break-all;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;">
-                      ${esc(referral_url)}
-                    </p>
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 12px;">
+                      <tr>
+                        <td style="background:#FF9900;border-radius:8px;padding:12px 28px;text-align:center;">
+                          <span style="color:#111827;font-weight:700;font-size:14px;letter-spacing:0.3px;">📋 Copy Referral Link</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:0;font-size:13px;color:#FF9900;font-family:monospace;word-break:break-all;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;background:#0f1923;border:1px solid #FF9900;border-radius:6px;padding:10px 18px;">${esc(referral_url)}</p>
+                    <p style="margin:8px 0 0;font-size:11px;color:#6b7280;">Long press or select the link above to copy</p>
                   </td>
                 </tr>
               </table>
@@ -675,13 +677,15 @@ export function buildGroupRegistrationConfirmationEmail(data: GroupConfirmationE
                         </td>
                       </tr>
                     </table>
-                    <a href="${esc(referral_url)}"
-                       style="background:#FF9900;color:#111827;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;letter-spacing:0.3px;">
-                      📋 Copy Referral Link
-                    </a>
-                    <p style="margin:12px 0 0;font-size:11px;color:#9ca3af;word-break:break-all;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;">
-                      ${esc(referral_url)}
-                    </p>
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 12px;">
+                      <tr>
+                        <td style="background:#FF9900;border-radius:8px;padding:12px 28px;text-align:center;">
+                          <span style="color:#111827;font-weight:700;font-size:14px;letter-spacing:0.3px;">📋 Copy Referral Link</span>
+                        </td>
+                      </tr>
+                    </table>
+                    <p style="margin:0;font-size:13px;color:#FF9900;font-family:monospace;word-break:break-all;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;background:#0f1923;border:1px solid #FF9900;border-radius:6px;padding:10px 18px;">${esc(referral_url)}</p>
+                    <p style="margin:8px 0 0;font-size:11px;color:#6b7280;">Long press or select the link above to copy</p>
                   </td>
                 </tr>
               </table>

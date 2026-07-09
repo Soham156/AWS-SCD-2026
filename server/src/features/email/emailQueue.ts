@@ -14,6 +14,7 @@ export async function enqueueEmail(params: {
   subject: string;
   html_body: string;
   metadata?: Record<string, unknown>;
+  forceResend?: boolean;
 }): Promise<{ enqueued: boolean; job_id?: string }> {
   // Check if a job with this key already exists and is sent or processing
   const { data: existing } = await supabase
@@ -23,7 +24,7 @@ export async function enqueueEmail(params: {
     .single();
 
   if (existing) {
-    if (existing.status === 'sent' || existing.status === 'processing') {
+    if ((existing.status === 'sent' || existing.status === 'processing') && !params.forceResend) {
       console.log(`[Email Queue] Skipping duplicate: ${params.idempotency_key} (status: ${existing.status})`);
       return { enqueued: false, job_id: existing.id };
     }
@@ -86,7 +87,7 @@ export async function enqueueEmail(params: {
  * High-level helper: enqueue registration confirmation emails for an entire order.
  * Called from webhookRouter after payment success + ticket generation.
  */
-export async function enqueueOrderEmails(order_id: string, primary_email?: string): Promise<void> {
+export async function enqueueOrderEmails(order_id: string, primary_email?: string, forceResend?: boolean): Promise<void> {
   // Fetch all registrations for this order
   const { data: regs, error } = await supabase
     .from('registrations')
@@ -137,6 +138,7 @@ export async function enqueueOrderEmails(order_id: string, primary_email?: strin
       recipient_name: reg.full_name,
       subject,
       html_body: html,
+      forceResend,
       metadata: {
         registration_id: reg.id,
         ticket_number: reg.ticket_number,
@@ -203,6 +205,7 @@ export async function enqueueOrderEmails(order_id: string, primary_email?: strin
     recipient_name: primaryReg.full_name,
     subject,
     html_body: html,
+    forceResend,
     metadata: {
       order_id,
       group_tickets: groupTickets,
@@ -234,6 +237,7 @@ export async function enqueueOrderEmails(order_id: string, primary_email?: strin
       recipient_name: reg.full_name,
       subject: stdSubject,
       html_body: stdHtml,
+      forceResend,
       metadata: {
         registration_id: reg.id,
         ticket_number: reg.ticket_number,

@@ -282,7 +282,7 @@ router.get('/my-referrals', async (req, res, next) => {
       activeOrder = { ...targetOrder, referral_code: generatedCode };
 
       // Re-email ticket with new referral code
-      enqueueOrderEmails(targetOrder.id, targetOrder.primary_email || cleanEmail)
+      enqueueOrderEmails(targetOrder.id, targetOrder.primary_email || cleanEmail, true)
         .catch(err => console.error('[MyReferrals] Failed to send retroactive referral email:', err));
     }
 
