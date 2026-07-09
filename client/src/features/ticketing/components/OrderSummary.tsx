@@ -11,16 +11,31 @@ interface Props {
   attendees: AttendeeData[];
   discountAmount?: number;
   loading?: boolean;
-  onApplyPromo: (code: string) => Promise<boolean>;
+  onApplyCode: (code: string) => Promise<boolean>;
   onRemovePromo?: () => Promise<boolean>;
   onProceed: () => void;
   onBack: () => void;
+  referralCode?: string | null;
+  onRemoveReferral?: () => Promise<boolean>;
+  error?: string | null;
 }
 
-export function OrderSummary({ selectedPass, quantity, attendees, discountAmount = 0, loading, onApplyPromo, onRemovePromo, onProceed, onBack }: Props) {
-  const [promoCode, setPromoCode] = useState('');
-  const [promoLoading, setPromoLoading] = useState(false);
-  const [promoApplied, setPromoApplied] = useState(discountAmount > 0);
+export function OrderSummary({
+  selectedPass,
+  quantity,
+  attendees,
+  discountAmount = 0,
+  loading,
+  onApplyCode,
+  onRemovePromo,
+  onProceed,
+  onBack,
+  referralCode,
+  onRemoveReferral,
+  error
+}: Props) {
+  const [codeInput, setCodeInput] = useState('');
+  const [codeLoading, setCodeLoading] = useState(false);
 
   const basePrice = Number(selectedPass.price);
   const subtotal = basePrice * quantity;
@@ -33,31 +48,36 @@ export function OrderSummary({ selectedPass, quantity, attendees, discountAmount
   const gatewayFee = (postDiscount * gatewayFeePercent) / 100;
   const total = Math.round((postDiscount + platformFee + gatewayFee) * 100) / 100;
 
-  const handlePromoApply = async () => {
-    if (!promoCode) return;
-    setPromoLoading(true);
-    const success = await onApplyPromo(promoCode);
+  const handleApplyCode = async () => {
+    if (!codeInput) return;
+    setCodeLoading(true);
+    const success = await onApplyCode(codeInput);
     if (success) {
-      setPromoApplied(true);
+      setCodeInput('');
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
       });
     }
-    setPromoLoading(false);
+    setCodeLoading(false);
   };
 
   const handlePromoRemove = async () => {
     if (!onRemovePromo) return;
-    setPromoLoading(true);
-    const success = await onRemovePromo();
-    if (success) {
-      setPromoApplied(false);
-      setPromoCode('');
-    }
-    setPromoLoading(false);
+    setCodeLoading(true);
+    await onRemovePromo();
+    setCodeLoading(false);
   };
+
+  const handleReferralRemove = async () => {
+    if (!onRemoveReferral) return;
+    setCodeLoading(true);
+    await onRemoveReferral();
+    setCodeLoading(false);
+  };
+
+  const bothApplied = (discountAmount > 0) && !!referralCode;
 
   return (
     <motion.div
@@ -82,44 +102,72 @@ export function OrderSummary({ selectedPass, quantity, attendees, discountAmount
             <span>₹{subtotal.toFixed(2)}</span>
           </div>
 
-          {/* Promo Code Input */}
-          {!promoApplied ? (
-            <div className="flex gap-2 py-2">
-              <input aria-label="input"
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 my-2 border border-f1-red/30 bg-f1-red/10 text-f1-red text-[11px] font-mono text-center">
+              {error}
+            </div>
+          )}
+
+          {/* Unified Promo/Referral Code Input */}
+          {!bothApplied && (
+            <div className="flex gap-2 py-2 border-t border-white/5">
+              <input aria-label="code input"
                 type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder="PROMO CODE"
+                value={codeInput}
+                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
+                placeholder="PROMO OR REFERRAL CODE"
                 className="flex-1 bg-[#111] border border-white/10 px-3 py-2 text-xs text-white focus:border-aws-orange focus:outline-none uppercase tracking-widest font-mono"
               />
               <button
                 type="button"
-                onClick={handlePromoApply}
-                disabled={promoLoading || !promoCode}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-mono uppercase tracking-widest transition-colors"
+                onClick={handleApplyCode}
+                disabled={codeLoading || !codeInput || loading}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-mono uppercase tracking-widest transition-colors cursor-pointer"
               >
-                {promoLoading ? <Loader2 size={12} className="animate-spin" /> : 'Apply'}
+                {codeLoading ? <Loader2 size={12} className="animate-spin" /> : 'Apply'}
               </button>
             </div>
-          ) : (
-            <div className="flex justify-between items-center text-emerald-400 text-xs py-2 bg-emerald-500/10 px-3 border border-emerald-500/20">
+          )}
+
+          {/* Applied Promo Code */}
+          {discountAmount > 0 && (
+            <div className="flex justify-between items-center text-emerald-400 text-xs py-2 bg-emerald-500/10 px-3 border border-emerald-500/20 border-t border-white/5">
               <div className="flex items-center gap-2">
                 <span>Discount Applied</span>
                 <button
                   type="button"
                   onClick={handlePromoRemove}
-                  disabled={promoLoading}
-                  className="p-1 hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center text-f1-red hover:text-red-400"
+                  disabled={codeLoading || loading}
+                  className="p-1 hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center text-f1-red hover:text-red-400 cursor-pointer"
                   title="Remove Promo Code"
                 >
-                  {promoLoading ? <Loader2 size={12} className="animate-spin text-emerald-400" /> : <X size={14} />}
+                  {codeLoading ? <Loader2 size={12} className="animate-spin text-emerald-400" /> : <X size={14} />}
                 </button>
               </div>
               <span>- ₹{discountAmount.toFixed(2)}</span>
             </div>
           )}
 
-          <div className="flex justify-between items-center text-white/50 text-xs">
+          {/* Applied Referral Code */}
+          {referralCode && (
+            <div className="flex justify-between items-center text-aws-orange text-xs py-2 bg-aws-orange/5 px-3 border border-aws-orange/20 border-t border-white/5">
+              <div className="flex items-center gap-2">
+                <span>Referral Applied ({referralCode})</span>
+                <button
+                  type="button"
+                  onClick={handleReferralRemove}
+                  disabled={codeLoading || loading}
+                  className="p-1 hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center text-f1-red hover:text-red-400 cursor-pointer"
+                  title="Remove Referral Code"
+                >
+                  {codeLoading ? <Loader2 size={12} className="animate-spin text-aws-orange" /> : <X size={14} />}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center text-white/50 text-xs border-t border-white/5 pt-2">
             <span>Platform Fee ({platformFeePercent}%)</span>
             <span>₹{platformFee.toFixed(2)}</span>
           </div>
@@ -161,7 +209,7 @@ export function OrderSummary({ selectedPass, quantity, attendees, discountAmount
           <button
             type="button"
             onClick={onBack}
-            className="px-6 py-3 border border-white/10 text-white/60 hover:text-white font-mono text-xs uppercase tracking-widest transition-colors disabled:opacity-50"
+            className="px-6 py-3 border border-white/10 text-white/60 hover:text-white font-mono text-xs uppercase tracking-widest transition-colors disabled:opacity-50 cursor-pointer"
             disabled={loading}
           >
             Back
@@ -170,7 +218,7 @@ export function OrderSummary({ selectedPass, quantity, attendees, discountAmount
             type="button"
             onClick={onProceed}
             disabled={loading}
-            className="flex-1 bg-aws-orange text-black font-mono font-bold text-xs uppercase tracking-widest py-3 hover:bg-white transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+            className="flex-1 bg-aws-orange text-black font-mono font-bold text-xs uppercase tracking-widest py-3 hover:bg-white transition-colors disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : 'Confirm & Pay'}
           </button>

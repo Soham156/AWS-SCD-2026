@@ -2,6 +2,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ChevronRight, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { api } from '../../../lib/api';
 import { usePassTypes } from '../hooks/usePassTypes';
 import { useRegistration } from '../hooks/useRegistration';
 import { useSettings } from '../hooks/useSettings';
@@ -26,10 +27,31 @@ export function TicketsPurchasePage() {
   useEffect(() => {
     const orderId = searchParams.get('orderId');
     const passId = searchParams.get('passId');
+    const refCode = searchParams.get('ref');
     const shouldVerify = searchParams.get('verify') === 'true';
 
     if (orderId && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
       reg.restoreOrder(orderId, shouldVerify);
+    } else if (refCode && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
+      // Validate referral code
+      api.get(`/api/orders/referral/${encodeURIComponent(refCode)}`)
+        .then((res) => {
+          if (res.data.valid) {
+            reg.setReferralCode(refCode.toUpperCase());
+          }
+          // Clear ref param so back button works
+          setSearchParams((prev) => {
+            prev.delete('ref');
+            return prev;
+          }, { replace: true });
+        })
+        .catch(() => {
+          // Invalid code — silently fall through to normal flow
+          setSearchParams((prev) => {
+            prev.delete('ref');
+            return prev;
+          }, { replace: true });
+        });
     } else if (passId && !hasOrder && regStep === 1 && !regLoading && !passesLoading && passes.length > 0) {
       const pass = passes.find(p => p.id === passId);
       if (pass) {
@@ -151,10 +173,13 @@ export function TicketsPurchasePage() {
                   attendees={reg.attendees}
                   discountAmount={reg.order.discountAmount}
                   loading={reg.loading}
-                  onApplyPromo={reg.applyPromo}
+                  onApplyCode={reg.applyCode}
                   onRemovePromo={reg.removePromo}
                   onProceed={reg.proceedToPaymentStep}
                   onBack={reg.goBack}
+                  referralCode={reg.referralCode}
+                  onRemoveReferral={reg.removeReferralCode}
+                  error={reg.error}
                 />
               </div>
             )}
@@ -181,6 +206,7 @@ export function TicketsPurchasePage() {
                   selectedPass={reg.selectedPass}
                   qrToken={reg.attendees?.[0]?.qr_token || "GROUP"}
                   quantity={reg.order.quantity}
+                  referralCode={reg.order.referral_code}
                 />
               </div>
             )}

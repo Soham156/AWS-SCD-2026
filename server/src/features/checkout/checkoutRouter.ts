@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { supabase } from '../../shared/lib/supabase.js';
 import { checkoutLimiter } from '../../shared/middleware/rateLimiter.js';
 import { runCleanups } from '../../shared/lib/cleanup.js';
+import { fulfillOrder } from '../../shared/lib/fulfillOrder.js';
 
 const router = Router();
 
@@ -81,6 +82,9 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const cashfreeOrderId = `SCD-${shortId}-${Date.now()}`;
 
     let frontendUrl = (process.env.FRONTEND_URL || 'https://aws-scd-2026.vercel.app').replace(/\/+$/, '');
+    if (process.env.NODE_ENV === 'production' && frontendUrl.includes('localhost')) {
+      frontendUrl = 'https://aws-scd-dhule.tech';
+    }
     if (!frontendUrl.startsWith('http')) {
       frontendUrl = `https://${frontendUrl}`;
     }
@@ -100,6 +104,36 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     const finalAmount = Math.round((basePrice + platformFee + gatewayFee) * 100) / 100;
     const primaryPhone = order.registrations?.[0]?.phone || "0000000000";
     const primaryName = order.registrations?.[0]?.full_name || "Group Buyer";
+
+    if (finalAmount <= 0) {
+      // Free ticket checkout: bypass Cashfree entirely
+      const shortId = order.id.split('-')[0];
+      const freeOrderId = `FREE-${shortId}-${Date.now()}`;
+
+      // Insert payment record as initiated (required for fulfillOrder to process)
+      const { error: paymentInsertError } = await supabase.from('payments').insert({
+        order_id: order.id,
+        cashfree_order_id: freeOrderId,
+        amount: 0,
+        status: 'initiated',
+      });
+
+      if (paymentInsertError) {
+        console.error('[Checkout] Failed to record free payment session:', paymentInsertError);
+        await supabase.rpc('release_tickets', { p_pass_id: order.pass_type_id, p_amount: order.quantity });
+        res.status(500).json({ error: 'Failed to complete free ticket checkout. Please try again.' });
+        return;
+      }
+
+      // Fulfill order immediately
+      await fulfillOrder(freeOrderId, { gatewayResponse: { free: true, note: '100% discount promo code' } });
+
+      res.json({
+        free: true,
+        order_id: order.id,
+      });
+      return;
+    }
 
     // Create Cashfree order via API
     const cashfreeRes = await fetch(`${cashfreeBaseUrl}/orders`, {

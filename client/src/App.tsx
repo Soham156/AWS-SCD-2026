@@ -5,6 +5,7 @@ import { Suspense, lazy } from 'react';
 
 const TicketPage = lazy(() => import('./features/ticketing/pages/TicketPage').then(module => ({ default: module.TicketPage })));
 const TicketsPurchasePage = lazy(() => import('./features/ticketing/pages/TicketsPurchasePage').then(module => ({ default: module.TicketsPurchasePage })));
+const MyReferralsPage = lazy(() => import('./features/ticketing/pages/MyReferralsPage'));
 const ScannerPage = lazy(() => import('./features/scanner/pages/ScannerPage').then(module => ({ default: module.ScannerPage })));
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage').then(module => ({ default: module.AdminPage })));
 const SpeakerPage = lazy(() => import('./features/speaker/pages/SpeakerPage').then(module => ({ default: module.SpeakerPage })));
@@ -113,6 +114,7 @@ export default function App() {
         <Route path="/sponsors" element={<SponsorPage />} />
         <Route path="/ticket" element={<TicketsPurchasePage />} />
         <Route path="/ticket/:id" element={<TicketPage />} />
+        <Route path="/refertowin" element={<MyReferralsPage />} />
         <Route path="/cfp" element={<SpeakerPage />} />
         <Route path="/volunteer" element={<VolunteerPage />} />
         <Route path="/scanner" element={<ScannerPage />} />

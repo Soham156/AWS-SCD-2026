@@ -133,6 +133,10 @@ export const otpEmailTemplate = `<!doctype html>
                             letter-spacing: 8px;
                             color: #111827;
                             font-family: monospace;
+                            user-select: all;
+                            -webkit-user-select: all;
+                            -moz-user-select: all;
+                            -ms-user-select: all;
                           "
                         >
                           {{otp}}

@@ -55,6 +55,12 @@ export const adminApi = {
   createPassType: (data: Record<string, any>) =>
     api.post('/api/admin/passes', data, { headers: getHeaders() }),
 
+  getReferralLeaderboard: () =>
+    api.get('/api/admin/referral-leaderboard', { headers: getHeaders() }),
+
+  getReferralDetails: () =>
+    api.get('/api/admin/referral-details', { headers: getHeaders() }),
+
   sendShoutout: (data: { mimeMessage: string }) =>
     api.post('/api/admin/shoutout', data, { headers: getHeaders() }),
 };

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { api } from '../../../lib/api';
 import { getCashfree } from '../../../lib/cashfree';
 import type { PassType } from './usePassTypes';
@@ -19,6 +19,7 @@ interface OrderData {
   total_amount: number;
   discountAmount?: number;
   quantity: number;
+  referral_code?: string;
 }
 
 interface RegistrationState {
@@ -30,6 +31,7 @@ interface RegistrationState {
   primaryEmail: string;
   loading: boolean;
   error: string | null;
+  referralCode: string | null;
 }
 
 export function useRegistration() {
@@ -42,15 +44,19 @@ export function useRegistration() {
     primaryEmail: '',
     loading: false,
     error: null,
+    referralCode: null,
   });
+
+  const referralCodeRef = useRef<string | null>(null);
 
   const selectPass = useCallback(async (pass: PassType, quantity: number = 1) => {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
-      const res = await api.post('/api/orders/create', {
-        pass_type_id: pass.id,
-        quantity,
-      });
+      const body: any = { pass_type_id: pass.id, quantity };
+      // Include referral code if one was set via URL
+      if (referralCodeRef.current) body.referred_by = referralCodeRef.current;
+
+      const res = await api.post('/api/orders/create', body);
       const order_id = res.data.order_id;
       
       setState((s) => ({ 
@@ -66,7 +72,8 @@ export function useRegistration() {
       // Update URL silently
       const url = new URL(window.location.href);
       url.searchParams.set('orderId', order_id);
-      url.searchParams.delete('passId'); // Ensure it's removed
+      url.searchParams.delete('passId');
+      url.searchParams.delete('ref');
       window.history.replaceState({}, '', url);
 
     } catch (err: any) {
@@ -79,6 +86,7 @@ export function useRegistration() {
     try {
       const res = await api.get(`/api/orders/${orderId}`);
       const data = res.data;
+      referralCodeRef.current = data.referred_by_code || null;
       const fullStateUpdate = {
         selectedPass: {
           id: data.pass_types.id,
@@ -92,11 +100,12 @@ export function useRegistration() {
         order: { order_id: data.id, total_amount: data.total_amount, quantity: data.quantity, discountAmount: data.discount },
         primaryEmail: data.primary_email || '',
         attendees: data.attendees && data.attendees.length > 0 ? data.attendees : [],
-        loading: false
+        loading: false,
+        referralCode: data.referred_by_code || null
       };
 
       if (data.payment_status === 'PAID') {
-        setState((s) => ({ ...s, ...fullStateUpdate, step: 5 }));
+        setState((s) => ({ ...s, ...fullStateUpdate, step: 5, order: { ...fullStateUpdate.order!, referral_code: data.referral_code } }));
         return;
       }
 
@@ -195,6 +204,12 @@ export function useRegistration() {
         order_id: state.order.order_id,
       });
 
+      if (res.data.free) {
+        // Free ticket bypass: restore the order directly (which is now PAID) to show success step
+        restoreOrder(res.data.order_id);
+        return;
+      }
+
       const { payment_session_id } = res.data;
 
       const cashfree = await getCashfree();
@@ -211,7 +226,7 @@ export function useRegistration() {
     } catch (err: any) {
       setState((s) => ({ ...s, loading: false, error: err.response?.data?.message || 'Payment initiation failed' }));
     }
-  }, [state.order, state.selectedPass]);
+  }, [state.order, state.selectedPass, restoreOrder]);
 
   const goBack = useCallback(() => {
     setState((s) => {
@@ -234,12 +249,105 @@ export function useRegistration() {
       primaryEmail: '',
       loading: false,
       error: null,
+      referralCode: null,
     });
     // clear URL
     const url = new URL(window.location.href);
     url.searchParams.delete('orderId');
+    url.searchParams.delete('ref');
     window.history.replaceState({}, '', url);
   }, []);
 
-  return { ...state, selectPass, restoreOrder, submitAttendees, applyPromo, removePromo, initiatePayment, proceedToPaymentStep, goBack, reset };
+  const setReferralCode = useCallback((code: string) => {
+    setState((s) => ({ ...s, referralCode: code }));
+    referralCodeRef.current = code;
+  }, []);
+
+  const applyReferralCode = useCallback(async (code: string) => {
+    if (!state.order) return false;
+    setState((s) => ({ ...s, loading: true, error: null }));
+    try {
+      await api.post(`/api/orders/${state.order.order_id}/apply-referral`, { code });
+      setState((s) => ({
+        ...s,
+        loading: false,
+        referralCode: code.toUpperCase(),
+      }));
+      referralCodeRef.current = code.toUpperCase();
+      return true;
+    } catch (err: any) {
+      setState((s) => ({ ...s, loading: false, error: err.response?.data?.message || 'Invalid referral code.' }));
+      return false;
+    }
+  }, [state.order]);
+
+  const applyCode = useCallback(async (code: string) => {
+    if (!state.order) return false;
+    setState((s) => ({ ...s, loading: true, error: null }));
+    const cleanCode = code.toUpperCase().trim();
+    
+    // 1. Try checking as referral code first
+    try {
+      const refCheck = await api.get(`/api/orders/referral/${encodeURIComponent(cleanCode)}`);
+      if (refCheck.data.valid) {
+        if (state.referralCode) {
+          setState((s) => ({ ...s, loading: false, error: 'A referral code is already applied.' }));
+          return false;
+        }
+        await api.post(`/api/orders/${state.order.order_id}/apply-referral`, { code: cleanCode });
+        setState((s) => ({
+          ...s,
+          loading: false,
+          referralCode: cleanCode,
+        }));
+        referralCodeRef.current = cleanCode;
+        return true;
+      }
+    } catch (err: any) {
+      if (err.response?.data?.error === 'SELF_REFERRAL') {
+        setState((s) => ({ ...s, loading: false, error: err.response?.data?.message || 'You cannot refer yourself.' }));
+        return false;
+      }
+      // Fail through to promo code check
+    }
+
+    // 2. Try applying as promo code
+    try {
+      const { data: orderData } = await api.get(`/api/orders/${state.order.order_id}`);
+      if (orderData.promo_code_id) {
+        setState((s) => ({ ...s, loading: false, error: 'A promo code is already applied.' }));
+        return false;
+      }
+      const res = await api.post(`/api/orders/${state.order.order_id}/apply-promo`, { code: cleanCode });
+      setState((s) => ({
+        ...s,
+        loading: false,
+        order: { ...s.order!, total_amount: res.data.newTotal, discountAmount: res.data.discountAmount }
+      }));
+      return true;
+    } catch (err: any) {
+      setState((s) => ({ ...s, loading: false, error: err.response?.data?.message || 'Invalid promo or referral code.' }));
+      return false;
+    }
+  }, [state.order, state.referralCode]);
+
+  const removeReferralCode = useCallback(async () => {
+    if (!state.order) return false;
+    setState((s) => ({ ...s, loading: true, error: null }));
+    try {
+      await api.delete(`/api/orders/${state.order.order_id}/referral`);
+      setState((s) => ({
+        ...s,
+        loading: false,
+        referralCode: null,
+      }));
+      referralCodeRef.current = null;
+      return true;
+    } catch (err: any) {
+      setState((s) => ({ ...s, loading: false, error: err.response?.data?.message || 'Failed to remove referral.' }));
+      return false;
+    }
+  }, [state.order]);
+
+  return { ...state, selectPass, restoreOrder, submitAttendees, applyPromo, removePromo, initiatePayment, proceedToPaymentStep, goBack, reset, setReferralCode, applyReferralCode, applyCode, removeReferralCode };
 }

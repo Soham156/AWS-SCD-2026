@@ -7,6 +7,15 @@ function generateTicketNumber(): string {
   return `SCD-${randomInt(100000, 999999)}-26`;
 }
 
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 to avoid confusion
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars[randomInt(0, chars.length)];
+  }
+  return code;
+}
+
 /**
  * Confirms a paid order exactly once: marks payment + order PAID, assigns ticket
  * numbers, and enqueues confirmation emails.
@@ -82,6 +91,52 @@ export async function fulfillOrder(
       .from('registrations')
       .update({ payment_status: 'PAID', ticket_number, qr_token: generateQRToken(ticket_number) })
       .eq('id', reg.id);
+  }
+
+  // --- Referral code generation (crash-safe: skip if already set) ---
+  const { data: existingOrder } = await supabase
+    .from('orders')
+    .select('referral_code, referred_by_order_id, primary_email, quantity')
+    .eq('id', payment.order_id)
+    .single();
+
+  if (existingOrder && !existingOrder.referral_code) {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const code = generateReferralCode();
+      const { error: codeErr } = await supabase
+        .from('orders')
+        .update({ referral_code: code })
+        .eq('id', payment.order_id)
+        .is('referral_code', null); // only set if still null (idempotent)
+      if (!codeErr) break;
+      // unique constraint violation → retry with a new code
+    }
+  }
+
+  // --- Award referral points if this order was referred ---
+  if (existingOrder?.referred_by_order_id) {
+    // Get referrer's email from their order
+    const { data: referrerOrder } = await supabase
+      .from('orders')
+      .select('primary_email')
+      .eq('id', existingOrder.referred_by_order_id)
+      .single();
+
+    if (referrerOrder?.primary_email) {
+      // Insert is idempotent via unique index on referred_order_id
+      try {
+        await supabase
+          .from('referral_points')
+          .upsert({
+            referrer_email: referrerOrder.primary_email,
+            referrer_order_id: existingOrder.referred_by_order_id,
+            referred_order_id: payment.order_id,
+            points: 25 * (existingOrder.quantity || 1),
+          }, { onConflict: 'referred_order_id' });
+      } catch (err) {
+        console.error('[Fulfill] Failed to award referral points:', err);
+      }
+    }
   }
 
   // Promo-code use increments are handled by the DB trigger on payment_status → 'PAID'.

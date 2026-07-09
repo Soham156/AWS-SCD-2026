@@ -14,14 +14,16 @@ import { SponsorsTable } from '../components/SponsorsTable';
 import { VolunteersTable } from '../components/VolunteersTable';
 import { AdminSettings } from '../components/AdminSettings';
 import { PromoCodesManager } from '../components/PromoCodesManager';
-import { Mic, Handshake, Building2, Settings, Tag, UserCheck } from 'lucide-react';
+import { ReferralLeaderboard } from '../components/ReferralLeaderboard';
+import { Mic, Handshake, Building2, Settings, Tag, UserCheck, Gift } from 'lucide-react';
 
-type Tab = 'overview' | 'passes' | 'promo' | 'registrations' | 'speakers' | 'partners' | 'sponsors' | 'volunteers' | 'shoutout' | 'export' | 'settings';
+type Tab = 'overview' | 'passes' | 'promo' | 'referrals' | 'registrations' | 'speakers' | 'partners' | 'sponsors' | 'volunteers' | 'shoutout' | 'export' | 'settings';
 
 const navItems: Array<{ key: Tab; label: string; icon: any }> = [
   { key: 'overview', label: 'Overview', icon: BarChart3 },
   { key: 'passes', label: 'Pass Types', icon: Ticket },
   { key: 'promo', label: 'Promo Codes', icon: Tag },
+  { key: 'referrals', label: 'Referrals', icon: Gift },
   { key: 'registrations', label: 'Registrations', icon: Users },
   { key: 'speakers', label: 'CFP Speakers', icon: Mic },
   { key: 'partners', label: 'Partners', icon: Handshake },
@@ -147,6 +149,7 @@ export function AdminPage() {
         {activeTab === 'overview' && <TelemetryCards />}
         {activeTab === 'passes' && <PassTypesManager />}
         {activeTab === 'promo' && <PromoCodesManager />}
+        {activeTab === 'referrals' && <ReferralLeaderboard />}
         {activeTab === 'registrations' && <RegistrationsTable />}
         {activeTab === 'speakers' && <SpeakersTable />}
         {activeTab === 'partners' && <PartnersTable />}

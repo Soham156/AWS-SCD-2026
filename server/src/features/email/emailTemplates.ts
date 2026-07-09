@@ -5,10 +5,12 @@ interface ConfirmationEmailData {
   pass_name: string;
   download_url: string;
   ticket_page_url: string;
+  referral_code?: string | null;
+  referral_url?: string | null;
 }
 
 export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData): { subject: string; html: string; text: string } {
-  const { full_name, email, ticket_number, pass_name, download_url, ticket_page_url } = data;
+  const { full_name, email, ticket_number, pass_name, download_url, ticket_page_url, referral_code, referral_url } = data;
 
   const subject = `🎟️ Your Ticket is Confirmed — AWS Student Community Day Dhule 2026`;
 
@@ -245,6 +247,42 @@ export function buildRegistrationConfirmationEmail(data: ConfirmationEmailData):
                 </a>
               </p>
 
+              ${referral_code && referral_url ? `
+              <!-- ═══ REFERRAL SECTION ═══ -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);border-radius:10px;margin-bottom:28px;border:1px solid rgba(255,153,0,0.3);">
+                <tr>
+                  <td style="padding:24px 28px;text-align:center;">
+                    <p style="margin:0 0 6px;font-size:18px;">
+                      🎁
+                    </p>
+                    <p style="margin:0 0 12px;font-size:16px;font-weight:700;color:#FF9900;">
+                      Refer a Friend, Earn Rewards!
+                    </p>
+                    <p style="margin:0 0 16px;font-size:13px;color:#d1d5db;line-height:1.6;">
+                      Share your unique referral code with friends. Every successful referral earns you
+                      <strong style="color:#10B981;">25 points</strong>. Top referrers win exciting prizes on event day!
+                    </p>
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px;">
+                      <tr>
+                        <td style="background:#0f1923;border:2px dashed #FF9900;border-radius:8px;padding:12px 24px;text-align:center;">
+                          <p style="margin:0 0 4px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Your Referral Code</p>
+                          <p style="margin:0;font-size:24px;font-weight:700;color:#FF9900;font-family:monospace;letter-spacing:3px;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;">${esc(referral_code)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <a href="${esc(referral_url)}"
+                       style="background:#FF9900;color:#111827;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;letter-spacing:0.3px;">
+                      📋 Copy Referral Link
+                    </a>
+                    <p style="margin:12px 0 0;font-size:11px;color:#9ca3af;word-break:break-all;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;">
+                      ${esc(referral_url)}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              ` : ''}
+
               <!-- ═══ IMPORTANT INFO ═══ -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0"
                      style="background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;">
@@ -368,7 +406,12 @@ ${download_url}
 📍 Venue:
 SVKM's Institute of Technology, Nardana Road, Dhule, Maharashtra 424 001, India
 
-Questions? Reach us at info@aws-scd-dhule.tech`;
+Questions? Reach us at info@aws-scd-dhule.tech${referral_code && referral_url ? `
+
+🎁 Refer a Friend, Earn Rewards!
+Your Referral Code: ${referral_code}
+Referral Link: ${referral_url}
+Each successful referral earns you 25 points. Top referrers win prizes on event day!` : ''}`;
 
   return { subject, html, text };
 }
@@ -382,7 +425,7 @@ export interface GroupConfirmationEmailData extends ConfirmationEmailData {
 }
 
 export function buildGroupRegistrationConfirmationEmail(data: GroupConfirmationEmailData): { subject: string; html: string; text: string } {
-  const { full_name, email, ticket_number, pass_name, download_url, ticket_page_url, tickets } = data;
+  const { full_name, email, ticket_number, pass_name, download_url, ticket_page_url, tickets, referral_code, referral_url } = data;
 
   const subject = `🎟️ Your Tickets are Confirmed — AWS Student Community Day Dhule 2026`;
 
@@ -608,6 +651,42 @@ export function buildGroupRegistrationConfirmationEmail(data: GroupConfirmationE
                 </tr>
               </table>
 
+              ${referral_code && referral_url ? `
+              <!-- ═══ REFERRAL SECTION ═══ -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);border-radius:10px;margin-bottom:28px;border:1px solid rgba(255,153,0,0.3);">
+                <tr>
+                  <td style="padding:24px 28px;text-align:center;">
+                    <p style="margin:0 0 6px;font-size:18px;">
+                      🎁
+                    </p>
+                    <p style="margin:0 0 12px;font-size:16px;font-weight:700;color:#FF9900;">
+                      Refer a Friend, Earn Rewards!
+                    </p>
+                    <p style="margin:0 0 16px;font-size:13px;color:#d1d5db;line-height:1.6;">
+                      Share your unique referral code with friends. Every successful referral earns you
+                      <strong style="color:#10B981;">25 points</strong>. Top referrers win exciting prizes on event day!
+                    </p>
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px;">
+                      <tr>
+                        <td style="background:#0f1923;border:2px dashed #FF9900;border-radius:8px;padding:12px 24px;text-align:center;">
+                          <p style="margin:0 0 4px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Your Referral Code</p>
+                          <p style="margin:0;font-size:24px;font-weight:700;color:#FF9900;font-family:monospace;letter-spacing:3px;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;">${esc(referral_code)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    <a href="${esc(referral_url)}"
+                       style="background:#FF9900;color:#111827;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;letter-spacing:0.3px;">
+                      📋 Copy Referral Link
+                    </a>
+                    <p style="margin:12px 0 0;font-size:11px;color:#9ca3af;word-break:break-all;user-select:all;-webkit-user-select:all;-moz-user-select:all;-ms-user-select:all;">
+                      ${esc(referral_url)}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              ` : ''}
+
               <!-- ═══ IMPORTANT INFO ═══ -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0"
                      style="background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;">
@@ -730,7 +809,12 @@ Category: ${pass_name}
 📍 Venue:
 SVKM's Institute of Technology, Nardana Road, Dhule, Maharashtra 424 001, India
 
-Questions? Reach us at info@aws-scd-dhule.tech`;
+Questions? Reach us at info@aws-scd-dhule.tech${referral_code && referral_url ? `
+
+🎁 Refer a Friend, Earn Rewards!
+Your Referral Code: ${referral_code}
+Referral Link: ${referral_url}
+Each successful referral earns you 25 points. Top referrers win prizes on event day!` : ''}`;
 
   return { subject, html, text };
 }

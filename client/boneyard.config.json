@@ -1,0 +1,7 @@
+{
+  "out": "./src/bones",
+  "color": "#111111",
+  "darkColor": "#111111",
+  "animate": "pulse",
+  "speed": "1.8s"
+}

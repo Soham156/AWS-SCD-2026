@@ -1,15 +1,23 @@
 import { motion } from 'motion/react';
 import { SectionHeader } from './LayoutElements';
-import { Check, TrendingUp } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePassTypes } from '../features/ticketing/hooks/usePassTypes';
 import { useSettings } from '../features/ticketing/hooks/useSettings';
-import { SkeletonCard } from '../features/ticketing/components/PassTypeSelector';
+import { Skeleton } from 'boneyard-js/react';
 
 export const TicketsSection = () => {
   const { passes, loading: passesLoading } = usePassTypes();
   const { registrationEnabled, loading: settingsLoading } = useSettings();
   const loading = passesLoading || settingsLoading;
+
+  const displayPasses = loading
+    ? [
+        { id: '1', name: 'Pass Name Skeleton', slug: 'SCD-PASS-1', price: 999, badge_color: '#3b82f6', label: 'SELECT', perks: ['Perk 1 details placeholder', 'Perk 2 details placeholder', 'Perk 3 details placeholder'], capacity: 10, sold: 0, is_locked: false, is_active: true },
+        { id: '2', name: 'Pass Name Skeleton', slug: 'SCD-PASS-2', price: 1999, badge_color: '#ef4444', label: 'SELECT', perks: ['Perk 1 details placeholder', 'Perk 2 details placeholder', 'Perk 3 details placeholder'], capacity: 10, sold: 0, is_locked: false, is_active: true },
+        { id: '3', name: 'Pass Name Skeleton', slug: 'SCD-PASS-3', price: 2999, badge_color: '#10b981', label: 'SELECT', perks: ['Perk 1 details placeholder', 'Perk 2 details placeholder', 'Perk 3 details placeholder'], capacity: 10, sold: 0, is_locked: false, is_active: true },
+      ]
+    : passes.filter(p => p.is_active);
 
   return (
     <section id="tickets" className="relative py-20 sm:py-32 px-4 sm:px-12 lg:px-24 bg-[#050505]">
@@ -18,35 +26,27 @@ export const TicketsSection = () => {
 
       <SectionHeader title="Paddock Passes" subtitle="Secure your spot on the grid. Choose the pass that fits your profile and join the cloud revolution." sysId="05.TKT" />
 
-      {loading ? (
+      <Skeleton name="tickets-section" loading={loading}>
         <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
-          {[1,2,3]/* eslint-disable-next-line react-doctor/js-combine-iterations */
-                  .map(i => <div key={i} className="w-full sm:w-[320px] max-w-[340px]"><SkeletonCard /></div>)}
-        </div>
-      ) : (
-        <>
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
-            {passes.filter(p => p.is_active).map((tier, i) => {
-              const isSoldOut = tier.capacity - tier.sold <= 0;
-              const isLocked = tier.is_locked;
-              const isDisabled = isSoldOut || isLocked;
-              const hex = tier.badge_color || '#ffffff';
-              const label = tier.label;
+          {displayPasses.map((tier, i) => {
+            const isSoldOut = tier.capacity - tier.sold <= 0;
+            const isLocked = tier.is_locked;
+            const isDisabled = isSoldOut || isLocked;
+            const hex = tier.badge_color || '#ffffff';
+            const label = tier.label;
 
-              return (
+            return (
               <motion.div
                 key={tier.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.6 }}
-                onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.borderColor = hex; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = `${hex}66`; }}
                 style={{ 
                   borderColor: `${hex}66`, 
                   boxShadow: isDisabled ? 'none' : `0 0 40px ${hex}26` 
                 }}
-                className={`relative text-left w-full sm:w-[320px] max-w-[340px]  rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[440px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
+                className={`relative text-left w-full sm:w-[320px] max-w-[340px] rounded-[1.5rem] border-2 bg-[#0a0a0a] flex flex-col min-h-[440px] group overflow-hidden transition-all duration-500 hover:-translate-y-2 ${isDisabled ? (isLocked ? 'opacity-70' : 'opacity-50 grayscale') : ''}`}
               >
                 {/* Event Badge Top Bar */}
                 <div className="h-10 flex justify-between items-center px-5 z-20" style={{ backgroundColor: `${hex}1A`, color: hex }}>
@@ -149,18 +149,17 @@ export const TicketsSection = () => {
                   />
                 )}
               </motion.div>
-              )
-            })}
-          </div>
+            );
+          })}
+        </div>
+      </Skeleton>
 
-          {/* Fee note */}
-          <div className="mt-12 text-center relative z-10">
-            <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest">
-              * SECURE GATEWAY ENCRYPTION APPLIED. EXCLUDES 2.6% PLATFORM FEES.
-            </p>
-          </div>
-        </>
-      )}
+      {/* Fee note */}
+      <div className="mt-12 text-center relative z-10">
+        <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest">
+          * SECURE GATEWAY ENCRYPTION APPLIED. EXCLUDES 2.6% PLATFORM FEES.
+        </p>
+      </div>
     </section>
-  )
-}
+  );
+};

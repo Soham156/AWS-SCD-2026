@@ -800,5 +800,82 @@ router.post('/email-retry', async (req, res, next) => {
   }
 });
 
+// GET /api/admin/referral-leaderboard
+router.get('/referral-leaderboard', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('referral_points')
+      .select('referrer_email, points');
+
+    if (error) throw error;
+
+    // Aggregate by email
+    const map = new Map<string, { email: string; referrals: number; total_points: number }>();
+    for (const row of data || []) {
+      const existing = map.get(row.referrer_email);
+      if (existing) {
+        existing.referrals += 1;
+        existing.total_points += row.points;
+      } else {
+        map.set(row.referrer_email, {
+          email: row.referrer_email,
+          referrals: 1,
+          total_points: row.points,
+        });
+      }
+    }
+
+    const leaderboard = Array.from(map.values())
+      .sort((a, b) => b.total_points - a.total_points);
+
+    res.json(leaderboard);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/referral-details
+router.get('/referral-details', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('referral_points')
+      .select(`
+        id,
+        referrer_email,
+        points,
+        created_at,
+        referrer_order:orders!referrer_order_id(
+          pass_types!pass_type_id(name)
+        ),
+        referred_order:orders!referred_order_id(
+          primary_email,
+          quantity,
+          total_amount,
+          pass_types!pass_type_id(name)
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Map to a flat structure for easier frontend display
+    const logs = (data || []).map((row: any) => ({
+      id: row.id,
+      referrer_email: row.referrer_email,
+      points: row.points,
+      created_at: row.created_at,
+      referrer_pass: row.referrer_order?.pass_types?.name || 'Unknown',
+      referred_email: row.referred_order?.primary_email || 'Unknown',
+      referred_quantity: row.referred_order?.quantity || 0,
+      referred_amount: row.referred_order?.total_amount || 0,
+      referred_pass: row.referred_order?.pass_types?.name || 'Unknown',
+    }));
+
+    res.json(logs);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
 
