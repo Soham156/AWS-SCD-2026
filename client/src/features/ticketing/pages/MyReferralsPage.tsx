@@ -127,25 +127,50 @@ export default function MyReferralsPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#050505] text-white flex flex-col relative no-scrollbar">
-      {/* Scrollbar-hide global overrides */}
+      {/* Scrollbar-hide global overrides + Floating emoji wallpaper */}
       <style>{`
         html, body, .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
         html::-webkit-scrollbar, body::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar {
-          display: none;             /* Chrome, Safari, Opera */
+          display: none;
         }
-      `}</style>
+        @keyframes floatUp {
+          0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+        .emoji-float {
+          position: fixed;
+          z-index: 1;
+          pointer-events: none;
+          animation: floatUp linear infinite;
+          font-size: 20px;
+          opacity: 0;
+          filter: grayscale(0.5) brightness(0.4);
+        }
+      `}
+      </style>
 
-      {/* Background Grid Pattern */}
-      <div className="fixed inset-0 pointer-events-none z-0" style={{
-        backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)`,
-        backgroundSize: '24px 24px'
-      }} />
-
-      {/* Background Flare */}
-      <div className="fixed top-10 left-1/2 -translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-aws-orange/5 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none z-0" />
+      {/* Floating Emoji Wallpaper */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {['🏆','🎁','🚀','☁️','⭐','🏁','🎯','🔥','💎','🏆','🎁','🚀','☁️','⭐','🏁','🎯'].map((emoji, i) => (
+          <span
+            key={i}
+            className="emoji-float"
+            style={{
+              left: `${5 + (i * 6.2) % 90}%`,
+              animationDuration: `${14 + (i * 3.7) % 16}s`,
+              animationDelay: `${(i * 2.3) % 12}s`,
+              fontSize: `${16 + (i * 2.1) % 12}px`,
+            }}
+          >
+            {emoji}
+          </span>
+        ))}
+      </div>
 
       {/* Floating F1 Standing HUD (Visually at the same position as in image, limited to 5 rows like popup box) */}
       <aside className="fixed top-24 left-6 z-20 w-72 bg-[#0c0c12]/95 border border-white/10 rounded-lg overflow-hidden shadow-2xl backdrop-blur-md hidden lg:flex flex-col font-sans">
@@ -166,8 +191,9 @@ export default function MyReferralsPage() {
               <Loader2 className="animate-spin text-aws-orange" size={14} />
             </div>
           ) : leaderboard.length === 0 ? (
-            <div className="text-center py-6 border border-white/5 border-dashed rounded font-mono text-[9px] text-white/30">
-              Grid forming...
+            <div className="text-center py-6 px-3 border border-white/5 border-dashed rounded font-mono text-[9px] text-white/40 leading-relaxed">
+              Grid forming... <br />
+              <span className="text-aws-orange font-sans font-bold italic uppercase mt-1 inline-block">Be the first to claim P1!</span>
             </div>
           ) : (
             leaderboard.slice(0, 5).map((entry, index) => {
@@ -460,6 +486,92 @@ export default function MyReferralsPage() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* Mobile Leaderboard (visible only below lg breakpoint) */}
+        <div className="lg:hidden px-4 sm:px-12 pb-8">
+          <div className="bg-[#0c0c12]/95 border border-white/10 rounded-lg overflow-hidden shadow-2xl backdrop-blur-md font-sans">
+            <div className="bg-[#08080c] p-3.5 border-b border-white/5 flex items-center justify-between">
+              <span className="font-sans font-black italic text-xs text-white tracking-wider uppercase">
+                Leaderboard
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] animate-pulse" />
+                <span className="font-mono text-[8px] text-white/40 uppercase tracking-widest">LIVE</span>
+              </div>
+            </div>
+            <div className="p-3.5 space-y-1.5">
+              <div className="font-mono text-[8px] text-white/35 uppercase tracking-[0.2em] mb-2.5">
+                Top 5 Referrers
+              </div>
+              {leaderboardLoading ? (
+                <div className="flex items-center justify-center py-6">
+                  <Loader2 className="animate-spin text-aws-orange" size={14} />
+                </div>
+              ) : leaderboard.length === 0 ? (
+                <div className="text-center py-6 px-3 border border-white/5 border-dashed rounded font-mono text-[9px] text-white/40 leading-relaxed">
+                  Grid forming... <br />
+                  <span className="text-aws-orange font-sans font-bold italic uppercase mt-1 inline-block">Be the first to claim P1!</span>
+                </div>
+              ) : (
+                leaderboard.slice(0, 5).map((entry, index) => {
+                  const isLeader = index === 0;
+                  return (
+                    <div 
+                      key={index} 
+                      className="flex items-center bg-[#0e0e13]/85 border border-white/5 rounded-sm overflow-hidden h-8.5"
+                    >
+                      <div 
+                        className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none ${
+                          isLeader ? 'bg-[#E10600] text-white' : 'bg-zinc-800 text-white/60'
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <div 
+                        className={`w-1 h-full ${
+                          entry.pass.toLowerCase().includes('vip') 
+                            ? 'bg-emerald-500' 
+                            : 'bg-aws-orange'
+                        }`} 
+                      />
+                      <div className="flex-1 pl-2.5 flex flex-col justify-center min-w-0">
+                        <span className="font-sans font-black italic uppercase tracking-wider text-[10.5px] text-white/95 truncate">
+                          {entry.name}
+                        </span>
+                        <span className="font-mono text-[6.5px] text-white/35 uppercase truncate">
+                          {entry.pass}
+                        </span>
+                      </div>
+                      <div className="pr-2.5 text-right">
+                        <span className="font-mono text-[9.5px] font-bold text-aws-orange">
+                          {entry.total_points}
+                        </span>
+                        <span className="font-mono text-[7.5px] text-white/35 ml-0.5">PTS</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              {!leaderboardLoading && leaderboard.length < 5 && Array.from({ length: 5 - leaderboard.length }).map((_, i) => {
+                const pos = leaderboard.length + i + 1;
+                return (
+                  <div 
+                    key={pos} 
+                    className="flex items-center bg-[#0a0a0c]/30 border border-white/5 border-dashed rounded-sm h-8.5 opacity-35 select-none"
+                  >
+                    <div className="w-7.5 h-full flex items-center justify-center font-mono text-xs font-bold bg-white/5 text-white/20">
+                      {pos}
+                    </div>
+                    <div className="w-1 h-full bg-white/10" />
+                    <div className="flex-1 pl-2.5 font-mono text-[8px] text-white/20 uppercase tracking-wider">
+                      Grid Slot Open
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { PassType } from '../hooks/usePassTypes';
 import type { AttendeeData } from '../hooks/useRegistration';
@@ -133,37 +133,35 @@ export function OrderSummary({
           {/* Applied Promo Code */}
           {discountAmount > 0 && (
             <div className="flex justify-between items-center text-emerald-400 text-xs py-2 bg-emerald-500/10 px-3 border border-emerald-500/20 border-t border-white/5">
+              <span>Discount Applied</span>
               <div className="flex items-center gap-2">
-                <span>Discount Applied</span>
+                <span>- ₹{discountAmount.toFixed(2)}</span>
                 <button
                   type="button"
                   onClick={handlePromoRemove}
                   disabled={codeLoading || loading}
-                  className="p-1 hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center text-f1-red hover:text-red-400 cursor-pointer"
+                  className="p-1 hover:bg-red-500/20 rounded transition-colors flex items-center justify-center text-red-400/60 hover:text-red-400 cursor-pointer"
                   title="Remove Promo Code"
                 >
-                  {codeLoading ? <Loader2 size={12} className="animate-spin text-emerald-400" /> : <X size={14} />}
+                  {codeLoading ? <Loader2 size={12} className="animate-spin text-emerald-400" /> : <Trash2 size={12} />}
                 </button>
               </div>
-              <span>- ₹{discountAmount.toFixed(2)}</span>
             </div>
           )}
 
           {/* Applied Referral Code */}
           {referralCode && (
             <div className="flex justify-between items-center text-aws-orange text-xs py-2 bg-aws-orange/5 px-3 border border-aws-orange/20 border-t border-white/5">
-              <div className="flex items-center gap-2">
-                <span>Referral Applied ({referralCode})</span>
-                <button
-                  type="button"
-                  onClick={handleReferralRemove}
-                  disabled={codeLoading || loading}
-                  className="p-1 hover:bg-red-500/20 rounded-full transition-colors flex items-center justify-center text-f1-red hover:text-red-400 cursor-pointer"
-                  title="Remove Referral Code"
-                >
-                  {codeLoading ? <Loader2 size={12} className="animate-spin text-aws-orange" /> : <X size={14} />}
-                </button>
-              </div>
+              <span>Referral Applied ({referralCode})</span>
+              <button
+                type="button"
+                onClick={handleReferralRemove}
+                disabled={codeLoading || loading}
+                className="p-1 hover:bg-red-500/20 rounded transition-colors flex items-center justify-center text-red-400/60 hover:text-red-400 cursor-pointer"
+                title="Remove Referral Code"
+              >
+                {codeLoading ? <Loader2 size={12} className="animate-spin text-aws-orange" /> : <Trash2 size={12} />}
+              </button>
             </div>
           )}
 

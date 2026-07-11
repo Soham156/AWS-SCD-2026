@@ -48,6 +48,15 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
   const [otp, setOtp] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   // Realtime email validation state
   const [emailValidationStatus, setEmailValidationStatus] = useState<Record<string, 'checking' | 'registered' | 'available' | 'invalid'>>({});
@@ -167,11 +176,13 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
       setOtpError('Please enter a valid primary email first.');
       return;
     }
+    if (cooldown > 0) return;
     setOtpLoading(true);
     setOtpError(null);
     try {
       await api.post('/api/auth/send-otp', { email: primaryEmail });
       setOtpSent(true);
+      setCooldown(60);
     } catch (err: any) {
       setOtpError(err.response?.data?.message || 'Failed to send OTP.');
     } finally {
@@ -301,10 +312,18 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
                   <button
                     type="button"
                     onClick={handleSendOtp}
-                    disabled={otpLoading || !attendee.email || emailValidationStatus[attendee.email] === 'registered' || emailValidationStatus[attendee.email] === 'checking'}
+                    disabled={otpLoading || cooldown > 0 || !attendee.email || emailValidationStatus[attendee.email] === 'registered' || emailValidationStatus[attendee.email] === 'checking'}
                     className="w-full sm:w-auto shrink-0 px-4 py-2 bg-aws-orange hover:bg-white text-black font-bold text-xs font-mono uppercase transition-colors whitespace-nowrap disabled:opacity-50"
                   >
-                    {otpLoading ? <Loader2 size={14} className="animate-spin" /> : (otpSent ? 'Resend' : 'Verify')}
+                    {otpLoading ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : cooldown > 0 ? (
+                      `Resend (${cooldown}s)`
+                    ) : otpSent ? (
+                      'Resend'
+                    ) : (
+                      'Verify'
+                    )}
                   </button>
                 )}
                 {index === 0 && otpVerified && (
