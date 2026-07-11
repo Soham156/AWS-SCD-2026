@@ -5,11 +5,11 @@ import { Link } from 'react-router-dom';
 
 const navLinks = [
   { label: 'About', href: '#about' },
-  { label: 'Call For Papers', href: '/cfp' },
+  { label: 'Speakers', href: '#speakers' },
   { label: 'Agenda', href: '#schedule' },
   { label: 'Sponsors', href: '#sponsors' },
   { label: 'Tickets', href: '#tickets' },
-  { label: 'Gallery', href: '#gallery' },
+  { label: 'Refer & Win', href: '/refertowin' },
   { label: 'Badge', href: '/badge' },
 ];
 
@@ -75,6 +75,40 @@ export const HeaderSection = () => {
 
   return (
     <>
+      {/* Custom Styles for Edge Highlights and Shimmer Sweep */}
+      <style>{`
+        @keyframes borderGlow {
+          0%, 100% { border-color: rgba(255,153,0,0.25); box-shadow: 0 0 3px rgba(255,153,0,0.1); }
+          50% { border-color: rgba(255,153,0,0.85); box-shadow: 0 0 10px rgba(255,153,0,0.35); }
+        }
+        .animate-pulse-border {
+          animation: borderGlow 2s infinite ease-in-out;
+        }
+        .refer-shimmer {
+          position: relative;
+          overflow: hidden;
+        }
+        .refer-shimmer::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -150%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 153, 0, 0.45),
+            transparent
+          );
+          transform: skewX(-25deg);
+        }
+        .refer-shimmer:hover::after {
+          left: 150%;
+          transition: left 0.7s ease-in-out;
+        }
+      `}</style>
+
       <header className={`h-14 sm:h-16 lg:h-20 flex items-center justify-between px-4 sm:px-12 lg:px-24 border-b z-[9999] fixed top-0 left-0 right-0 transition-all duration-300 ${
         scrolled ? 'bg-[#050505]/95 backdrop-blur-xl border-white/5' : 'bg-transparent border-transparent'
       }`}>
@@ -84,9 +118,17 @@ export const HeaderSection = () => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex gap-6 lg:gap-8 items-center">
-          <nav className="flex gap-4 lg:gap-6">
+          <nav className="flex gap-4 lg:gap-6 items-center">
             {navLinks.map((link) => (
-              link.href.startsWith('/') ? (
+              link.label === 'Refer & Win' ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="relative px-3 py-1 rounded border border-aws-orange/40 bg-aws-orange/5 font-mono text-[10px] lg:text-xs font-black uppercase tracking-widest text-aws-orange hover:text-white transition-all duration-300 animate-pulse-border refer-shimmer"
+                >
+                  {link.label}
+                </Link>
+              ) : link.href.startsWith('/') ? (
                 <Link
                   key={link.label}
                   to={link.href}
@@ -145,7 +187,16 @@ export const HeaderSection = () => {
 
             <div className="flex flex-col gap-2 font-mono text-xs uppercase tracking-widest text-white/60 text-left px-2 pt-2">
               {navLinks.map((link) => (
-                link.href.startsWith('/') ? (
+                link.label === 'Refer & Win' ? (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="relative my-1 max-w-max px-3 py-1.5 rounded border border-aws-orange/40 bg-aws-orange/5 font-mono text-[10px] font-black uppercase tracking-widest text-aws-orange transition-all duration-300 animate-pulse-border refer-shimmer flex items-center gap-1.5"
+                  >
+                    {link.label}
+                  </Link>
+                ) : link.href.startsWith('/') ? (
                   <Link key={link.label} to={link.href} onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-aws-orange transition-colors">
                     {link.label}
                   </Link>
