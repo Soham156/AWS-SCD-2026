@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Loader2, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import type { PassType } from '../hooks/usePassTypes';
 import type { AttendeeData } from '../hooks/useRegistration';
@@ -36,6 +37,7 @@ export function OrderSummary({
 }: Props) {
   const [codeInput, setCodeInput] = useState('');
   const [codeLoading, setCodeLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const basePrice = Number(selectedPass.price);
   const subtotal = basePrice * quantity;
@@ -203,6 +205,23 @@ export function OrderSummary({
           </div>
         </div>
 
+        <div className="flex items-start gap-2.5 bg-white/[0.02] border border-white/5 p-4 mb-6 select-none">
+          <input
+            id="accept-terms"
+            type="checkbox"
+            checked={acceptedTerms}
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            className="mt-0.5 w-4 h-4 rounded border-white/10 bg-[#111] text-aws-orange focus:ring-0 focus:ring-offset-0 focus:outline-none accent-aws-orange cursor-pointer"
+          />
+          <label htmlFor="accept-terms" className="font-mono text-[10px] sm:text-xs text-white/50 leading-relaxed cursor-pointer">
+            I agree to the{' '}
+            <Link to="/codeofconduct" target="_blank" className="text-aws-orange hover:text-white underline underline-offset-4 transition-colors">
+              Code of Conduct
+            </Link>{' '}
+            and the event terms & conditions.
+          </label>
+        </div>
+
         <div className="flex items-center gap-4">
           <button
             type="button"
@@ -215,8 +234,8 @@ export function OrderSummary({
           <button
             type="button"
             onClick={onProceed}
-            disabled={loading}
-            className="flex-1 bg-aws-orange text-black font-mono font-bold text-xs uppercase tracking-widest py-3 hover:bg-white transition-colors disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer"
+            disabled={loading || !acceptedTerms}
+            className="flex-1 bg-aws-orange text-black font-mono font-bold text-xs uppercase tracking-widest py-3 hover:bg-white transition-colors disabled:opacity-40 disabled:hover:bg-aws-orange disabled:cursor-not-allowed flex justify-center items-center gap-2 cursor-pointer"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : 'Confirm & Pay'}
           </button>
