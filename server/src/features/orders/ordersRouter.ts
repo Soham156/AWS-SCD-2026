@@ -182,9 +182,19 @@ router.get('/public-leaderboard', async (_req, res, next) => {
 
     const leaderboard = aggregated.map(entry => {
       const fullName = namesMap.get(entry.email.toLowerCase()) || entry.email.split('@')[0];
-      const firstName = fullName.trim().split(' ')[0] || 'Enthusiast';
+      const parts = fullName.trim().split(/\s+/).filter(Boolean);
+      let formattedName = 'Enthusiast';
+      if (parts.length > 0) {
+        if (parts.length === 1) {
+          formattedName = parts[0];
+        } else if (parts.length === 2) {
+          formattedName = `${parts[0]} ${parts[1]}`;
+        } else {
+          formattedName = `${parts[0]} ${parts[parts.length - 1]}`;
+        }
+      }
       return {
-        name: firstName,
+        name: formattedName,
         pass: entry.pass,
         total_points: entry.total_points,
         referrals: entry.referrals
@@ -234,7 +244,7 @@ router.get('/my-referrals', async (req, res, next) => {
     }
 
     if (orderIds.size === 0) {
-      res.status(404).json({ error: 'NOT_FOUND', message: 'No paid registrations found for this email address.' });
+      res.status(404).json({ error: 'NOT_FOUND', message: 'No paddock pass found associated with this email. Check email.' });
       return;
     }
 
@@ -248,7 +258,7 @@ router.get('/my-referrals', async (req, res, next) => {
     if (ordersError) throw ordersError;
 
     if (!orders || orders.length === 0) {
-      res.status(404).json({ error: 'NOT_FOUND', message: 'No paid registrations found for this email address.' });
+      res.status(404).json({ error: 'NOT_FOUND', message: 'No paddock pass found associated with this email. Check email.' });
       return;
     }
 

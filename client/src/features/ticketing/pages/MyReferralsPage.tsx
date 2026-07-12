@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../../lib/api';
 import copy from 'copy-to-clipboard';
+import confetti from 'canvas-confetti';
 
 interface ReferralRecord {
   date: string;
@@ -62,6 +63,8 @@ export default function MyReferralsPage() {
       }
     };
     fetchLeaderboard();
+    const interval = setInterval(fetchLeaderboard, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -76,11 +79,19 @@ export default function MyReferralsPage() {
         params: { email: email.trim() }
       });
       setData(res.data);
+      
+      // Theme matched confetti: AWS Orange, F1 Red, White, Green
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.75 },
+        colors: ['#FF9900', '#E10600', '#ffffff', '#10B981']
+      });
     } catch (err: any) {
       console.error(err);
       setError(
         err.response?.data?.message || 
-        'Could not find any paid registration with that email address.'
+        'No paddock pass found associated with this email. Check email.'
       );
     } finally {
       setLoading(false);
@@ -127,7 +138,7 @@ export default function MyReferralsPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#050505] text-white flex flex-col relative no-scrollbar">
-      {/* Scrollbar-hide global overrides + Floating emoji wallpaper */}
+      {/* Scrollbar-hide global overrides + Floating emoji wallpaper + F1 Chequered Backgrounds */}
       <style>{`
         html, body, .no-scrollbar {
           -ms-overflow-style: none;
@@ -150,6 +161,24 @@ export default function MyReferralsPage() {
           font-size: 20px;
           opacity: 0;
           filter: grayscale(0.5) brightness(0.4);
+        }
+        .bg-chequered {
+          background-image: 
+            linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%), 
+            linear-gradient(-45deg, rgba(255,255,255,0.08) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.08) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.08) 75%);
+          background-size: 8px 8px;
+          background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+        }
+        .group:hover .bg-chequered-hover {
+          background-image: 
+            linear-gradient(45deg, rgba(255,153,0,0.15) 25%, transparent 25%), 
+            linear-gradient(-45deg, rgba(255,153,0,0.15) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(255,153,0,0.15) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(255,153,0,0.15) 75%);
+          background-size: 8px 8px;
+          background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
         }
       `}
       </style>
@@ -198,38 +227,44 @@ export default function MyReferralsPage() {
           ) : (
             leaderboard.slice(0, 5).map((entry, index) => {
               const isLeader = index === 0;
+              const nameSizeClass = index === 0 ? 'text-[12px]' : (index === 1 || index === 2) ? 'text-[10.5px]' : 'text-[9px]';
+              const pointsSizeClass = index === 0 ? 'text-[15px]' : (index === 1 || index === 2) ? 'text-[13px]' : 'text-[11px]';
+              
+              const nameHoverColor = isLeader ? 'group-hover:text-[#E10600]' : 'group-hover:text-aws-orange';
+              const pointsColorClass = isLeader ? 'text-[#E10600]' : 'text-aws-orange';
+              const pointsGlowClass = isLeader ? 'group-hover:drop-shadow-[0_0_6px_rgba(225,6,0,0.6)]' : 'group-hover:drop-shadow-[0_0_6px_rgba(255,153,0,0.5)]';
+
               return (
                 <div 
                   key={index} 
-                  className="flex items-center bg-[#0e0e13]/85 hover:bg-[#161622] border border-white/5 rounded-sm overflow-hidden h-8.5 transition-colors"
+                  className="group flex items-center bg-[#0e0e13]/85 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-8.5 transition-all duration-300 hover:translate-x-1"
                 >
                   <div 
-                    className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none ${
-                      isLeader ? 'bg-[#E10600] text-white' : 'bg-zinc-800 text-white/60'
+                    className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none transition-colors duration-300 ${
+                      isLeader ? 'bg-[#E10600] group-hover:bg-[#ff0a00] text-white' : 'bg-zinc-800 group-hover:bg-zinc-700 text-white/60 group-hover:text-white'
                     }`}
                   >
                     {index + 1}
                   </div>
                   <div 
-                    className={`w-1 h-full ${
-                      entry.pass.toLowerCase().includes('vip') 
-                        ? 'bg-emerald-500' 
-                        : 'bg-aws-orange'
+                    className={`w-1 h-full transition-transform duration-300 group-hover:scale-y-110 ${
+                      isLeader 
+                        ? 'bg-[#E10600]'
+                        : entry.pass?.toLowerCase().includes('vip') 
+                          ? 'bg-emerald-500' 
+                          : 'bg-aws-orange'
                     }`} 
                   />
-                  <div className="flex-1 pl-2.5 flex flex-col justify-center min-w-0">
-                    <span className="font-sans font-black italic uppercase tracking-wider text-[10.5px] text-white/95 truncate">
+                  <div className="flex-1 px-2.5 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
+                    <span className={`font-sans font-black italic uppercase tracking-wider text-white/95 truncate transition-colors duration-300 ${nameSizeClass} ${nameHoverColor}`}>
                       {entry.name}
                     </span>
-                    <span className="font-mono text-[6.5px] text-white/35 uppercase truncate">
-                      {entry.pass}
-                    </span>
-                  </div>
-                  <div className="pr-2.5 text-right">
-                    <span className="font-mono text-[9.5px] font-bold text-aws-orange">
-                      {entry.total_points}
-                    </span>
-                    <span className="font-mono text-[7.5px] text-white/35 ml-0.5">PTS</span>
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      <span className={`font-mono font-black group-hover:text-white transition-all duration-300 group-hover:scale-110 ${pointsSizeClass} ${pointsColorClass} ${pointsGlowClass}`}>
+                        {entry.total_points}
+                      </span>
+                      <span className="font-mono text-[8px] font-bold text-white/35 group-hover:text-white/60 transition-colors duration-300">PTS</span>
+                    </div>
                   </div>
                 </div>
               );
@@ -516,38 +551,44 @@ export default function MyReferralsPage() {
               ) : (
                 leaderboard.slice(0, 5).map((entry, index) => {
                   const isLeader = index === 0;
+                  const nameSizeClass = index === 0 ? 'text-[12px]' : (index === 1 || index === 2) ? 'text-[10.5px]' : 'text-[9px]';
+                  const pointsSizeClass = index === 0 ? 'text-[15px]' : (index === 1 || index === 2) ? 'text-[13px]' : 'text-[11px]';
+                  
+                  const nameHoverColor = isLeader ? 'group-hover:text-[#E10600]' : 'group-hover:text-aws-orange';
+                  const pointsColorClass = isLeader ? 'text-[#E10600]' : 'text-aws-orange';
+                  const pointsGlowClass = isLeader ? 'group-hover:drop-shadow-[0_0_6px_rgba(225,6,0,0.6)]' : 'group-hover:drop-shadow-[0_0_6px_rgba(255,153,0,0.5)]';
+
                   return (
                     <div 
                       key={index} 
-                      className="flex items-center bg-[#0e0e13]/85 border border-white/5 rounded-sm overflow-hidden h-8.5"
+                      className="group flex items-center bg-[#0e0e13]/85 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-8.5 transition-all duration-300 hover:translate-x-1"
                     >
                       <div 
-                        className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none ${
-                          isLeader ? 'bg-[#E10600] text-white' : 'bg-zinc-800 text-white/60'
+                        className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none transition-colors duration-300 ${
+                          isLeader ? 'bg-[#E10600] group-hover:bg-[#ff0a00] text-white' : 'bg-zinc-800 group-hover:bg-zinc-700 text-white/60 group-hover:text-white'
                         }`}
                       >
                         {index + 1}
                       </div>
                       <div 
-                        className={`w-1 h-full ${
-                          entry.pass.toLowerCase().includes('vip') 
-                            ? 'bg-emerald-500' 
-                            : 'bg-aws-orange'
+                        className={`w-1 h-full transition-transform duration-300 group-hover:scale-y-110 ${
+                          isLeader 
+                            ? 'bg-[#E10600]'
+                            : entry.pass?.toLowerCase().includes('vip') 
+                              ? 'bg-emerald-500' 
+                              : 'bg-aws-orange'
                         }`} 
                       />
-                      <div className="flex-1 pl-2.5 flex flex-col justify-center min-w-0">
-                        <span className="font-sans font-black italic uppercase tracking-wider text-[10.5px] text-white/95 truncate">
+                      <div className="flex-1 px-2.5 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
+                        <span className={`font-sans font-black italic uppercase tracking-wider text-white/95 truncate transition-colors duration-300 ${nameSizeClass} ${nameHoverColor}`}>
                           {entry.name}
                         </span>
-                        <span className="font-mono text-[6.5px] text-white/35 uppercase truncate">
-                          {entry.pass}
-                        </span>
-                      </div>
-                      <div className="pr-2.5 text-right">
-                        <span className="font-mono text-[9.5px] font-bold text-aws-orange">
-                          {entry.total_points}
-                        </span>
-                        <span className="font-mono text-[7.5px] text-white/35 ml-0.5">PTS</span>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <span className={`font-mono font-black group-hover:text-white transition-all duration-300 group-hover:scale-110 ${pointsSizeClass} ${pointsColorClass} ${pointsGlowClass}`}>
+                            {entry.total_points}
+                          </span>
+                          <span className="font-mono text-[8px] font-bold text-white/35 group-hover:text-white/60 transition-colors duration-300">PTS</span>
+                        </div>
                       </div>
                     </div>
                   );
