@@ -1,15 +1,17 @@
-import { Mail, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Linkedin, Twitter, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const quickLinks = [
   { label: 'About', href: '#about' },
-  { label: 'Schedule', href: '#schedule' },
+  { label: 'Agenda', href: '#schedule' },
   { label: 'Speakers', href: '#speakers' },
   { label: 'Tickets', href: '#tickets' },
-  { label: 'Refer & Win', href: '/refertowin' },
   { label: 'Sponsors', href: '#sponsors' },
   { label: 'FAQ', href: '#faq' },
+  { label: 'Refer & Win', href: '/refertowin' },
   { label: 'Volunteer', href: '/volunteer' },
+  { label: 'Badge', href: '/badge' },
+  { label: 'Code of Conduct', href: '/codeofconduct' },
 ];
 
 export const FooterSection = () => {
@@ -54,6 +56,7 @@ export const FooterSection = () => {
                <ul className="flex flex-col gap-3 font-mono text-[10px] sm:text-xs opacity-60 uppercase tracking-wider sm:tracking-widest">
                   <li><a href="https://linkedin.com/company/aws-sbg-at-svkm-iot-dhule" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[#0a66c2] transition-colors"><Linkedin size={14} /> LinkedIn</a></li>
                   <li><a href="https://x.com/AWSCC_SVKMIOT" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-white transition-colors"><Twitter size={14} /> X / Twitter</a></li>
+                  <li><a href="https://www.instagram.com/awsbuildersdhule/" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[#e1306c] transition-colors"><Instagram size={14} /> Instagram</a></li>
                </ul>
             </div>
          </div>

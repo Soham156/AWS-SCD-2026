@@ -35,6 +35,9 @@ CREATE TABLE public.promo_codes (
   min_quantity integer DEFAULT 1,
   max_uses integer DEFAULT 0,
   uses integer DEFAULT 0,
+  max_discount_qty integer DEFAULT NULL,
+  discount_type text DEFAULT 'percentage' CHECK (discount_type IN ('percentage', 'flat')),
+  discount_value numeric DEFAULT 0,
   is_active boolean DEFAULT true,
   created_at timestamptz DEFAULT now()
 );
@@ -348,9 +351,14 @@ $function$;
 
 CREATE OR REPLACE FUNCTION public.handle_order_payment_success()
 RETURNS TRIGGER AS $$
+DECLARE
+  v_success BOOLEAN;
 BEGIN
   IF NEW.payment_status = 'PAID' AND (OLD.payment_status IS NULL OR OLD.payment_status <> 'PAID') AND NEW.promo_code_id IS NOT NULL THEN
-    PERFORM public.increment_promo_uses(NEW.promo_code_id);
+    v_success := public.increment_promo_uses(NEW.promo_code_id);
+    IF NOT v_success THEN
+      RAISE EXCEPTION 'PROMO_LIMIT_EXCEEDED';
+    END IF;
   END IF;
   RETURN NEW;
 END;

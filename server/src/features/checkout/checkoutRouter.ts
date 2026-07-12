@@ -20,7 +20,7 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     // Look up order
     const { data: order, error: orderErr } = await supabase
       .from('orders')
-      .select('*, pass_types(*), registrations(phone, full_name)')
+      .select('*, pass_types(*), registrations(phone, full_name), promo_codes(*)')
       .eq('id', order_id)
       .single();
 
@@ -32,6 +32,19 @@ router.post('/initiate', checkoutLimiter, async (req, res, next) => {
     if (order.payment_status === 'PAID') {
       res.status(400).json({ error: 'Order is already paid.' });
       return;
+    }
+
+    // Verify promo code limits if one is applied
+    if (order.promo_codes) {
+      const promo = order.promo_codes;
+      if (!promo.is_active) {
+        res.status(400).json({ error: 'PROMO_EXPIRED', message: 'The applied promo code is no longer active.' });
+        return;
+      }
+      if (promo.max_uses > 0 && promo.uses >= promo.max_uses) {
+        res.status(400).json({ error: 'PROMO_EXHAUSTED', message: 'The applied promo code limit has been reached.' });
+        return;
+      }
     }
 
     // Check if registrations are currently enabled

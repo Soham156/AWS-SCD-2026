@@ -500,8 +500,20 @@ router.post('/:id/apply-promo', async (req, res, next) => {
       return;
     }
 
-    const discountAmount = Number((order.subtotal * (promo.discount_percentage / 100)).toFixed(2));
-    const newTotal = order.subtotal - discountAmount;
+    const singleTicketPrice = Number((order.subtotal / order.quantity).toFixed(2));
+    const discountQty = promo.max_discount_qty && promo.max_discount_qty > 0
+      ? Math.min(order.quantity, promo.max_discount_qty)
+      : order.quantity;
+
+    let discountAmount = 0;
+    if (promo.discount_type === 'flat') {
+      const discountPerTicket = Math.min(singleTicketPrice, Number(promo.discount_value));
+      discountAmount = Number((discountPerTicket * discountQty).toFixed(2));
+    } else {
+      const pct = Number(promo.discount_value !== undefined && promo.discount_value !== null && Number(promo.discount_value) > 0 ? promo.discount_value : promo.discount_percentage);
+      discountAmount = Number((singleTicketPrice * discountQty * (pct / 100)).toFixed(2));
+    }
+    const newTotal = Number((order.subtotal - discountAmount).toFixed(2));
 
     // Update order
     await supabase

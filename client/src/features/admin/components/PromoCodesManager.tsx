@@ -12,9 +12,11 @@ export function PromoCodesManager() {
   
   const [formData, setFormData] = useState({
     code: '',
-    discount_percentage: 10,
+    discount_type: 'percentage' as 'percentage' | 'flat',
+    discount_value: 10,
     min_quantity: 1,
     max_uses: 100,
+    max_discount_qty: '',
     is_active: true
   });
   const [formLoading, setFormLoading] = useState(false);
@@ -25,7 +27,15 @@ export function PromoCodesManager() {
 
   const handleOpenCreate = () => {
     setEditingPromo(null);
-    setFormData({ code: '', discount_percentage: 10, min_quantity: 1, max_uses: 100, is_active: true });
+    setFormData({ 
+      code: '', 
+      discount_type: 'percentage', 
+      discount_value: 10, 
+      min_quantity: 1, 
+      max_uses: 100, 
+      max_discount_qty: '', 
+      is_active: true 
+    });
     setFormError(null);
     setIsFormOpen(true);
   };
@@ -34,9 +44,11 @@ export function PromoCodesManager() {
     setEditingPromo(promo);
     setFormData({
       code: promo.code,
-      discount_percentage: promo.discount_percentage,
+      discount_type: promo.discount_type || 'percentage',
+      discount_value: promo.discount_value !== undefined && promo.discount_value !== null && Number(promo.discount_value) > 0 ? Number(promo.discount_value) : promo.discount_percentage,
       min_quantity: promo.min_quantity,
       max_uses: promo.max_uses,
+      max_discount_qty: promo.max_discount_qty !== undefined && promo.max_discount_qty !== null ? String(promo.max_discount_qty) : '',
       is_active: promo.is_active
     });
     setFormError(null);
@@ -60,9 +72,11 @@ export function PromoCodesManager() {
 
     const payload = {
       ...formData,
-      discount_percentage: Number(formData.discount_percentage),
+      discount_value: Number(formData.discount_value),
+      discount_percentage: formData.discount_type === 'percentage' ? Number(formData.discount_value) : 0,
       min_quantity: Number(formData.min_quantity),
-      max_uses: Number(formData.max_uses)
+      max_uses: Number(formData.max_uses),
+      max_discount_qty: formData.max_discount_qty !== '' ? Number(formData.max_discount_qty) : null
     };
 
     let result;
@@ -134,10 +148,13 @@ export function PromoCodesManager() {
                     </span>
                   </td>
                   <td className="p-4 font-sans font-bold text-aws-orange">
-                    {promo.discount_percentage}%
+                    {promo.discount_type === 'flat' ? `₹${promo.discount_value}` : `${promo.discount_value || promo.discount_percentage}%`}
                   </td>
                   <td className="p-4 font-mono text-xs text-white/70">
-                    {promo.min_quantity} tickets
+                    <div>Min: {promo.min_quantity} tkt</div>
+                    {promo.max_discount_qty && (
+                      <div className="text-white/40 text-[10px]">Cap: {promo.max_discount_qty} tkt</div>
+                    )}
                   </td>
                   <td className="p-4 font-mono text-xs">
                     <div className="flex items-center gap-2">
@@ -224,17 +241,33 @@ export function PromoCodesManager() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono uppercase tracking-widest text-white/40 mb-2">Discount (%)</label>
+                      <label className="block text-xs font-mono uppercase tracking-widest text-white/40 mb-2">Discount Type</label>
+                      <select
+                        value={formData.discount_type}
+                        onChange={e => setFormData({ ...formData, discount_type: e.target.value as 'percentage' | 'flat' })}
+                        className="w-full bg-[#111] border border-white/10 px-4 py-3 text-white font-mono focus:border-aws-orange focus:outline-none transition-colors"
+                      >
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="flat">Flat INR (₹)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-widest text-white/40 mb-2">
+                        Discount Value {formData.discount_type === 'percentage' ? '(%)' : '(₹)'}
+                      </label>
                       <input aria-label="input"
                         type="number"
                         min="1"
-                        max="100"
+                        max={formData.discount_type === 'percentage' ? 100 : undefined}
                         required
-                        value={formData.discount_percentage}
-                        onChange={e => setFormData({ ...formData, discount_percentage: Number(e.target.value) })}
+                        value={formData.discount_value}
+                        onChange={e => setFormData({ ...formData, discount_value: Number(e.target.value) })}
                         className="w-full bg-[#111] border border-white/10 px-4 py-3 text-white font-mono focus:border-aws-orange focus:outline-none transition-colors"
                       />
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-mono uppercase tracking-widest text-white/40 mb-2">Min. Quantity</label>
                       <input aria-label="input"
@@ -245,6 +278,18 @@ export function PromoCodesManager() {
                         onChange={e => setFormData({ ...formData, min_quantity: Number(e.target.value) })}
                         className="w-full bg-[#111] border border-white/10 px-4 py-3 text-white font-mono focus:border-aws-orange focus:outline-none transition-colors"
                         title="Minimum tickets required to apply"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-widest text-white/40 mb-2">Max Discount Qty</label>
+                      <input aria-label="input"
+                        type="number"
+                        min="1"
+                        placeholder="Unlimited"
+                        value={formData.max_discount_qty}
+                        onChange={e => setFormData({ ...formData, max_discount_qty: e.target.value })}
+                        className="w-full bg-[#111] border border-white/10 px-4 py-3 text-white font-mono focus:border-aws-orange focus:outline-none transition-colors"
+                        title="Maximum number of tickets discounted in a single order (leave blank for unlimited)"
                       />
                     </div>
                   </div>

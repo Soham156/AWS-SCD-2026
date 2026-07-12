@@ -19,14 +19,24 @@ const contentMap: Record<string, ReactNode> = {
         Mumbai - Agra National Highway,<br />
         Dhule, Maharashtra 424001
       </p>
-      <a 
-        href="https://maps.google.com/?q=SVKM's+Institute+of+Technology,+Dhule" 
-        target="_blank" 
-        rel="noreferrer"
-        className="mt-2 inline-flex items-center gap-2 max-w-max px-4 py-2 bg-white/5 hover:bg-aws-orange hover:text-black border border-white/10 transition-colors font-mono text-[10px] uppercase tracking-widest"
-      >
-        <Navigation size={14} /> Open in Google Maps
-      </a>
+      <div className="flex flex-wrap gap-2.5 mt-2">
+        <a 
+          href="https://maps.google.com/?q=SVKM's+Institute+of+Technology,+Dhule" 
+          target="_blank" 
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-aws-orange hover:text-black border border-white/10 transition-colors font-mono text-[10px] uppercase tracking-widest"
+        >
+          <Navigation size={14} /> Google Maps
+        </a>
+        <a 
+          href="https://maps.apple/p/yY~~WHcrydco3q" 
+          target="_blank" 
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-aws-orange hover:text-black border border-white/10 transition-colors font-mono text-[10px] uppercase tracking-widest"
+        >
+          <Navigation size={14} /> Apple Maps
+        </a>
+      </div>
     </div>
   ),
   train: (

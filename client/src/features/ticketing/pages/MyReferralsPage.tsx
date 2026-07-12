@@ -616,10 +616,16 @@ export default function MyReferralsPage() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-white/5 bg-[#0a0a0a]/60 py-4 text-center relative z-10 mt-auto">
+        <footer className="border-t border-white/5 bg-[#0a0a0a]/60 py-6 text-center relative z-10 mt-auto flex flex-col items-center gap-2">
           <p className="font-mono text-[9px] text-white/30 uppercase tracking-widest">
             AWS Student Community Day Dhule 2026 • Race to the Cloud
           </p>
+          <Link 
+            to="/codeofconduct" 
+            className="font-mono text-[9px] text-aws-orange hover:text-white uppercase tracking-widest transition-colors underline underline-offset-4"
+          >
+            Terms & Conditions / Code of Conduct
+          </Link>
         </footer>
       </div>
     </div>

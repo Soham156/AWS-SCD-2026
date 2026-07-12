@@ -89,17 +89,21 @@ router.get('/promo-codes', async (_req, res, next) => {
 
 router.post('/promo-codes', async (req, res, next) => {
   try {
-    const { code, discount_percentage, min_quantity, max_uses, is_active } = req.body;
-    if (!code || discount_percentage === undefined || min_quantity === undefined || max_uses === undefined) {
+    const { code, discount_type, discount_value, min_quantity, max_uses, max_discount_qty, is_active } = req.body;
+    if (!code || discount_value === undefined || min_quantity === undefined || max_uses === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
+    const finalType = discount_type || 'percentage';
     const { data, error } = await supabase
       .from('promo_codes')
       .insert({
         code: code.toUpperCase(),
-        discount_percentage,
+        discount_percentage: finalType === 'percentage' ? discount_value : 0,
+        discount_type: finalType,
+        discount_value,
         min_quantity,
         max_uses,
+        max_discount_qty: max_discount_qty === undefined ? null : max_discount_qty,
         is_active: is_active ?? true,
         uses: 0
       })
@@ -118,14 +122,20 @@ router.post('/promo-codes', async (req, res, next) => {
 router.put('/promo-codes/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { code, discount_percentage, min_quantity, max_uses, is_active } = req.body;
+    const { code, discount_type, discount_value, min_quantity, max_uses, max_discount_qty, is_active } = req.body;
     
     // We do NOT update `uses` to preserve history, only `max_uses` can be increased
     const updateData: any = {};
     if (code !== undefined) updateData.code = code.toUpperCase();
-    if (discount_percentage !== undefined) updateData.discount_percentage = discount_percentage;
+    if (discount_type !== undefined) updateData.discount_type = discount_type;
+    if (discount_value !== undefined) {
+      updateData.discount_value = discount_value;
+      const type = discount_type || 'percentage';
+      updateData.discount_percentage = type === 'percentage' ? discount_value : 0;
+    }
     if (min_quantity !== undefined) updateData.min_quantity = min_quantity;
     if (max_uses !== undefined) updateData.max_uses = max_uses;
+    if (max_discount_qty !== undefined) updateData.max_discount_qty = max_discount_qty;
     if (is_active !== undefined) updateData.is_active = is_active;
 
     const { data, error } = await supabase

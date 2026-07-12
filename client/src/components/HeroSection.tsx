@@ -300,13 +300,32 @@ export const HeroSection = () => {
               </span>
             </div>
 
-            <div className="flex flex-col group cursor-default">
+            <div className="flex flex-col group">
               <span className="font-mono text-[10px] sm:text-xs text-aws-orange uppercase tracking-[0.3em] mb-2 font-bold flex items-center gap-2">
                 <MapPin size={12} /> Venue
               </span>
-              <span className="font-sans text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight group-hover:text-f1-red transition-colors duration-300">
+              <span className="font-sans text-lg sm:text-xl lg:text-2xl font-black text-white leading-tight group-hover:text-aws-orange transition-colors duration-300">
                 SVKM's IOT Campus, Dhule
               </span>
+              <div className="flex gap-4 mt-2 font-mono text-[9px] uppercase tracking-widest relative z-20">
+                <a 
+                  href="https://maps.google.com/?q=SVKM's+Institute+of+Technology,+Dhule" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="text-white/40 hover:text-aws-orange transition-colors"
+                >
+                  Google Maps
+                </a>
+                <span className="text-white/10 select-none">|</span>
+                <a 
+                  href="https://maps.apple/p/yY~~WHcrydco3q" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="text-white/40 hover:text-aws-orange transition-colors"
+                >
+                  Apple Maps
+                </a>
+              </div>
             </div>
           </div>
         </motion.div>

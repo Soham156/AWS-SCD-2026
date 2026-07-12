@@ -6,8 +6,11 @@ export interface PromoCode {
   id: string;
   code: string;
   discount_percentage: number;
+  discount_type?: 'percentage' | 'flat';
+  discount_value?: number;
   min_quantity: number;
   max_uses: number;
+  max_discount_qty?: number | null;
   uses: number;
   is_active: boolean;
   created_at: string;
