@@ -66,13 +66,6 @@ function Countdown() {
 
 export const HeaderSection = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
     <>
@@ -115,28 +108,17 @@ export const HeaderSection = () => {
           left: 150%;
           transition: left 0.7s ease-in-out;
         }
-        .header-hero-gradient {
-          background: linear-gradient(
-            to bottom, 
-            rgba(10, 10, 10, 0.85) 0%, 
-            rgba(10, 10, 10, 0.4) 60%, 
-            transparent 100%
-          ) !important;
-          backdrop-filter: blur(16px) saturate(180%);
-          -webkit-backdrop-filter: blur(16px) saturate(180%);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.75) 60%, transparent 100%);
-          -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.75) 60%, transparent 100%);
-        }
       `}</style>
 
       <header className="h-14 sm:h-16 lg:h-20 flex items-center justify-between px-4 sm:px-12 lg:px-24 z-[9999] fixed top-0 left-0 right-0 transition-all duration-300">
-        {/* Background & Blur Overlay */}
-        <div className={`absolute inset-0 z-[-1] transition-all duration-300 ${
-          scrolled 
-            ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10' 
-            : 'header-hero-gradient'
-        }`} />
+        {/* Dissolving Glass Backdrop */}
+        <div 
+          className="absolute inset-0 -z-10 bg-black/60 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+          style={{
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
+          }}
+        />
         <div className="flex items-center gap-2 sm:gap-4">
           <img src="/scd-dhule-logo.avif" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" fetchPriority="high" />
         </div>
