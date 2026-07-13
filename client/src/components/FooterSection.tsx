@@ -56,6 +56,7 @@ export const FooterSection = () => {
                <ul className="flex flex-col gap-3 font-mono text-[10px] sm:text-xs opacity-60 uppercase tracking-wider sm:tracking-widest">
                   <li>Soham Chaudhari<br/><span className="text-[#FF9900]">+91 98343 82337</span></li>
                   <li>Vaibhav Chaudhari<br/><span className="text-[#FF9900]">+91 80072 98092</span></li>
+                  <li>Saurabh Rajput<br/><span className="text-[#FF9900]">+91 98909 91510</span></li>
                </ul>
             </div>
             
