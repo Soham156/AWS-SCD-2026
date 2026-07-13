@@ -351,7 +351,7 @@ export const CodeOfConductPage = () => {
                 </li>
               </ul>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#050505] p-4 rounded-lg border border-white/5 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#050505] p-4 rounded-lg border border-white/5 mt-2">
                 <div>
                   <p className="text-white font-bold font-sans">Soham Chaudhari</p>
                   <p className="text-[10px] text-aws-orange mt-0.5">+91 98343 82337</p>
@@ -359,6 +359,10 @@ export const CodeOfConductPage = () => {
                 <div>
                   <p className="text-white font-bold font-sans">Vaibhav Chaudhari</p>
                   <p className="text-[10px] text-aws-orange mt-0.5">+91 80072 98092</p>
+                </div>
+                <div>
+                  <p className="text-white font-bold font-sans">Saurabh Rajput</p>
+                  <p className="text-[10px] text-aws-orange mt-0.5">+91 98909 91510</p>
                 </div>
               </div>
 
