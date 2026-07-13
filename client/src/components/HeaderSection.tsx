@@ -115,11 +115,22 @@ export const HeaderSection = () => {
           left: 150%;
           transition: left 0.7s ease-in-out;
         }
+        .header-hero-gradient {
+          background: linear-gradient(to bottom, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.4) 60%, rgba(5, 5, 5, 0) 100%) !important;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0) 100%);
+          -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0) 100%);
+        }
       `}</style>
 
-      <header className={`h-14 sm:h-16 lg:h-20 flex items-center justify-between px-4 sm:px-12 lg:px-24 border-b z-[9999] fixed top-0 left-0 right-0 transition-all duration-300 ${
-        scrolled ? 'bg-[#050505]/95 backdrop-blur-xl border-white/5' : 'bg-transparent border-transparent'
-      }`}>
+      <header className="h-14 sm:h-16 lg:h-20 flex items-center justify-between px-4 sm:px-12 lg:px-24 z-[9999] fixed top-0 left-0 right-0 transition-all duration-300">
+        {/* Background & Blur Overlay */}
+        <div className={`absolute inset-0 z-[-1] transition-all duration-300 ${
+          scrolled 
+            ? 'bg-[#050505]/95 backdrop-blur-xl border-b border-white/10' 
+            : 'header-hero-gradient'
+        }`} />
         <div className="flex items-center gap-2 sm:gap-4">
           <img src="/scd-dhule-logo.avif" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" fetchPriority="high" />
         </div>
