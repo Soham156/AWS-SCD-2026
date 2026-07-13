@@ -10,7 +10,6 @@ const quickLinks = [
   { label: 'FAQ', href: '#faq' },
   { label: 'Refer & Win', href: '/refertowin' },
   { label: 'Volunteer', href: '/volunteer' },
-  { label: 'Women In Tech', href: '/womenintech' },
   { label: 'Badge', href: '/badge' },
   { label: 'Code of Conduct', href: '/codeofconduct' },
 ];
@@ -25,11 +24,7 @@ export const FooterSection = () => {
             <Link 
               key={link.label} 
               to={link.href} 
-              className={`font-mono text-[10px] sm:text-xs uppercase tracking-widest transition-colors ${
-                link.label === 'Women In Tech' 
-                  ? 'text-pink-500 hover:text-pink-400 font-bold drop-shadow-[0_0_10px_rgba(236,72,153,0.5)] border border-pink-500/20 px-2 py-0.5 rounded bg-pink-500/5' 
-                  : 'text-white/30 hover:text-aws-orange'
-              }`}
+              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest transition-colors text-white/30 hover:text-aws-orange"
             >
               {link.label}
             </Link>
@@ -37,11 +32,7 @@ export const FooterSection = () => {
             <a 
               key={link.label} 
               href={link.href} 
-              className={`font-mono text-[10px] sm:text-xs uppercase tracking-widest transition-colors ${
-                link.label === 'Women In Tech' 
-                  ? 'text-pink-500 hover:text-pink-400 font-bold drop-shadow-[0_0_10px_rgba(236,72,153,0.5)] border border-pink-500/20 px-2 py-0.5 rounded bg-pink-500/5' 
-                  : 'text-white/30 hover:text-aws-orange'
-              }`}
+              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest transition-colors text-white/30 hover:text-aws-orange"
             >
               {link.label}
             </a>

@@ -10,7 +10,6 @@ const navLinks = [
   { label: 'Sponsors', href: '#sponsors' },
   { label: 'Tickets', href: '#tickets' },
   { label: 'Refer & Win', href: '/refertowin' },
-  { label: 'Women In Tech', href: '/womenintech' },
   { label: 'Badge', href: '/badge' },
 ];
 
@@ -135,14 +134,6 @@ export const HeaderSection = () => {
                 >
                   {link.label}
                 </Link>
-              ) : link.label === 'Women In Tech' ? (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className="relative px-3 py-1 rounded border border-pink-500/40 bg-pink-500/5 font-mono text-[10px] lg:text-xs font-black uppercase tracking-widest text-pink-500 hover:text-white transition-all duration-300 animate-pulse-border-wit refer-shimmer"
-                >
-                  {link.label}
-                </Link>
               ) : link.href.startsWith('/') ? (
                 <Link
                   key={link.label}
@@ -208,15 +199,6 @@ export const HeaderSection = () => {
                     to={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className="relative my-1 max-w-max px-3 py-1.5 rounded border border-aws-orange/40 bg-aws-orange/5 font-mono text-[10px] font-black uppercase tracking-widest text-aws-orange transition-all duration-300 animate-pulse-border refer-shimmer flex items-center gap-1.5"
-                  >
-                    {link.label}
-                  </Link>
-                ) : link.label === 'Women In Tech' ? (
-                  <Link
-                    key={link.label}
-                    to={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="relative my-1 max-w-max px-3 py-1.5 rounded border border-pink-500/40 bg-pink-500/5 font-mono text-[10px] font-black uppercase tracking-widest text-pink-500 transition-all duration-300 animate-pulse-border-wit refer-shimmer flex items-center gap-1.5"
                   >
                     {link.label}
                   </Link>
