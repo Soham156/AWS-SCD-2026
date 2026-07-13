@@ -116,11 +116,17 @@ export const HeaderSection = () => {
           transition: left 0.7s ease-in-out;
         }
         .header-hero-gradient {
-          background: linear-gradient(to bottom, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.4) 60%, rgba(5, 5, 5, 0) 100%) !important;
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0) 100%);
-          -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0) 100%);
+          background: linear-gradient(
+            to bottom, 
+            rgba(10, 10, 10, 0.85) 0%, 
+            rgba(10, 10, 10, 0.4) 60%, 
+            transparent 100%
+          ) !important;
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.75) 60%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.75) 60%, transparent 100%);
         }
       `}</style>
 
