@@ -189,4 +189,147 @@ router.post('/volunteer', applicationLimiter, async (req, res, next) => {
   }
 });
 
+// GET /api/applications/verify-ticket
+router.get('/verify-ticket', async (req, res, next) => {
+  try {
+    const email = req.query.email;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ success: false, message: 'Email query parameter is required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check if there is a PAID registration
+    const { data: registrations, error: regError } = await supabase
+      .from('registrations')
+      .select('full_name, phone, organization, payment_status')
+      .ilike('email', cleanEmail)
+      .eq('payment_status', 'PAID')
+      .limit(1);
+
+    if (regError) {
+      console.error('[Verify Ticket Error]', regError);
+      return res.status(500).json({ success: false, message: 'Failed to verify ticket.' });
+    }
+
+    if (!registrations || registrations.length === 0) {
+      // Check orders if no registration record found yet
+      const { data: orders, error: orderError } = await supabase
+        .from('orders')
+        .select('primary_email, payment_status')
+        .ilike('primary_email', cleanEmail)
+        .eq('payment_status', 'PAID')
+        .limit(1);
+
+      if (orderError) {
+        console.error('[Verify Ticket Error]', orderError);
+        return res.status(500).json({ success: false, message: 'Failed to verify ticket.' });
+      }
+
+      if (!orders || orders.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'No paid Paddock Pass found associated with this email. Please purchase a pass first.'
+        });
+      }
+
+      // Order paid but no registration details yet
+      return res.status(200).json({
+        success: true,
+        data: {
+          full_name: '',
+          phone: '',
+          college: ''
+        }
+      });
+    }
+
+    const reg = registrations[0];
+    return res.status(200).json({
+      success: true,
+      data: {
+        full_name: reg.full_name,
+        phone: reg.phone,
+        college: reg.organization
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+const mpdSchema = z.object({
+  full_name: z.string().min(2, "Full name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  college: z.string().min(2, "College name must be at least 2 characters"),
+  degree: z.string().min(2, "Degree must be selected or specified"),
+  year: z.string().min(1, "Year of studying must be selected"),
+  branch: z.string().min(2, "Branch name must be at least 2 characters"),
+  past_experience: z.string().min(10, "Please provide details about anchoring/hosting experience"),
+  english_fluency: z.string().min(1, "English fluency level must be selected"),
+});
+
+// POST /api/applications/mpd
+router.post('/mpd', applicationLimiter, async (req, res, next) => {
+  try {
+    const data = mpdSchema.parse(req.body);
+    const cleanEmail = data.email.trim().toLowerCase();
+
+    // Check if user has a PAID registration or order (case-insensitive email matching)
+    const { data: existingRegs } = await supabase
+      .from('registrations')
+      .select('payment_status')
+      .ilike('email', cleanEmail);
+
+    const { data: existingOrders } = await supabase
+      .from('orders')
+      .select('payment_status')
+      .ilike('primary_email', cleanEmail);
+
+    const hasPaidReg = existingRegs?.some(r => r.payment_status === 'PAID');
+    const hasPaidOrder = existingOrders?.some(o => o.payment_status === 'PAID');
+
+    if (!hasPaidReg && !hasPaidOrder) {
+      return res.status(400).json({
+        success: false,
+        message: 'To apply, you must have a valid paid Paddock Pass. The email provided does not match any paid event passes.'
+      });
+    }
+
+    // Check for duplicate application
+    const { data: duplicate } = await supabase
+      .from('mpd_applications')
+      .select('id')
+      .ilike('email', cleanEmail)
+      .maybeSingle();
+
+    if (duplicate) {
+      return res.status(400).json({
+        success: false,
+        message: 'An application with this email address has already been submitted.'
+      });
+    }
+
+    // Insert into Supabase
+    const { data: inserted, error } = await supabase
+      .from('mpd_applications')
+      .insert([data])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[MPD Application Error]', error);
+      return res.status(500).json({ success: false, message: 'Failed to submit application. Please try again later.' });
+    }
+
+    res.status(201).json({ success: true, data: inserted });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Validation failed', errors: error.errors });
+    }
+    next(error);
+  }
+});
+
 export default router;

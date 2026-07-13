@@ -10,6 +10,7 @@ const ScannerPage = lazy(() => import('./features/scanner/pages/ScannerPage').th
 const AdminPage = lazy(() => import('./features/admin/pages/AdminPage').then(module => ({ default: module.AdminPage })));
 const SpeakerPage = lazy(() => import('./features/speaker/pages/SpeakerPage').then(module => ({ default: module.SpeakerPage })));
 const VolunteerPage = lazy(() => import('./features/volunteer/pages/VolunteerPage').then(module => ({ default: module.VolunteerPage })));
+const MpdPage = lazy(() => import('./features/mpd/pages/MpdPage').then(module => ({ default: module.MpdPage })));
 import { Preloader } from './components/Preloader';
 import { HeaderSection } from './components/HeaderSection';
 import { HeroSection } from './components/HeroSection';
@@ -118,6 +119,7 @@ export default function App() {
         <Route path="/refertowin" element={<MyReferralsPage />} />
         <Route path="/cfp" element={<SpeakerPage />} />
         <Route path="/volunteer" element={<VolunteerPage />} />
+        <Route path="/womenintech" element={<MpdPage />} />
         <Route path="/scanner" element={<ScannerPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/status" element={<StatusPage />} />

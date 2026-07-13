@@ -12,7 +12,8 @@ export const adminApi = {
   getPartners: () => api.get('/api/admin/partners', { headers: getHeaders() }),
   getSponsors: () => api.get('/api/admin/sponsors', { headers: getHeaders() }),
   getVolunteers: () => api.get('/api/admin/volunteers', { headers: getHeaders() }),
-  updateApplicationStatus: (type: 'speaker' | 'partner' | 'sponsor' | 'volunteer', id: string, status: string) =>
+  getMpds: () => api.get('/api/admin/mpds', { headers: getHeaders() }),
+  updateApplicationStatus: (type: 'speaker' | 'partner' | 'sponsor' | 'volunteer' | 'mpd', id: string, status: string) =>
     api.put(`/api/admin/applications/${type}/${id}/status`, { status }, { headers: getHeaders() }),
 
   getRegistrations: (filters: {
@@ -30,6 +31,11 @@ export const adminApi = {
   }),
 
   exportVolunteers: () => api.get('/api/admin/export-volunteers', {
+    headers: getHeaders(),
+    responseType: 'blob',
+  }),
+
+  exportMpds: () => api.get('/api/admin/export-mpds', {
     headers: getHeaders(),
     responseType: 'blob',
   }),

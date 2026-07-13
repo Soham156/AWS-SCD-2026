@@ -397,6 +397,36 @@ router.get('/export-volunteers', async (_req, res, next) => {
   }
 });
 
+// GET /api/admin/export-mpds
+router.get('/export-mpds', async (_req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('mpd_applications')
+      .select('full_name, email, phone, college, degree, year, branch, past_experience, english_fluency, status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const headers = 'full_name,email,phone,college,degree,year,branch,past_experience,english_fluency,status,created_at';
+    const rows = (data || []).map((r) =>
+      [
+        r.full_name, r.email, r.phone || '', r.college, r.degree, r.year, r.branch, 
+        r.past_experience, r.english_fluency, r.status, r.created_at
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+
+    const csv = [headers, ...rows].join('\n');
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=scd-mpd-${date}.csv`);
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/admin/export-speakers
 router.get('/export-speakers', async (_req, res, next) => {
   try {
@@ -669,6 +699,22 @@ router.get('/volunteers', async (req, res, next) => {
   }
 });
 
+// GET /api/admin/mpds
+router.get('/mpds', async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('mpd_applications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // PUT /api/admin/applications/:type/:id/status
 router.put('/applications/:type/:id/status', async (req, res, next) => {
   try {
@@ -680,6 +726,7 @@ router.put('/applications/:type/:id/status', async (req, res, next) => {
     else if (type === 'partner') table = 'community_partners';
     else if (type === 'sponsor') table = 'sponsor_applications';
     else if (type === 'volunteer') table = 'volunteer_applications';
+    else if (type === 'mpd') table = 'mpd_applications';
     else {
       res.status(400).json({ error: 'Invalid application type' });
       return;

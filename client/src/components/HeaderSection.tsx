@@ -10,6 +10,7 @@ const navLinks = [
   { label: 'Sponsors', href: '#sponsors' },
   { label: 'Tickets', href: '#tickets' },
   { label: 'Refer & Win', href: '/refertowin' },
+  { label: 'Women In Tech', href: '/womenintech' },
   { label: 'Badge', href: '/badge' },
 ];
 
@@ -81,8 +82,15 @@ export const HeaderSection = () => {
           0%, 100% { border-color: rgba(255,153,0,0.25); box-shadow: 0 0 3px rgba(255,153,0,0.1); }
           50% { border-color: rgba(255,153,0,0.85); box-shadow: 0 0 10px rgba(255,153,0,0.35); }
         }
+        @keyframes witGlow {
+          0%, 100% { border-color: rgba(236,72,153,0.3); box-shadow: 0 0 3px rgba(236,72,153,0.1); }
+          50% { border-color: rgba(236,72,153,0.95); box-shadow: 0 0 12px rgba(236,72,153,0.45); }
+        }
         .animate-pulse-border {
           animation: borderGlow 2s infinite ease-in-out;
+        }
+        .animate-pulse-border-wit {
+          animation: witGlow 2s infinite ease-in-out;
         }
         .refer-shimmer {
           position: relative;
@@ -125,6 +133,14 @@ export const HeaderSection = () => {
                   key={link.label}
                   to={link.href}
                   className="relative px-3 py-1 rounded border border-aws-orange/40 bg-aws-orange/5 font-mono text-[10px] lg:text-xs font-black uppercase tracking-widest text-aws-orange hover:text-white transition-all duration-300 animate-pulse-border refer-shimmer"
+                >
+                  {link.label}
+                </Link>
+              ) : link.label === 'Women In Tech' ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="relative px-3 py-1 rounded border border-pink-500/40 bg-pink-500/5 font-mono text-[10px] lg:text-xs font-black uppercase tracking-widest text-pink-500 hover:text-white transition-all duration-300 animate-pulse-border-wit refer-shimmer"
                 >
                   {link.label}
                 </Link>
@@ -193,6 +209,15 @@ export const HeaderSection = () => {
                     to={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className="relative my-1 max-w-max px-3 py-1.5 rounded border border-aws-orange/40 bg-aws-orange/5 font-mono text-[10px] font-black uppercase tracking-widest text-aws-orange transition-all duration-300 animate-pulse-border refer-shimmer flex items-center gap-1.5"
+                  >
+                    {link.label}
+                  </Link>
+                ) : link.label === 'Women In Tech' ? (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="relative my-1 max-w-max px-3 py-1.5 rounded border border-pink-500/40 bg-pink-500/5 font-mono text-[10px] font-black uppercase tracking-widest text-pink-500 transition-all duration-300 animate-pulse-border-wit refer-shimmer flex items-center gap-1.5"
                   >
                     {link.label}
                   </Link>

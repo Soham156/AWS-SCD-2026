@@ -12,12 +12,13 @@ import { SpeakersTable } from '../components/SpeakersTable';
 import { PartnersTable } from '../components/PartnersTable';
 import { SponsorsTable } from '../components/SponsorsTable';
 import { VolunteersTable } from '../components/VolunteersTable';
+import { MpdTable } from '../components/MpdTable';
 import { AdminSettings } from '../components/AdminSettings';
 import { PromoCodesManager } from '../components/PromoCodesManager';
 import { ReferralLeaderboard } from '../components/ReferralLeaderboard';
 import { Mic, Handshake, Building2, Settings, Tag, UserCheck, Gift } from 'lucide-react';
 
-type Tab = 'overview' | 'passes' | 'promo' | 'referrals' | 'registrations' | 'speakers' | 'partners' | 'sponsors' | 'volunteers' | 'shoutout' | 'export' | 'settings';
+type Tab = 'overview' | 'passes' | 'promo' | 'referrals' | 'registrations' | 'speakers' | 'partners' | 'sponsors' | 'volunteers' | 'mpd' | 'shoutout' | 'export' | 'settings';
 
 const navItems: Array<{ key: Tab; label: string; icon: any }> = [
   { key: 'overview', label: 'Overview', icon: BarChart3 },
@@ -29,6 +30,7 @@ const navItems: Array<{ key: Tab; label: string; icon: any }> = [
   { key: 'partners', label: 'Partners', icon: Handshake },
   { key: 'sponsors', label: 'Sponsors', icon: Building2 },
   { key: 'volunteers', label: 'Volunteers', icon: UserCheck },
+  { key: 'mpd', label: 'MPD Panel', icon: Mic },
   { key: 'shoutout', label: 'Email Shoutout', icon: Mail },
   { key: 'export', label: 'Export', icon: Download },
   { key: 'settings', label: 'Settings', icon: Settings },
@@ -155,6 +157,7 @@ export function AdminPage() {
         {activeTab === 'partners' && <PartnersTable />}
         {activeTab === 'sponsors' && <SponsorsTable />}
         {activeTab === 'volunteers' && <VolunteersTable />}
+        {activeTab === 'mpd' && <MpdTable />}
         {activeTab === 'shoutout' && <EmailShoutout />}
         {activeTab === 'export' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -181,6 +184,19 @@ export function AdminPage() {
               </div>
               <div>
                 <ExportCSVButton type="volunteers" />
+              </div>
+            </div>
+
+            {/* MPD Export */}
+            <div className="bg-[#111] border border-white/5 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="font-sans font-black italic uppercase tracking-tight text-white mb-2">Export MPD Candidates</h3>
+                <p className="font-sans text-xs text-white/40 mb-6">
+                  Download moderator applications including past anchoring/hosting experiences, fluency levels, and status.
+                </p>
+              </div>
+              <div>
+                <ExportCSVButton type="mpds" />
               </div>
             </div>
 
