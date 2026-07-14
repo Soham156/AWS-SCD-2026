@@ -10,7 +10,7 @@ export const VolunteerPage = () => {
 
   const benefits = [
     { title: "Certificate of Appreciation", desc: "Receive an official volunteer certificate from the AWS Student Builder Group.", icon: Award },
-    { title: "Volunteer Exclusive Swags", desc: "Get special volunteer t-shirts, badges, and goodies on race day.", icon: Sparkles },
+    { title: "Volunteer Exclusive Swags", desc: "Get special volunteer badges and goodies on race day.", icon: Sparkles },
     { title: "Direct Networking", desc: "Connect closely with AWS experts, industry speakers, and student community leaders.", icon: Heart },
     { title: "Event Meals & Refreshments", desc: "Stay fueled with complimentary lunch, high-tea, and refreshments throughout the event.", icon: Coffee },
     { title: "Hands-on Management", desc: "Work behind the scenes, learn logistics, crowd control, and event coordination.", icon: Briefcase },

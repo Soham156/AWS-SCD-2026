@@ -30,7 +30,7 @@ const perks = [
   },
   {
     title: "Event Merch",
-    desc: "Collect exclusive limited-edition event T-shirts, stickers, customized tags, and collectibles.",
+    desc: "Collect exclusive limited-edition event stickers, customized badges, and collectibles.",
     icon: Package,
     color: "aws-orange"
   },
