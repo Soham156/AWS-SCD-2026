@@ -20,6 +20,7 @@ import { DriversSection } from './components/DriversSection';
 import { TimelineSection } from './components/TimelineSection';
 
 import { BecomeSponsorSection } from './components/BecomeSponsorSection';
+import { CommunityPartnersSection } from './components/CommunityPartnersSection';
 import { TicketsSection } from './components/TicketsSection';
 import { SpeakersSection } from './components/SpeakersSection';
 import { GallerySection } from './components/GallerySection';
@@ -71,11 +72,12 @@ function HomePage() {
 
             {/* Act 2: The Program */}
             <SpeakersSection />
+            <TicketsSection />
             <TimelineSection />
 
             {/* Act 3: The Team & Tickets */}
             <BecomeSponsorSection />
-            <TicketsSection />
+            <CommunityPartnersSection />
             <DriversSection />
 
             {/* Act 4: Venue & Logistics */}

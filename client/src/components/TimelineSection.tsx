@@ -69,7 +69,7 @@ export const TimelineSection = () => {
               <SectionHeader
               title="Event Agenda"
                 subtitle="A day full of exciting sessions and activities. Don't miss out!"
-                sysId="03.STRAT"
+                sysId="04.STRAT"
               />
             </div>
           </div>
@@ -151,7 +151,7 @@ export const TimelineSection = () => {
           <SectionHeader
             title="Race Weekend Timeline"
             subtitle="Twelve sectors. One full day on the cloud racing calendar — from opening lights to the final chequered flag."
-            sysId="03.STRAT"
+            sysId="04.STRAT"
           />
 
           {/* Swipe Indicator Note */}
