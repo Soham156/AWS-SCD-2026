@@ -176,7 +176,7 @@ export const GallerySection = () => {
         <SectionHeader
           title="Event Gallery"
           subtitle=""
-          sysId="08.GLY"
+          sysId="09.GLY"
         />
         <p className="font-sans text-xs sm:text-sm md:text-base opacity-60 font-medium leading-relaxed max-w-xl mb-8 -mt-2 relative z-10">
           Real moments from our community events, workshops, and cloud conferences.

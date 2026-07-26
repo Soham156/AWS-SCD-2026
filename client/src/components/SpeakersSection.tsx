@@ -170,9 +170,8 @@ export const SpeakersSection = () => {
                                     text.toLowerCase().includes('community') || 
                                     text.toLowerCase().includes('hero') || 
                                     text.toLowerCase().includes('builder') || 
-                                    text.toLowerCase().includes('leader') || 
+                                    text.toLowerCase().includes('lead') || 
                                     text.toLowerCase().includes('organizer') || 
-                                    text.toLowerCase().includes('co-lead') ||
                                     text.toLowerCase().includes('cto');
                       if (!isAWS) return null;
                       return (

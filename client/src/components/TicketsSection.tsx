@@ -24,7 +24,7 @@ export const TicketsSection = () => {
       {/* Background flare */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-f1-red/5 rounded-full blur-[120px] sm:blur-[180px] pointer-events-none"></div>
 
-      <SectionHeader title="Paddock Passes" subtitle="Secure your spot on the grid. Choose the pass that fits your profile and join the cloud revolution." sysId="05.TKT" />
+      <SectionHeader title="Paddock Passes" subtitle="Secure your spot on the grid. Choose the pass that fits your profile and join the cloud revolution." sysId="03.TKT" />
 
       <Skeleton name="tickets-section" loading={loading}>
         <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-12 sm:mt-16 max-w-7xl mx-auto relative z-10 items-stretch">
