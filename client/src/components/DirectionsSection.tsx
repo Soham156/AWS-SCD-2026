@@ -116,7 +116,7 @@ export const DirectionsSection = () => {
         activeTab === 'road' ? 'bg-[#00ff00]' : 'bg-blue-400'
       }`} />
 
-      <SectionHeader title="Track Directions" subtitle="Navigate to the circuit. Find the best routes to SVKM's Institute of Technology Campus, Dhule via air, train, or road." sysId="07.NAV" />
+      <SectionHeader title="Track Directions" subtitle="Navigate to the circuit. Find the best routes to SVKM's Institute of Technology Campus, Dhule via air, train, or road." sysId="08.NAV" />
 
       <div className="w-full flex flex-col lg:flex-row gap-6 sm:gap-10 mt-12 sm:mt-16 relative z-10 bg-[#111] border border-white/5 p-4 sm:p-6 lg:p-8">
         

@@ -28,7 +28,7 @@ export const BecomeSponsorSection = () => {
             <SectionHeader
               title="Become a Sponsor"
               subtitle="Partner with one of North Maharashtra's largest student-driven cloud conferences. Empower regional talent, showcase your products, and connect with emerging cloud builders."
-              sysId="04.SPN"
+              sysId="05.SPN"
             />
             
             {/* Sponsoring Highlights / Benefits */}
