@@ -87,7 +87,7 @@ export const BadgePage = () => {
               {/* Actual Badge Container for html-to-image */}
               <div 
                 ref={badgeRef}
-                className="w-[360px] h-[450px] bg-[#0a0a0a] rounded-[24px] overflow-hidden relative shadow-2xl flex flex-col border-4 border-f1-red/80"
+                className="w-full max-w-[360px] h-[450px] bg-[#0a0a0a] rounded-[24px] overflow-hidden relative shadow-2xl flex flex-col border-4 border-f1-red/80"
               >
                 {/* Badge inner aesthetic layers */}
                 <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>

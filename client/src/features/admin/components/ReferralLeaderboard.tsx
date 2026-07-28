@@ -210,34 +210,36 @@ export function ReferralLeaderboard() {
 
             {/* Modal Content */}
             <div className="p-4 overflow-y-auto flex-1">
-              <table className="w-full text-xs text-left">
-                <thead>
-                  <tr className="border-b border-white/5 text-[10px] uppercase font-mono text-white/30 tracking-wider">
-                    <th className="pb-2">Time</th>
-                    <th className="pb-2">Referred Email</th>
-                    <th className="pb-2">Pass Category</th>
-                    <th className="pb-2 text-center">Tickets</th>
-                    <th className="pb-2 text-right">Amount</th>
-                    <th className="pb-2 text-right">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedReferrer.details.map((log) => (
-                    <tr key={log.id} className="border-b border-white/[0.02] last:border-0 hover:bg-white/[0.01]">
-                      <td className="py-2.5 font-mono text-white/40">{formatDate(log.created_at)}</td>
-                      <td className="py-2.5 font-mono text-white/80 max-w-[150px] truncate" title={log.referred_email}>
-                        {log.referred_email}
-                      </td>
-                      <td className="py-2.5 font-mono text-white/70 max-w-[120px] truncate" title={log.referred_pass}>
-                        {log.referred_pass}
-                      </td>
-                      <td className="py-2.5 text-center font-mono text-emerald-400">{log.referred_quantity}</td>
-                      <td className="py-2.5 text-right font-mono text-white/60">₹{Number(log.referred_amount).toFixed(2)}</td>
-                      <td className="py-2.5 text-right font-mono font-bold text-aws-orange">+{log.points}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="border-b border-white/5 text-[10px] uppercase font-mono text-white/30 tracking-wider">
+                      <th className="pb-2">Time</th>
+                      <th className="pb-2">Referred Email</th>
+                      <th className="pb-2">Pass Category</th>
+                      <th className="pb-2 text-center">Tickets</th>
+                      <th className="pb-2 text-right">Amount</th>
+                      <th className="pb-2 text-right">Points</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {selectedReferrer.details.map((log) => (
+                      <tr key={log.id} className="border-b border-white/[0.02] last:border-0 hover:bg-white/[0.01]">
+                        <td className="py-2.5 font-mono text-white/40">{formatDate(log.created_at)}</td>
+                        <td className="py-2.5 font-mono text-white/80 max-w-[150px] truncate" title={log.referred_email}>
+                          {log.referred_email}
+                        </td>
+                        <td className="py-2.5 font-mono text-white/70 max-w-[120px] truncate" title={log.referred_pass}>
+                          {log.referred_pass}
+                        </td>
+                        <td className="py-2.5 text-center font-mono text-emerald-400">{log.referred_quantity}</td>
+                        <td className="py-2.5 text-right font-mono text-white/60">₹{Number(log.referred_amount).toFixed(2)}</td>
+                        <td className="py-2.5 text-right font-mono font-bold text-aws-orange">+{log.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

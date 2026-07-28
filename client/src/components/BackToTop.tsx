@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowUp } from 'lucide-react';
 
@@ -11,6 +12,7 @@ const scrollToTop = () => {
 
 export const BackToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -24,6 +26,10 @@ export const BackToTop = () => {
     window.addEventListener('scroll', toggleVisibility, { passive: true });
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
+
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

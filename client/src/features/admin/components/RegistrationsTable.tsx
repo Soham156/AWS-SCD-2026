@@ -58,7 +58,7 @@ export function RegistrationsTable() {
     <div>
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-[200px] w-full sm:w-auto">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
           <input aria-label="input"
             value={filters.search}
@@ -70,7 +70,7 @@ export function RegistrationsTable() {
         <select
           value={filters.pass_slug}
           onChange={(e) => { setFilters(f => ({...f, pass_slug: e.target.value})); setPage(1); }}
-          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+          className="w-full sm:w-auto bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
         >
           <option value="">All Passes</option>
           {passTypes.map(pt => (
@@ -80,7 +80,7 @@ export function RegistrationsTable() {
         <select
           value={filters.payment_status}
           onChange={(e) => { setFilters(f => ({...f, payment_status: e.target.value})); setPage(1); }}
-          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+          className="w-full sm:w-auto bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
         >
           <option value="">All Payments</option>
           <option value="PAID">Paid</option>
@@ -91,7 +91,7 @@ export function RegistrationsTable() {
         <select
           value={filters.checked_in}
           onChange={(e) => { setFilters(f => ({...f, checked_in: e.target.value})); setPage(1); }}
-          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+          className="w-full sm:w-auto bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
         >
           <option value="">All Check-In</option>
           <option value="true">Checked In</option>
@@ -100,7 +100,7 @@ export function RegistrationsTable() {
         <select
           value={filters.email_status}
           onChange={(e) => { setFilters(f => ({...f, email_status: e.target.value})); setPage(1); }}
-          className="bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
+          className="w-full sm:w-auto bg-[#0a0a0a] border border-white/10 px-3 py-2 text-xs text-white font-mono focus:border-aws-orange focus:outline-none"
         >
           <option value="">All Email Status</option>
           <option value="sent">Sent</option>

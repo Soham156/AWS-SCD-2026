@@ -12,9 +12,9 @@ interface Props {
 
 export function TicketPass({ ticket_number, full_name, pass_name, role, organization, qr_token, badge_color = '#6B7280' }: Props) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full px-2">
       <div
-        className="w-[340px] bg-[#0a0a0a] border border-white/10 overflow-hidden"
+        className="w-full max-w-[340px] bg-[#0a0a0a] border border-white/10 overflow-hidden"
       >
         {/* Header bar */}
         <div className="h-2" style={{ background: `linear-gradient(90deg, ${badge_color}, #FF9900)` }} />
