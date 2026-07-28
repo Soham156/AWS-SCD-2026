@@ -93,14 +93,29 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
     if (fetchErr) {
       console.error('[Cleanup] Failed to fetch pending registrations:', fetchErr);
     } else if (pendingRegs && pendingRegs.length > 0) {
-      // Guard: do not archive registrations that have an active initiated payment session
+      // Guard: do not archive registrations that have an active payment session
+      // OR whose parent order is already PAID (race: payment landed before cleanup ran).
       const { data: activeSessions } = await supabase
         .from('payments')
         .select('order_id')
         .eq('status', 'initiated');
       const activeOrderIds = new Set(activeSessions?.map(s => s.order_id).filter(Boolean) || []);
 
-      const regsToArchive = pendingRegs.filter(r => !activeOrderIds.has(r.order_id));
+      // Also exclude registrations whose order is already paid
+      const orderIds = [...new Set(pendingRegs.map(r => r.order_id).filter(Boolean))];
+      const paidOrderIds = new Set<string>();
+      if (orderIds.length > 0) {
+        const { data: paidOrders } = await supabase
+          .from('orders')
+          .select('id')
+          .in('id', orderIds)
+          .eq('payment_status', 'PAID');
+        for (const o of paidOrders || []) paidOrderIds.add(o.id);
+      }
+
+      const regsToArchive = pendingRegs.filter(r =>
+        !activeOrderIds.has(r.order_id) && !paidOrderIds.has(r.order_id)
+      );
 
       if (regsToArchive.length > 0) {
         const { error: archiveErr } = await supabase

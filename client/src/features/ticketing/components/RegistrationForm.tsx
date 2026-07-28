@@ -228,6 +228,19 @@ export function RegistrationForm({ selectedPass, initialAttendees, verifiedEmail
       return;
     }
 
+    // Prevent duplicate emails across attendees in a group
+    if (attendees.length > 1) {
+      const emailSet = new Set<string>();
+      for (const att of attendees) {
+        const lower = att.email.toLowerCase();
+        if (emailSet.has(lower)) {
+          setOtpError('Each attendee must have a unique email address. Please remove duplicates.');
+          return;
+        }
+        emailSet.add(lower);
+      }
+    }
+
     const errors: Record<number, Record<string, string>> = {};
     let hasError = false;
 

@@ -72,7 +72,8 @@ CREATE TABLE public.registrations (
   phone text NOT NULL,
   email_sent boolean DEFAULT false,
   email_status text DEFAULT 'pending'::text,
-  order_id uuid REFERENCES public.orders(id)
+  order_id uuid REFERENCES public.orders(id),
+  is_primary boolean DEFAULT false
 );
 
 CREATE TABLE public.payments (
@@ -106,7 +107,8 @@ CREATE TABLE public.archived_registrations (
   phone text NOT NULL,
   email_sent boolean DEFAULT false,
   email_status text DEFAULT 'pending'::text,
-  order_id uuid REFERENCES public.orders(id)
+  order_id uuid REFERENCES public.orders(id),
+  is_primary boolean DEFAULT false
 );
 
 CREATE TABLE public.speaker_applications (

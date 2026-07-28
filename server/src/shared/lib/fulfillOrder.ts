@@ -60,6 +60,31 @@ export async function fulfillOrder(
 
   await supabase.from('orders').update({ payment_status: 'PAID' }).eq('id', payment.order_id);
 
+  // Fail-safe: if cleanup archived registrations before we got here, restore them.
+  const { data: existingRegs } = await supabase
+    .from('registrations')
+    .select('id')
+    .eq('order_id', payment.order_id);
+
+  if (!existingRegs || existingRegs.length === 0) {
+    const { data: archivedRegs } = await supabase
+      .from('archived_registrations')
+      .select('*')
+      .eq('order_id', payment.order_id);
+
+    if (archivedRegs && archivedRegs.length > 0) {
+      console.log(`[Fulfill] Recovering ${archivedRegs.length} archived registration(s) for order ${payment.order_id}`);
+      // Strip archived_at before reinserting (column doesn't exist on registrations)
+      const toRestore = archivedRegs.map(({ archived_at, ...rest }) => rest);
+      const { error: restoreErr } = await supabase.from('registrations').upsert(toRestore, { onConflict: 'id' });
+      if (restoreErr) {
+        console.error('[Fulfill] Failed to restore archived registrations:', restoreErr);
+      } else {
+        await supabase.from('archived_registrations').delete().in('id', archivedRegs.map(r => r.id));
+      }
+    }
+  }
+
   // Only issue tickets for registrations that don't already have one (crash-safe).
   const { data: registrations } = await supabase
     .from('registrations')

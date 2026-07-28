@@ -26,7 +26,10 @@ const attendeesSchema = z.object({
     role: z.enum(['student', 'professional']),
     organization: z.string().min(1),
   })).min(1),
-});
+}).refine(
+  (data) => new Set(data.attendees.map(a => a.email.toLowerCase())).size === data.attendees.length,
+  { message: 'Each attendee must have a unique email address.', path: ['attendees'] }
+);
 
 // POST /api/orders/create
 router.post('/create', async (req, res, next) => {
@@ -688,7 +691,7 @@ router.post('/:id/attendees', async (req, res, next) => {
     await supabase.from('registrations').delete().eq('order_id', id);
 
     // Insert new attendees into registrations
-    const registrationsToInsert = attendees.map(a => ({
+    const registrationsToInsert = attendees.map((a, index) => ({
       order_id: id,
       pass_type_id: order.pass_type_id,
       pass_slug: order.pass_types.slug,
@@ -698,6 +701,7 @@ router.post('/:id/attendees', async (req, res, next) => {
       role: a.role,
       organization: a.organization,
       payment_status: 'PENDING',
+      is_primary: index === 0,
     }));
 
     const { error: insertError } = await supabase.from('registrations').insert(registrationsToInsert);

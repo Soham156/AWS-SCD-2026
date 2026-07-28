@@ -91,7 +91,7 @@ export async function enqueueOrderEmails(order_id: string, primary_email?: strin
   // Fetch all registrations for this order
   const { data: regs, error } = await supabase
     .from('registrations')
-    .select('id, full_name, email, role, organization, pass_slug, ticket_number, qr_token, pass_types(name, badge_color)')
+    .select('id, full_name, email, role, organization, pass_slug, ticket_number, qr_token, is_primary, pass_types(name, badge_color)')
     .eq('order_id', order_id);
 
   if (error || !regs || regs.length === 0) {
@@ -170,8 +170,8 @@ export async function enqueueOrderEmails(order_id: string, primary_email?: strin
     };
   });
 
-  // Find the primary registration to get details for the group email
-  let primaryReg = regs.find(r => r.email === primary_email);
+  // Find the primary registration: prefer explicit is_primary flag, then email match, then first reg
+  let primaryReg = regs.find(r => (r as any).is_primary) || regs.find(r => r.email === primary_email);
   if (!primaryReg) {
     // If primary buyer didn't buy a ticket for themselves but provided an email, fallback
     primaryReg = {
@@ -215,7 +215,7 @@ export async function enqueueOrderEmails(order_id: string, primary_email?: strin
 
   // Now, for everyone else (non-primary), send them standard individual emails
   for (const reg of regs) {
-    if (reg.email === primaryReg.email) continue; // Skip primary buyer
+    if (reg.id === primaryReg.id) continue; // Skip primary buyer (by ID, not email)
 
     const regPassType = reg.pass_types as any;
     const ticket_page_url = `${frontendUrl}/ticket/${reg.id}`;
