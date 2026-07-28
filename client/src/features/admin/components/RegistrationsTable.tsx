@@ -161,17 +161,17 @@ export function RegistrationsTable() {
                         <span>{r.full_name}</span>
                         {r.orders?.quantity > 1 && (
                           <span className={`inline-block px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-sm border ${
-                            (r.is_primary ?? (r.orders.primary_email === r.email))
+                            r.is_primary
                               ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
                               : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
                           }`}>
-                            {(r.is_primary ?? (r.orders.primary_email === r.email)) ? 'Primary Buyer' : 'Group Member'}
+                            {r.is_primary ? 'Primary Buyer' : 'Group Member'}
                           </span>
                         )}
                       </div>
                       {r.orders?.quantity > 1 && (
                         <span className="text-[10px] text-white/40 font-mono">
-                          {(r.is_primary ?? (r.orders.primary_email === r.email))
+                          {r.is_primary
                             ? `Bought ${r.orders.quantity} tickets`
                             : `Bought by: ${r.orders.primary_email}`
                           }
