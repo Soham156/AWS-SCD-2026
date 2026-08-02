@@ -140,12 +140,31 @@ export default function MyReferralsPage() {
     <div className="min-h-screen w-full bg-[#050505] text-white flex flex-col relative no-scrollbar">
       {/* Scrollbar-hide global overrides + Floating emoji wallpaper + F1 Chequered Backgrounds */}
       <style>{`
-        html, body, .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        html, body {
+          overscroll-behavior-y: none;
         }
-        html::-webkit-scrollbar, body::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar {
-          display: none;
+        .custom-scrollbar {
+          overflow-y: auto !important;
+          overscroll-behavior-y: contain;
+          touch-action: pan-y;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 153, 0, 0.4) transparent;
+          -webkit-overflow-scrolling: touch;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 5px;
+          height: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 153, 0, 0.4);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 153, 0, 0.8);
         }
         @keyframes floatUp {
           0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
@@ -201,34 +220,40 @@ export default function MyReferralsPage() {
         ))}
       </div>
 
-      {/* Floating F1 Standing HUD (Visually at the same position as in image, limited to 5 rows like popup box) */}
-      <aside className="fixed top-24 left-6 z-20 w-72 bg-[#0c0c12]/95 border border-white/10 rounded-lg overflow-hidden shadow-2xl backdrop-blur-md hidden lg:flex flex-col font-sans">
+      {/* Floating F1 Standing HUD */}
+      <aside className="fixed top-24 left-6 z-20 w-80 bg-[#0c0c12]/95 border border-white/10 rounded-lg overflow-hidden shadow-2xl backdrop-blur-md hidden lg:flex flex-col font-sans">
         {/* HUD Header */}
-        <div className="bg-[#08080c] p-3.5 border-b border-white/5 flex items-center justify-between">
-          <span className="font-sans font-black italic text-xs text-white tracking-wider uppercase">
+        <div className="bg-[#08080c] px-4 py-3.5 border-b border-white/5 flex items-center justify-between">
+          <span className="font-sans font-black italic text-sm text-white tracking-wider uppercase">
             Leaderboard
           </span>
+          {leaderboard.length > 0 && (
+            <span className="font-mono text-xs text-aws-orange bg-aws-orange/10 px-2.5 py-0.5 rounded border border-aws-orange/20 font-bold">
+              {leaderboard.length} Referrers
+            </span>
+          )}
         </div>
 
-        {/* Standings List */}
-        <div className="p-3.5 space-y-1.5">
-          <div className="font-mono text-[8px] text-white/35 uppercase tracking-[0.2em] mb-2.5">
-            Top 5 Referrers
+        {/* Fixed Top 5 Leaders (UNSCROLLABLE) */}
+        <div className="p-3.5 pb-2.5 space-y-2">
+          <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] mb-1 font-semibold flex items-center justify-between">
+            <span>Top 5 Leaders</span>
+            <span className="text-aws-orange text-[9px] font-bold">P1 - P5</span>
           </div>
           {leaderboardLoading ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="animate-spin text-aws-orange" size={14} />
+              <Loader2 className="animate-spin text-aws-orange" size={16} />
             </div>
           ) : leaderboard.length === 0 ? (
-            <div className="text-center py-6 px-3 border border-white/5 border-dashed rounded font-mono text-[9px] text-white/40 leading-relaxed">
+            <div className="text-center py-6 px-3 border border-white/5 border-dashed rounded font-mono text-xs text-white/40 leading-relaxed">
               Grid forming... <br />
               <span className="text-aws-orange font-sans font-bold italic uppercase mt-1 inline-block">Be the first to claim P1!</span>
             </div>
           ) : (
             leaderboard.slice(0, 5).map((entry, index) => {
               const isLeader = index === 0;
-              const nameSizeClass = index === 0 ? 'text-[12px]' : (index === 1 || index === 2) ? 'text-[10.5px]' : 'text-[9px]';
-              const pointsSizeClass = index === 0 ? 'text-[15px]' : (index === 1 || index === 2) ? 'text-[13px]' : 'text-[11px]';
+              const nameSizeClass = index === 0 ? 'text-[13.5px]' : (index === 1 || index === 2) ? 'text-[12px]' : 'text-[10.5px]';
+              const pointsSizeClass = index === 0 ? 'text-[16px]' : (index === 1 || index === 2) ? 'text-[14px]' : 'text-[12.5px]';
               
               const nameHoverColor = isLeader ? 'group-hover:text-[#E10600]' : 'group-hover:text-aws-orange';
               const pointsColorClass = isLeader ? 'text-[#E10600]' : 'text-aws-orange';
@@ -237,11 +262,11 @@ export default function MyReferralsPage() {
               return (
                 <div 
                   key={index} 
-                  className="group flex items-center bg-[#0e0e13]/85 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-8.5 transition-all duration-300 hover:translate-x-1"
+                  className="group flex items-center bg-[#0e0e13]/85 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-9.5 transition-all duration-300 hover:translate-x-1"
                 >
                   <div 
-                    className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none transition-colors duration-300 ${
-                      isLeader ? 'bg-[#E10600] group-hover:bg-[#ff0a00] text-white' : 'bg-zinc-800 group-hover:bg-zinc-700 text-white/60 group-hover:text-white'
+                    className={`w-8 h-full flex items-center justify-center font-mono text-sm font-black select-none transition-colors duration-300 ${
+                      isLeader ? 'bg-[#E10600] group-hover:bg-[#ff0a00] text-white' : 'bg-zinc-800 group-hover:bg-zinc-700 text-white/70 group-hover:text-white'
                     }`}
                   >
                     {index + 1}
@@ -255,15 +280,15 @@ export default function MyReferralsPage() {
                           : 'bg-aws-orange'
                     }`} 
                   />
-                  <div className="flex-1 px-2.5 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
+                  <div className="flex-1 px-3 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
                     <span className={`font-sans font-black italic uppercase tracking-wider text-white/95 truncate transition-colors duration-300 ${nameSizeClass} ${nameHoverColor}`}>
                       {entry.name}
                     </span>
-                    <div className="flex items-center gap-0.5 shrink-0">
+                    <div className="flex items-center gap-1 shrink-0">
                       <span className={`font-mono font-black group-hover:text-white transition-all duration-300 group-hover:scale-110 ${pointsSizeClass} ${pointsColorClass} ${pointsGlowClass}`}>
                         {entry.total_points}
                       </span>
-                      <span className="font-mono text-[8px] font-bold text-white/35 group-hover:text-white/60 transition-colors duration-300">PTS</span>
+                      <span className="font-mono text-[9px] font-bold text-white/40 group-hover:text-white/70 transition-colors duration-300">PTS</span>
                     </div>
                   </div>
                 </div>
@@ -277,13 +302,13 @@ export default function MyReferralsPage() {
             return (
               <div 
                 key={pos} 
-                className="flex items-center bg-[#0a0a0c]/30 border border-white/5 border-dashed rounded-sm h-8.5 opacity-35 select-none"
+                className="flex items-center bg-[#0a0a0c]/30 border border-white/5 border-dashed rounded-sm h-9.5 opacity-35 select-none"
               >
-                <div className="w-7.5 h-full flex items-center justify-center font-mono text-xs font-bold bg-white/5 text-white/20">
+                <div className="w-8 h-full flex items-center justify-center font-mono text-sm font-bold bg-white/5 text-white/20">
                   {pos}
                 </div>
                 <div className="w-1 h-full bg-white/10" />
-                <div className="flex-1 pl-2.5 font-mono text-[8px] text-white/20 uppercase tracking-wider">
+                <div className="flex-1 pl-3 font-mono text-[9px] text-white/20 uppercase tracking-wider">
                   Grid Slot Open
                 </div>
               </div>
@@ -291,8 +316,43 @@ export default function MyReferralsPage() {
           })}
         </div>
 
+        {/* Rest of Grid P6+ (SCROLLABLE) */}
+        {!leaderboardLoading && leaderboard.length > 5 && (
+          <div className="border-t border-white/5 p-3.5 pt-2.5 space-y-2 max-h-56 custom-scrollbar bg-[#08080d]/60">
+            <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] mb-1 font-semibold flex items-center justify-between">
+              <span>Rest of Grid</span>
+              <span className="text-white/30 text-[9px]">Scroll ↓</span>
+            </div>
+            {leaderboard.slice(5).map((entry, index) => {
+              const actualRank = index + 6;
+              return (
+                <div 
+                  key={actualRank} 
+                  className="group flex items-center bg-[#0e0e13]/70 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-9 transition-all duration-300 hover:translate-x-1"
+                >
+                  <div className="w-8 h-full flex items-center justify-center font-mono text-xs font-black select-none bg-zinc-800/80 group-hover:bg-zinc-700 text-white/60 group-hover:text-white">
+                    {actualRank}
+                  </div>
+                  <div className={`w-1 h-full ${entry.pass?.toLowerCase().includes('vip') ? 'bg-emerald-500' : 'bg-aws-orange'}`} />
+                  <div className="flex-1 px-3 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
+                    <span className="font-sans font-black italic uppercase tracking-wider text-white/80 group-hover:text-aws-orange text-[10.5px] truncate">
+                      {entry.name}
+                    </span>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="font-mono font-black text-aws-orange text-[12.5px]">
+                        {entry.total_points}
+                      </span>
+                      <span className="font-mono text-[9px] font-bold text-white/40">PTS</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* Live Broadcast HUD Footer */}
-        <div className="p-3.5 border-t border-white/5 bg-[#08080c]/50 flex items-center justify-between font-mono text-[8px] text-white/40 uppercase tracking-widest">
+        <div className="px-4 py-3 border-t border-white/5 bg-[#08080c]/50 flex items-center justify-between font-mono text-[9px] text-white/50 uppercase tracking-widest font-semibold">
           <span>GP: DHULE 2026</span>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] animate-pulse" />
@@ -336,7 +396,7 @@ export default function MyReferralsPage() {
           <div className="w-full max-w-md bg-[#0d0d0d]/80 border border-white/5 rounded-2xl p-6 sm:p-8 mb-8 shadow-xl backdrop-blur-md">
             <form onSubmit={handleSearch} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block font-mono text-[9px] text-white/40 uppercase tracking-[0.2em] mb-2">
+                <label htmlFor="email" className="block font-mono text-xs text-white/50 uppercase tracking-[0.2em] mb-2 font-semibold">
                   Registration Email
                 </label>
                 <div className="relative">
@@ -346,25 +406,25 @@ export default function MyReferralsPage() {
                     placeholder="Enter registered email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-3 pl-10 font-mono text-xs text-white placeholder-white/20 focus:outline-none focus:border-aws-orange focus:ring-1 focus:ring-aws-orange transition-colors"
+                    className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-3 pl-11 font-mono text-sm text-white placeholder-white/20 focus:outline-none focus:border-aws-orange focus:ring-1 focus:ring-aws-orange transition-colors"
                     required
                   />
-                  <Mail className="absolute left-3.5 top-3.5 text-white/25 w-4 h-4" />
+                  <Mail className="absolute left-3.5 top-3.5 text-white/30 w-4 h-4" />
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-aws-orange text-black py-3 rounded-lg font-mono text-xs uppercase tracking-widest font-bold hover:bg-white transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="w-full bg-aws-orange text-black py-3.5 rounded-lg font-mono text-sm uppercase tracking-widest font-bold hover:bg-white transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={16} className="animate-spin" />
                     Searching...
                   </>
                 ) : (
                   <>
-                    <Search size={14} />
+                    <Search size={16} />
                     Check Points
                   </>
                 )}
@@ -373,7 +433,7 @@ export default function MyReferralsPage() {
 
             {/* Search Error */}
             {error && (
-              <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-xs font-mono text-center">
+              <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-lg text-xs font-mono text-center">
                 {error}
               </div>
             )}
@@ -392,23 +452,23 @@ export default function MyReferralsPage() {
                 {/* Scoreboard Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full">
                   <div className="bg-gradient-to-br from-[#111]/80 to-[#0a0a0a]/80 border border-white/5 rounded-2xl p-6 text-center shadow-lg relative overflow-hidden backdrop-blur-sm">
-                    <p className="font-mono text-[9px] text-white/40 uppercase tracking-[0.2em] mb-1">Total Points</p>
-                    <p className="font-sans font-black italic text-4xl text-emerald-400">{data.total_points}</p>
-                    <p className="font-mono text-[9px] text-white/20 uppercase mt-2">25 PTS per ticket</p>
+                    <p className="font-mono text-xs text-white/50 uppercase tracking-[0.2em] mb-1 font-semibold">Total Points</p>
+                    <p className="font-sans font-black italic text-5xl text-emerald-400">{data.total_points}</p>
+                    <p className="font-mono text-[10px] text-white/30 uppercase mt-2">25 PTS per ticket</p>
                   </div>
                   <div className="bg-gradient-to-br from-[#111]/80 to-[#0a0a0a]/80 border border-white/5 rounded-2xl p-6 text-center shadow-lg relative overflow-hidden backdrop-blur-sm">
-                    <p className="font-mono text-[9px] text-white/40 uppercase tracking-[0.2em] mb-1">Referral Count</p>
-                    <p className="font-sans font-black italic text-4xl text-aws-orange">{data.referral_count}</p>
-                    <p className="font-mono text-[9px] text-white/20 uppercase mt-2">Friends registered</p>
+                    <p className="font-mono text-xs text-white/50 uppercase tracking-[0.2em] mb-1 font-semibold">Referral Count</p>
+                    <p className="font-sans font-black italic text-5xl text-aws-orange">{data.referral_count}</p>
+                    <p className="font-mono text-[10px] text-white/30 uppercase mt-2">Friends registered</p>
                   </div>
                 </div>
 
                 {/* Referral Code & Social Sharing */}
                 <div className="max-w-2xl mx-auto w-full bg-gradient-to-br from-[#1a1a2e]/90 to-[#16213e]/90 border border-aws-orange/20 rounded-2xl p-6 sm:p-8 shadow-xl backdrop-blur-md">
-                  <h3 className="font-sans font-black italic text-base uppercase tracking-tight text-aws-orange mb-3 text-center sm:text-left">
+                  <h3 className="font-sans font-black italic text-lg uppercase tracking-tight text-aws-orange mb-3 text-center sm:text-left">
                     Share & Earn Rewards
                   </h3>
-                  <p className="font-mono text-[11px] text-white/50 mb-6 leading-relaxed text-center sm:text-left">
+                  <p className="font-mono text-xs text-white/60 mb-6 leading-relaxed text-center sm:text-left">
                     Share your link with colleagues, students, or tech communities. They choose their own paddock passes, and you receive points!
                   </p>
 
@@ -421,10 +481,10 @@ export default function MyReferralsPage() {
                         className="bg-[#050505] border border-dashed border-aws-orange/40 rounded-xl p-4 cursor-pointer hover:bg-aws-orange/[0.03] transition-colors text-center relative group"
                         title="Click to copy raw code"
                       >
-                        <p className="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] mb-1">
+                        <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] mb-1 font-semibold">
                           {copiedCode ? "Code Copied!" : "Your Referral Code (Click to Copy)"}
                         </p>
-                        <p className="font-mono text-2xl font-bold text-aws-orange tracking-[0.3em]">
+                        <p className="font-mono text-3xl font-bold text-aws-orange tracking-[0.3em]">
                           {data.referral_code}
                         </p>
                       </div>
@@ -433,10 +493,10 @@ export default function MyReferralsPage() {
                       <button
                         type="button"
                         onClick={handleCopyLink}
-                        className={`w-full inline-flex items-center justify-center gap-2 py-3.5 text-xs font-mono uppercase tracking-widest transition-all cursor-pointer rounded-lg border ${
+                        className={`w-full inline-flex items-center justify-center gap-2 py-3.5 text-xs font-mono uppercase tracking-widest font-bold transition-all cursor-pointer rounded-lg border ${
                           copiedLink
                             ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                            : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10 hover:text-white'
                         }`}
                       >
                         {copiedLink ? <Check size={14} /> : <Copy size={14} />}
@@ -446,7 +506,7 @@ export default function MyReferralsPage() {
 
                     {/* Right Column: Social Shares */}
                     <div className="bg-[#050505]/40 border border-white/5 rounded-xl p-5 flex flex-col justify-between">
-                      <p className="font-mono text-[9px] text-white/30 uppercase tracking-[0.2em] mb-4 text-center">
+                      <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] mb-4 text-center font-semibold">
                         Quick Share Shortcuts
                       </p>
 
@@ -455,7 +515,7 @@ export default function MyReferralsPage() {
                           href={shareWhatsApp}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-black font-bold py-2.5 rounded-lg text-[10px] font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
+                          className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-black font-bold py-2.5 rounded-lg text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
                         >
                           Share on WhatsApp
                         </a>
@@ -464,7 +524,7 @@ export default function MyReferralsPage() {
                           href={shareTwitter}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-full flex items-center justify-center gap-2 bg-white text-black font-bold py-2.5 rounded-lg text-[10px] font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
+                          className="w-full flex items-center justify-center gap-2 bg-white text-black font-bold py-2.5 rounded-lg text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
                         >
                           Share on X (Twitter)
                         </a>
@@ -473,7 +533,7 @@ export default function MyReferralsPage() {
                           href={shareLinkedIn}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-full flex items-center justify-center gap-2 bg-[#0A66C2] text-white font-bold py-2.5 rounded-lg text-[10px] font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
+                          className="w-full flex items-center justify-center gap-2 bg-[#0A66C2] text-white font-bold py-2.5 rounded-lg text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
                         >
                           Share on LinkedIn
                         </a>
@@ -484,20 +544,20 @@ export default function MyReferralsPage() {
 
                 {/* Referral History List */}
                 <div className="max-w-2xl mx-auto w-full bg-[#0d0d0d]/80 border border-white/5 rounded-2xl p-6 sm:p-8 shadow-xl backdrop-blur-md overflow-hidden">
-                  <h3 className="font-sans font-black italic text-base uppercase tracking-tight text-white mb-6">
+                  <h3 className="font-sans font-black italic text-lg uppercase tracking-tight text-white mb-6">
                     Referral Transactions
                   </h3>
 
                   {data.referrals.length === 0 ? (
                     <div className="text-center py-10 border border-white/5 border-dashed rounded-xl">
                       <p className="font-mono text-xs text-white/40 uppercase tracking-widest">No successful referrals yet</p>
-                      <p className="font-mono text-[9px] text-white/20 uppercase tracking-widest mt-1">Share your link to unlock points!</p>
+                      <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mt-1">Share your link to unlock points!</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto max-h-64 no-scrollbar">
-                      <table className="w-full text-left font-mono text-xs">
+                      <table className="w-full text-left font-mono text-sm">
                         <thead>
-                          <tr className="border-b border-white/10 text-white/40 uppercase text-[9px] tracking-wider sticky top-0 bg-[#0d0d0d] z-10">
+                          <tr className="border-b border-white/10 text-white/50 uppercase text-xs tracking-wider sticky top-0 bg-[#0d0d0d] z-10 font-bold">
                             <th className="pb-3 font-semibold">Attendee</th>
                             <th className="pb-3 font-semibold">Pass Type</th>
                             <th className="pb-3 font-semibold text-right">Points</th>
@@ -507,10 +567,10 @@ export default function MyReferralsPage() {
                         <tbody className="divide-y divide-white/5">
                           {data.referrals.map((ref, idx) => (
                             <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                              <td className="py-3 text-white/80">{ref.email}</td>
-                              <td className="py-3 text-white/50">{ref.pass_name}</td>
+                              <td className="py-3 text-white/90">{ref.email}</td>
+                              <td className="py-3 text-white/60">{ref.pass_name}</td>
                               <td className="py-3 text-emerald-400 font-bold text-right">+{ref.points}</td>
-                              <td className="py-3 text-white/30 text-right">{formatDate(ref.date)}</td>
+                              <td className="py-3 text-white/40 text-right">{formatDate(ref.date)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -526,33 +586,43 @@ export default function MyReferralsPage() {
         {/* Mobile Leaderboard (visible only below lg breakpoint) */}
         <div className="lg:hidden px-4 sm:px-12 pb-8">
           <div className="bg-[#0c0c12]/95 border border-white/10 rounded-lg overflow-hidden shadow-2xl backdrop-blur-md font-sans">
-            <div className="bg-[#08080c] p-3.5 border-b border-white/5 flex items-center justify-between">
-              <span className="font-sans font-black italic text-xs text-white tracking-wider uppercase">
+            <div className="bg-[#08080c] px-4 py-3.5 border-b border-white/5 flex items-center justify-between">
+              <span className="font-sans font-black italic text-sm text-white tracking-wider uppercase">
                 Leaderboard
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] animate-pulse" />
-                <span className="font-mono text-[8px] text-white/40 uppercase tracking-widest">LIVE</span>
+              <div className="flex items-center gap-2">
+                {leaderboard.length > 0 && (
+                  <span className="font-mono text-xs text-aws-orange bg-aws-orange/10 px-2 py-0.5 rounded border border-aws-orange/20 font-bold">
+                    {leaderboard.length} Referrers
+                  </span>
+                )}
+                <div className="flex items-center gap-1.5 ml-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] animate-pulse" />
+                  <span className="font-mono text-[9px] text-white/40 uppercase tracking-widest font-semibold">LIVE</span>
+                </div>
               </div>
             </div>
-            <div className="p-3.5 space-y-1.5">
-              <div className="font-mono text-[8px] text-white/35 uppercase tracking-[0.2em] mb-2.5">
-                Top 5 Referrers
+
+            {/* Fixed Top 5 Leaders (UNSCROLLABLE) */}
+            <div className="p-3.5 space-y-2">
+              <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] mb-1 font-semibold flex items-center justify-between">
+                <span>Top 5 Leaders</span>
+                <span className="text-aws-orange text-[9px] font-bold">P1 - P5</span>
               </div>
               {leaderboardLoading ? (
                 <div className="flex items-center justify-center py-6">
-                  <Loader2 className="animate-spin text-aws-orange" size={14} />
+                  <Loader2 className="animate-spin text-aws-orange" size={16} />
                 </div>
               ) : leaderboard.length === 0 ? (
-                <div className="text-center py-6 px-3 border border-white/5 border-dashed rounded font-mono text-[9px] text-white/40 leading-relaxed">
+                <div className="text-center py-6 px-3 border border-white/5 border-dashed rounded font-mono text-xs text-white/40 leading-relaxed">
                   Grid forming... <br />
                   <span className="text-aws-orange font-sans font-bold italic uppercase mt-1 inline-block">Be the first to claim P1!</span>
                 </div>
               ) : (
                 leaderboard.slice(0, 5).map((entry, index) => {
                   const isLeader = index === 0;
-                  const nameSizeClass = index === 0 ? 'text-[12px]' : (index === 1 || index === 2) ? 'text-[10.5px]' : 'text-[9px]';
-                  const pointsSizeClass = index === 0 ? 'text-[15px]' : (index === 1 || index === 2) ? 'text-[13px]' : 'text-[11px]';
+                  const nameSizeClass = index === 0 ? 'text-[13.5px]' : (index === 1 || index === 2) ? 'text-[12px]' : 'text-[10.5px]';
+                  const pointsSizeClass = index === 0 ? 'text-[16px]' : (index === 1 || index === 2) ? 'text-[14px]' : 'text-[12.5px]';
                   
                   const nameHoverColor = isLeader ? 'group-hover:text-[#E10600]' : 'group-hover:text-aws-orange';
                   const pointsColorClass = isLeader ? 'text-[#E10600]' : 'text-aws-orange';
@@ -561,11 +631,11 @@ export default function MyReferralsPage() {
                   return (
                     <div 
                       key={index} 
-                      className="group flex items-center bg-[#0e0e13]/85 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-8.5 transition-all duration-300 hover:translate-x-1"
+                      className="group flex items-center bg-[#0e0e13]/85 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-9.5 transition-all duration-300 hover:translate-x-1"
                     >
                       <div 
-                        className={`w-7.5 h-full flex items-center justify-center font-mono text-xs font-black select-none transition-colors duration-300 ${
-                          isLeader ? 'bg-[#E10600] group-hover:bg-[#ff0a00] text-white' : 'bg-zinc-800 group-hover:bg-zinc-700 text-white/60 group-hover:text-white'
+                        className={`w-8 h-full flex items-center justify-center font-mono text-sm font-black select-none transition-colors duration-300 ${
+                          isLeader ? 'bg-[#E10600] group-hover:bg-[#ff0a00] text-white' : 'bg-zinc-800 group-hover:bg-zinc-700 text-white/70 group-hover:text-white'
                         }`}
                       >
                         {index + 1}
@@ -579,15 +649,15 @@ export default function MyReferralsPage() {
                               : 'bg-aws-orange'
                         }`} 
                       />
-                      <div className="flex-1 px-2.5 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
+                      <div className="flex-1 px-3 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
                         <span className={`font-sans font-black italic uppercase tracking-wider text-white/95 truncate transition-colors duration-300 ${nameSizeClass} ${nameHoverColor}`}>
                           {entry.name}
                         </span>
-                        <div className="flex items-center gap-0.5 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                           <span className={`font-mono font-black group-hover:text-white transition-all duration-300 group-hover:scale-110 ${pointsSizeClass} ${pointsColorClass} ${pointsGlowClass}`}>
                             {entry.total_points}
                           </span>
-                          <span className="font-mono text-[8px] font-bold text-white/35 group-hover:text-white/60 transition-colors duration-300">PTS</span>
+                          <span className="font-mono text-[9px] font-bold text-white/40 group-hover:text-white/70 transition-colors duration-300">PTS</span>
                         </div>
                       </div>
                     </div>
@@ -599,19 +669,54 @@ export default function MyReferralsPage() {
                 return (
                   <div 
                     key={pos} 
-                    className="flex items-center bg-[#0a0a0c]/30 border border-white/5 border-dashed rounded-sm h-8.5 opacity-35 select-none"
+                    className="flex items-center bg-[#0a0a0c]/30 border border-white/5 border-dashed rounded-sm h-9.5 opacity-35 select-none"
                   >
-                    <div className="w-7.5 h-full flex items-center justify-center font-mono text-xs font-bold bg-white/5 text-white/20">
+                    <div className="w-8 h-full flex items-center justify-center font-mono text-sm font-bold bg-white/5 text-white/20">
                       {pos}
                     </div>
                     <div className="w-1 h-full bg-white/10" />
-                    <div className="flex-1 pl-2.5 font-mono text-[8px] text-white/20 uppercase tracking-wider">
+                    <div className="flex-1 pl-3 font-mono text-[9px] text-white/20 uppercase tracking-wider">
                       Grid Slot Open
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            {/* Rest of Grid P6+ (SCROLLABLE ON MOBILE) */}
+            {!leaderboardLoading && leaderboard.length > 5 && (
+              <div className="border-t border-white/5 p-3.5 pt-2.5 space-y-2 max-h-60 custom-scrollbar bg-[#08080d]/60">
+                <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em] mb-1 font-semibold flex items-center justify-between">
+                  <span>Rest of Grid</span>
+                  <span className="text-white/30 text-[9px]">Scroll ↓</span>
+                </div>
+                {leaderboard.slice(5).map((entry, index) => {
+                  const actualRank = index + 6;
+                  return (
+                    <div 
+                      key={actualRank} 
+                      className="group flex items-center bg-[#0e0e13]/70 hover:bg-[#161622]/90 border border-white/5 hover:border-aws-orange/20 rounded-sm overflow-hidden h-9 transition-all duration-300 hover:translate-x-1"
+                    >
+                      <div className="w-8 h-full flex items-center justify-center font-mono text-xs font-black select-none bg-zinc-800/80 group-hover:bg-zinc-700 text-white/60 group-hover:text-white">
+                        {actualRank}
+                      </div>
+                      <div className={`w-1 h-full ${entry.pass?.toLowerCase().includes('vip') ? 'bg-emerald-500' : 'bg-aws-orange'}`} />
+                      <div className="flex-1 px-3 flex items-center justify-between min-w-0 h-full bg-chequered bg-chequered-hover transition-all duration-300">
+                        <span className="font-sans font-black italic uppercase tracking-wider text-white/80 group-hover:text-aws-orange text-[10.5px] truncate">
+                          {entry.name}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span className="font-mono font-black text-aws-orange text-[12.5px]">
+                            {entry.total_points}
+                          </span>
+                          <span className="font-mono text-[9px] font-bold text-white/40">PTS</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
