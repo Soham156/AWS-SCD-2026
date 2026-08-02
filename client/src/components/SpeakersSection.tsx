@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { SectionHeader } from './LayoutElements';
-import { User, Mic, X, Terminal, Sparkles } from 'lucide-react';
+import { User, X, Terminal, Sparkles } from 'lucide-react';
 
 interface Speaker {
   id: number;
@@ -74,24 +74,13 @@ export const SpeakersSection = () => {
       {/* Decorative track line behind speakers */}
       <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-y-1/2 pointer-events-none"></div>
 
-      {/* Header with action */}
-      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 w-full">
+      {/* Header */}
+      <div className="mb-12">
         <SectionHeader 
           title="Speakers" 
           subtitle="Our lineup of industry experts, cloud architects, and visionaries is currently preparing in the paddock. Stay tuned for speaker reveals." 
           sysId="02.SPK" 
         />
-        
-        <div className="md:mb-12 shrink-0">
-          <button type="button"
-            onClick={() => navigate('/cfp')}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-aws-orange text-black font-sans font-black italic uppercase text-xs tracking-widest skew-x-[-12deg] transition-all hover:bg-white hover:text-black shadow-[0_0_15px_rgba(255,153,0,0.3)] cursor-pointer"
-          >
-            <span className="skew-x-[12deg] flex items-center gap-1.5">
-              Apply as a Speaker <Mic size={14} />
-            </span>
-          </button>
-        </div>
       </div>
 
       {/* Speaker Grid */}
@@ -191,72 +180,6 @@ export const SpeakersSection = () => {
               </div>
             </motion.div>
           ))
-        )}
-
-        {/* 6th Card - More Speakers / CFP Announcing */}
-        {!loading && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: speakers.length * 0.1, duration: 0.6 }}
-            className="group relative cursor-pointer h-full"
-            onClick={() => navigate('/cfp')}
-          >
-            {/* Card Body */}
-            <div className="relative bg-[#0d0d0d] border border-white/5 h-full overflow-hidden flex flex-col justify-start p-4 sm:p-6 transition-all duration-500 hover:border-aws-orange/40 hover:shadow-[0_0_30px_rgba(255,153,0,0.1)] rounded-xl">
-              
-              {/* Background gradient that shifts on hover */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF9900]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-              {/* Top - Grid Position */}
-              <div className="relative z-10 flex justify-between items-center font-mono text-[7px] sm:text-[9px] text-white/30 uppercase tracking-widest">
-                <span>Staging Grid // 06</span>
-                <span className="font-bold text-aws-orange/60 group-hover:text-aws-orange transition-colors animate-pulse">
-                  SECTOR-CFP
-                </span>
-              </div>
-
-              {/* Center - Tech Scanner Avatar HUD */}
-              <div className="relative z-10 flex-1 flex items-center justify-center my-4 sm:my-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border border-dashed border-aws-orange/30 flex items-center justify-center relative bg-white/[0.01] shrink-0">
-                  {/* Rotating dashed borders */}
-                  <div className="absolute inset-[-4px] rounded-full border border-transparent border-t-aws-orange/40 group-hover:animate-[spin_6s_linear_infinite]" />
-                  <div className="absolute inset-[-8px] rounded-full border border-transparent border-b-f1-red/30 group-hover:animate-[spin_4s_linear_reverse_infinite]" />
-                  
-                  {/* Speaker Image with fallback */}
-                  <div className="w-full h-full rounded-full overflow-hidden border border-white/5 relative bg-[#0d0d0d] flex items-center justify-center">
-                    <Mic className="text-aws-orange/40 group-hover:text-aws-orange group-hover:scale-110 transition-all duration-500 w-8 h-8 sm:w-12 sm:h-12 animate-pulse" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom - Info */}
-              <div className="relative z-10 border-t border-white/5 pt-3 sm:pt-4 text-left mt-auto flex flex-col justify-start">
-                <h3 className="font-sans font-black italic text-sm sm:text-xl uppercase tracking-tighter text-white/80 group-hover:text-white transition-colors break-words">
-                  More Speakers
-                </h3>
-                <p className="font-mono text-[8px] sm:text-xs text-white/50 tracking-wider mt-1 flex items-start gap-1.5 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-aws-orange animate-pulse shrink-0 mt-[0.3rem]" />
-                  <span className="break-words leading-tight">Announcing Soon</span>
-                </p>
-
-                {/* AWS Community Roles / Titles */}
-                <div className="flex flex-wrap gap-1.5 mt-2 sm:mt-3">
-                  <span className="text-[6.5px] sm:text-[9.5px] font-mono px-1.5 sm:px-2 py-0.5 sm:py-1 bg-aws-orange/20 border border-aws-orange text-aws-orange rounded uppercase font-bold tracking-wider animate-pulse">
-                    Apply via CFP
-                  </span>
-                  <span className="text-[6.5px] sm:text-[9.5px] font-mono px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white/5 border border-white/10 text-white/50 rounded uppercase font-bold tracking-wider">
-                    Submit Proposal
-                  </span>
-                </div>
-              </div>
-
-              {/* Scanning laser line effect */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-aws-orange opacity-0 group-hover:opacity-100 group-hover:animate-[scan_2s_ease-in-out_infinite] shadow-[0_0_10px_#FF9900]"></div>
-            </div>
-          </motion.div>
         )}
       </div>
 
