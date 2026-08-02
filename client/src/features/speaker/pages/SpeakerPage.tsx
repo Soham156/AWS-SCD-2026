@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Cloud, Server, Database, Shield, Zap, TrendingUp, Code, Rocket, BrainCircuit, Bot, HardDrive, Cpu, Mic, Users, Award, Star, Share2, Handshake, BadgeCheck, Globe, Volume2, Search, Target, CheckCircle2 } from 'lucide-react';
-import { SpeakerForm } from '../components/SpeakerForm';
-import { PartnerForm } from '../components/PartnerForm';
+
 
 export const SpeakerPage = () => {
   const [activeTab, setActiveTab] = useState<'speaker' | 'partner'>('speaker');
@@ -120,7 +119,21 @@ export const SpeakerPage = () => {
                     <h2 className="text-3xl font-black italic uppercase tracking-tight mb-2">Call For Papers (CFP)</h2>
                     <p className="text-white/60">Deliver a talk, share a deployment case study, or lead a cloud workshop.</p>
                   </div>
-                  <SpeakerForm />
+                  {/* Closed CFP message */}
+                  <div className="p-8 border border-aws-orange/20 bg-aws-orange/5 text-center rounded-xl relative overflow-hidden flex flex-col items-center gap-4 py-12">
+                    <div className="absolute top-0 left-0 h-1 w-full bg-aws-orange" />
+                    <div className="w-16 h-16 rounded-full bg-aws-orange/10 border border-aws-orange/20 flex items-center justify-center text-aws-orange mb-2 animate-pulse">
+                      <Mic size={28} />
+                    </div>
+                    <h3 className="font-sans font-black italic uppercase text-2xl sm:text-3xl text-white tracking-tight">CFP Submissions Closed</h3>
+                    <p className="text-sm sm:text-base text-white/60 max-w-md leading-relaxed">
+                      Thank you to everyone who submitted their proposals! The Call for Papers is now officially closed as we finalize our schedule paddock.
+                    </p>
+                    <div className="h-px bg-white/10 w-full my-2" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-aws-orange/80">
+                      Telemetry Status: Finalizing Grid Lineup
+                    </span>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -134,7 +147,21 @@ export const SpeakerPage = () => {
                     <h2 className="text-3xl font-black italic uppercase tracking-tight mb-2">Become a Community Partner</h2>
                     <p className="text-white/60">Register your user group, developer circle, or student club to join co-marketing outreach.</p>
                   </div>
-                  <PartnerForm />
+                  {/* Closed Partner message */}
+                  <div className="p-8 border border-blue-500/20 bg-blue-500/5 text-center rounded-xl relative overflow-hidden flex flex-col items-center gap-4 py-12">
+                    <div className="absolute top-0 left-0 h-1 w-full bg-blue-500" />
+                    <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-2 animate-pulse">
+                      <Users size={28} />
+                    </div>
+                    <h3 className="font-sans font-black italic uppercase text-2xl sm:text-3xl text-white tracking-tight">Applications Closed</h3>
+                    <p className="text-sm sm:text-base text-white/60 max-w-md leading-relaxed">
+                      Thank you to all tech groups, student clubs, and partner organizations! Community partner registrations are now closed as we launch our campaign.
+                    </p>
+                    <div className="h-px bg-white/10 w-full my-2" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-blue-400/80">
+                      Telemetry Status: Formations Confirmed
+                    </span>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
