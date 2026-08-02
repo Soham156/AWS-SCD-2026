@@ -82,17 +82,17 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
   lastRegistrationSweep = Date.now();
 
   try {
-    // --- Abandoned pending registrations (> 15 min) ---
+    // --- Abandoned pending & failed registrations (> 15 min) ---
     const regCutoff = new Date(Date.now() - PENDING_REG_TTL_MS).toISOString();
-    const { data: pendingRegs, error: fetchErr } = await supabase
+    const { data: abandonedRegs, error: fetchErr } = await supabase
       .from('registrations')
       .select('*')
-      .eq('payment_status', 'PENDING')
+      .in('payment_status', ['PENDING', 'FAILED'])
       .lt('created_at', regCutoff);
 
     if (fetchErr) {
-      console.error('[Cleanup] Failed to fetch pending registrations:', fetchErr);
-    } else if (pendingRegs && pendingRegs.length > 0) {
+      console.error('[Cleanup] Failed to fetch pending/failed registrations:', fetchErr);
+    } else if (abandonedRegs && abandonedRegs.length > 0) {
       // Guard: do not archive registrations that have an active payment session
       // OR whose parent order is already PAID (race: payment landed before cleanup ran).
       const { data: activeSessions } = await supabase
@@ -102,7 +102,7 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
       const activeOrderIds = new Set(activeSessions?.map(s => s.order_id).filter(Boolean) || []);
 
       // Also exclude registrations whose order is already paid
-      const orderIds = [...new Set(pendingRegs.map(r => r.order_id).filter(Boolean))];
+      const orderIds = [...new Set(abandonedRegs.map(r => r.order_id).filter(Boolean))];
       const paidOrderIds = new Set<string>();
       if (orderIds.length > 0) {
         const { data: paidOrders } = await supabase
@@ -113,7 +113,7 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
         for (const o of paidOrders || []) paidOrderIds.add(o.id);
       }
 
-      const regsToArchive = pendingRegs.filter(r =>
+      const regsToArchive = abandonedRegs.filter(r =>
         !activeOrderIds.has(r.order_id) && !paidOrderIds.has(r.order_id)
       );
 
@@ -129,7 +129,7 @@ export async function cleanupAbandonedRegistrations(): Promise<void> {
           await supabase.from('payments').delete().in('registration_id', ids);
           const { error: deleteErr } = await supabase.from('registrations').delete().in('id', ids);
           if (deleteErr) console.error('[Cleanup] Failed to delete archived registrations:', deleteErr);
-          else console.log(`[Cleanup] Archived ${ids.length} abandoned registration(s) older than 15 min.`);
+          else console.log(`[Cleanup] Archived ${ids.length} abandoned/failed registration(s) older than 15 min.`);
         }
       }
     }
