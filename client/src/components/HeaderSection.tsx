@@ -119,7 +119,7 @@ export const HeaderSection = () => {
           }}
         />
         <div className="flex items-center gap-2 sm:gap-4">
-          <img src="/scd-dhule-logo.avif" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" fetchPriority="high" />
+          <img src="/scd-dhule-logo.png?v=2" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" fetchPriority="high" />
         </div>
 
         {/* Desktop nav */}
