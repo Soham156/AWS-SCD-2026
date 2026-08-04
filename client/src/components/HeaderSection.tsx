@@ -118,8 +118,8 @@ export const HeaderSection = () => {
             WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%)',
           }}
         />
-        <div className="flex items-center gap-2 sm:gap-4">
-          <img src="/scd-dhule-logo.png?v=2" alt="SCD Dhule" className="h-16 sm:h-20 lg:h-24 object-contain" fetchPriority="high" />
+        <div className="flex items-center mt-4 sm:gap-4">
+          <img src="/scd-dhule-logo.png?v=4" alt="SCD Dhule" className="w-30 sm:w-40 lg:w-48 h-auto max-h-16 sm:max-h-20 lg:max-h-24 object-contain" fetchPriority="high" />
         </div>
 
         {/* Desktop nav */}
